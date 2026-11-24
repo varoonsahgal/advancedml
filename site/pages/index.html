@@ -1,0 +1,182 @@
+<!--
+title: Advanced ML Week 2026
+description: A five-day, lab-first Advanced Machine Learning course. Classical ML done right, then deep learning, transformers, generative models, LLM post-training, reasoning and agents — 16 hands-on labs and live interactive demos.
+active: home
+-->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow chips"><span class="chip dark">2026 edition</span><span class="chip honey">5 days · 16 labs · 9 live demos</span></div>
+      <h1>From gradient boosting to <span class="hl">reasoning agents</span> <span class="scribble">in five days.</span></h1>
+      <p class="lede">An advanced machine learning week where you <b>build everything</b>. You'll write boosting, autograd, a GPT, a flow-matching generator, LoRA, GRPO and an MCP agent from scratch, then put each one next to the production tools you'll actually use.</p>
+      <div class="cta">
+        <a class="btn" href="{{root}}days/day-1.html">Start Day 1 →</a>
+        <a class="btn secondary" href="{{root}}playground.html">Play with the demos</a>
+      </div>
+      <p class="muted" style="font-size:.92rem;margin-top:14px">Every lab opens in Google Colab and runs on a free CPU runtime (GPU optional). No setup required.</p>
+    </div>
+    <div class="stage" data-widget="hero"></div>
+  </div>
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat reveal"><b>5</b><span>days, classical → frontier</span></div>
+      <div class="stat reveal"><b>16</b><span>notebook labs, from scratch + production</span></div>
+      <div class="stat reveal"><b>9</b><span>interactive in-browser demos</span></div>
+      <div class="stat reveal"><b>~70%</b><span>hands-on time</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true"><div class="marquee-track">
+  <span>gradient boosting</span><span>conformal prediction</span><span>SHAP</span><span>TabPFN</span><span>autograd</span><span>AdamW</span><span>Muon</span><span>grokking</span><span>scaling laws</span><span>RoPE</span><span>SwiGLU</span><span>KV cache</span><span>speculative decoding</span><span>mixture-of-experts</span><span>Mamba</span><span>flow matching</span><span>classifier-free guidance</span><span>CLIP</span><span>LoRA</span><span>GRPO</span><span>DPO</span><span>test-time compute</span><span>RAG</span><span>MCP</span><span>sparse autoencoders</span>
+  <span>gradient boosting</span><span>conformal prediction</span><span>SHAP</span><span>TabPFN</span><span>autograd</span><span>AdamW</span><span>Muon</span><span>grokking</span><span>scaling laws</span><span>RoPE</span><span>SwiGLU</span><span>KV cache</span><span>speculative decoding</span><span>mixture-of-experts</span><span>Mamba</span><span>flow matching</span><span>classifier-free guidance</span><span>CLIP</span><span>LoRA</span><span>GRPO</span><span>DPO</span><span>test-time compute</span><span>RAG</span><span>MCP</span><span>sparse autoencoders</span>
+</div></div>
+
+<section class="block" id="week">
+  <div class="wrap">
+    <div class="section-head">
+      <div><div class="kicker">The flight plan</div><h2>Five days. One continuous story.</h2></div>
+      <p>Each day builds on the last. You start with the models that still run most of the world's tabular data and finish with models that reason, use tools and can be opened up and inspected.</p>
+    </div>
+    <div class="days">
+      <a class="day-card reveal" href="{{root}}days/day-1.html">
+        <div class="cover"><img src="{{root}}assets/img/cover-day1.png" alt="Decision boundary of a kernel classifier on a two-armed spiral"><div class="daynum">1</div><span class="chip dark dow">MON</span></div>
+        <div class="body"><h3>Classical, Sharpened</h3><p>Bias–variance and double descent, gradient boosting from scratch, calibrated probabilities, conformal guarantees, SHAP, and TabPFN.</p>
+        <div class="chips"><span class="chip teal">boosting</span><span class="chip indigo">conformal</span><span class="chip plum">TabPFN</span></div></div>
+      </a>
+      <a class="day-card reveal" href="{{root}}days/day-2.html">
+        <div class="cover"><img src="{{root}}assets/img/cover-day2.png" alt="Optimizer trajectories rolling across a bumpy loss landscape"><div class="daynum">2</div><span class="chip dark dow">TUE</span></div>
+        <div class="body"><h3>The Deep Learning Engine Room</h3><p>Autograd from scratch, initialization and normalization, AdamW to Muon, LR schedules, grokking, and the scaling laws behind frontier labs.</p>
+        <div class="chips"><span class="chip teal">autograd</span><span class="chip coral">Muon</span><span class="chip plum">scaling laws</span></div></div>
+      </a>
+      <a class="day-card reveal" href="{{root}}days/day-3.html">
+        <div class="cover"><img src="{{root}}assets/img/cover-day3.png" alt="Attention arcs connecting words in a sentence"><div class="daynum">3</div><span class="chip dark dow">WED</span></div>
+        <div class="body"><h3>Transformers &amp; Beyond</h3><p>A Llama-style GPT from scratch, inference engineering (KV cache, sampling, speculation, quantization), mixture-of-experts, and state-space models.</p>
+        <div class="chips"><span class="chip teal">GPT</span><span class="chip coral">KV cache</span><span class="chip indigo">MoE · Mamba</span></div></div>
+      </a>
+      <a class="day-card reveal" href="{{root}}days/day-4.html">
+        <div class="cover"><img src="{{root}}assets/img/cover-day4.png" alt="Flow-matching trajectories carrying noise particles into a spiral"><div class="daynum">4</div><span class="chip dark dow">THU</span></div>
+        <div class="body"><h3>Generative Worlds</h3><p>From VAEs through diffusion to flow matching and rectified flow, plus classifier-free guidance, DiTs, CLIP, and how vision connects to language.</p>
+        <div class="chips"><span class="chip coral">flow matching</span><span class="chip teal">CFG</span><span class="chip indigo">CLIP</span></div></div>
+      </a>
+      <a class="day-card reveal" href="{{root}}days/day-5.html">
+        <div class="cover"><img src="{{root}}assets/img/cover-day5.png" alt="A radial tree of sampled reasoning paths, some succeeding and some failing"><div class="daynum">5</div><span class="chip dark dow">FRI</span></div>
+        <div class="body"><h3>LLMs, Reasoning &amp; Agents</h3><p>LoRA, DPO, GRPO and RL with verifiable rewards, test-time compute, tool-using agents over MCP, evals, safety, and sparse-autoencoder interpretability. Then Demo Day.</p>
+        <div class="chips"><span class="chip teal">LoRA</span><span class="chip coral">GRPO</span><span class="chip indigo">MCP</span><span class="chip plum">SAEs</span></div></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:20px">
+  <div class="wrap">
+    <div class="section-head">
+      <div><div class="kicker">The method</div><h2>Built to stick.</h2></div>
+      <p>Lectures are short and visual. Labs are long and guided, with checkpoints that tell you when you've got it right.</p>
+    </div>
+    <div class="features">
+      <div class="feature reveal"><div class="ico">🔨</div><h3>From scratch, then production</h3><p>Write it in 40 lines of numpy or PyTorch until you understand it, then switch to LightGBM, PEFT, TRL or the MCP SDK, knowing what's under the hood.</p></div>
+      <div class="feature reveal"><div class="ico">✔️</div><h3>Checkpoints that catch bugs</h3><p>Every lab has <code>assert</code> cells that compare your implementation with a reference, plus "predict-then-run" prompts to sharpen your intuition.</p></div>
+      <div class="feature reveal"><div class="ico">🚀</div><h3>Classical meets 2026</h3><p>Boosting and conformal prediction sit next to Muon, flow matching, GRPO and MCP. You'll see which ideas lasted and why.</p></div>
+      <div class="feature reveal"><div class="ico">🕹️</div><h3>Touch the math</h3><p>Live browser demos: race optimizers, fit polynomials, tune samplers, and watch noise flow into data, all without installing anything.</p></div>
+      <div class="feature reveal"><div class="ico">🍯</div><h3>Actually fun</h3><p>Daily quizzes, a leaderboard challenge every afternoon, boss-level stretch goals, and a bee called Buzz who has opinions about learning rates.</p></div>
+      <div class="feature reveal"><div class="ico">☁️</div><h3>Zero setup</h3><p>One click opens any lab in Colab. Everything runs on a free CPU; a T4 GPU makes the generative and LLM labs faster.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="schedule" style="padding-top:20px">
+  <div class="wrap">
+    <div class="section-head">
+      <div><div class="kicker">The schedule</div><h2>A day in the hive.</h2></div>
+      <p>Same rhythm every day: warm up, learn, build, learn, build, play. Times are suggestions; self-paced learners can treat each day as a module.</p>
+    </div>
+    <div class="table-scroll reveal">
+      <table class="sched">
+        <thead><tr><th style="width:96px"></th>
+          <th>Day 1<small>CLASSICAL, SHARPENED</small></th><th>Day 2<small>ENGINE ROOM</small></th><th>Day 3<small>TRANSFORMERS &amp; BEYOND</small></th><th>Day 4<small>GENERATIVE WORLDS</small></th><th>Day 5<small>REASONING &amp; AGENTS</small></th></tr></thead>
+        <tbody>
+          <tr><td class="time">09:00</td><td><span class="tag fun">warm-up</span><br>Welcome, setup check, "ML myths" icebreaker</td><td><span class="tag fun">warm-up</span><br>Day-1 quiz rematch</td><td><span class="tag fun">warm-up</span><br>Backprop by hand, speed round</td><td><span class="tag fun">warm-up</span><br>Guess-the-sampler</td><td><span class="tag fun">warm-up</span><br>Demo Day team huddle</td></tr>
+          <tr><td class="time">09:15</td><td><span class="tag lec">lecture</span><br>Bias, variance, double descent; boosting deep dive</td><td><span class="tag lec">lecture</span><br>Autodiff, init, normalization, residual streams</td><td><span class="tag lec">lecture</span><br>Attention from first principles; the modern block</td><td><span class="tag lec">lecture</span><br>The generative map: VAE → diffusion → flow</td><td><span class="tag lec">lecture</span><br>Post-training: SFT, LoRA, DPO, RLVR</td></tr>
+          <tr><td class="time">10:15</td><td><span class="tag lab">lab 1.1</span><br>Gradient boosting from scratch</td><td><span class="tag lab">lab 2.1</span><br>Build your own autograd</td><td><span class="tag lab">lab 3.1</span><br>A modern GPT from scratch</td><td><span class="tag lab">lab 4.1</span><br>Flow matching in 2D</td><td><span class="tag lab">lab 5.1</span><br>LoRA fine-tuning</td></tr>
+          <tr><td class="time">12:15</td><td colspan="5" style="text-align:center"><span class="tag break">lunch</span> 🍯 Honey break: go outside and look at something that isn't a loss curve</td></tr>
+          <tr><td class="time">13:15</td><td><span class="tag lec">lecture</span><br>Uncertainty you can trust</td><td><span class="tag lec">lecture</span><br>Optimizers, schedules, scaling laws</td><td><span class="tag lec">lecture</span><br>Inference engineering &amp; new architectures</td><td><span class="tag lec">lecture</span><br>Guidance, latents, DiT, multimodality</td><td><span class="tag lec">lecture</span><br>Reasoning, agents, MCP, evals, interpretability</td></tr>
+          <tr><td class="time">14:00</td><td><span class="tag lab">lab 1.2</span><br>Calibration &amp; conformal</td><td><span class="tag lab">lab 2.2</span><br>Optimizer arena</td><td><span class="tag lab">lab 3.2</span><br>Inference engineering</td><td><span class="tag lab">lab 4.2</span><br>Diffusion + CFG on MNIST</td><td><span class="tag lab">lab 5.2</span><br>GRPO reasoning RL</td></tr>
+          <tr><td class="time">15:30</td><td><span class="tag lab">lab 1.3</span><br>SHAP vs TabPFN</td><td><span class="tag lab">lab 2.3</span><br>Grokking</td><td><span class="tag lab">lab 3.3</span><br>MoE &amp; SSMs</td><td><span class="tag lab">lab 4.3</span><br>CLIP &amp; contrastive</td><td><span class="tag lab">lab 5.3 / 5.4</span><br>Agents + MCP <i>or</i> SAEs (pick one)</td></tr>
+          <tr><td class="time">16:45</td><td><span class="tag fun">challenge</span><br>🏆 Kaggle-in-an-hour leaderboard</td><td><span class="tag fun">challenge</span><br>🥊 Optimizer bracket</td><td><span class="tag fun">challenge</span><br>🎭 Shakespeare slam + capstone pitches</td><td><span class="tag fun">challenge</span><br>🖼️ Gallery walk + capstone sprint</td><td><span class="tag fun">demo day</span><br>🎤 Hive Demo Day &amp; graduation</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:20px">
+  <div class="wrap">
+    <div class="section-head">
+      <div><div class="kicker">The through-line</div><h2>One idea, five disguises.</h2></div>
+      <p>Underneath everything this week is the same loop: <b>define what "good" means, measure the gradient of it, and take a step.</b> What changes each day is what you differentiate and what you step through.</p>
+    </div>
+    <div class="diagram reveal">
+      <svg viewBox="0 0 1100 250" role="img" aria-label="Learning arc: residuals, parameters, tokens, noise, behaviour">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="fill:var(--ink-2)"/></marker></defs>
+        <path class="flow" d="M110 125 C 200 40, 260 40, 330 125 S 460 210, 550 125 S 680 40, 770 125 S 900 210, 990 125"/>
+        <g transform="translate(110,125)"><polygon class="box honey" points="0,-62 54,-31 54,31 0,62 -54,31 -54,-31"/><text text-anchor="middle" y="-6" class="on-honey" style="font-weight:800;font-size:17px">Day 1</text><text text-anchor="middle" y="16" class="on-honey" style="font-size:12.5px">step in function</text><text text-anchor="middle" y="31" class="on-honey" style="font-size:12.5px">space (boosting)</text></g>
+        <g transform="translate(330,125)"><polygon class="box teal" points="0,-62 54,-31 54,31 0,62 -54,31 -54,-31"/><text text-anchor="middle" y="-6" style="font-weight:800;font-size:17px">Day 2</text><text text-anchor="middle" y="16" style="font-size:12.5px">step in weight</text><text text-anchor="middle" y="31" style="font-size:12.5px">space (SGD → Muon)</text></g>
+        <g transform="translate(550,125)"><polygon class="box coral" points="0,-62 54,-31 54,31 0,62 -54,31 -54,-31"/><text text-anchor="middle" y="-6" style="font-weight:800;font-size:17px">Day 3</text><text text-anchor="middle" y="16" style="font-size:12.5px">step through</text><text text-anchor="middle" y="31" style="font-size:12.5px">tokens (decoding)</text></g>
+        <g transform="translate(770,125)"><polygon class="box indigo" points="0,-62 54,-31 54,31 0,62 -54,31 -54,-31"/><text text-anchor="middle" y="-6" style="font-weight:800;font-size:17px">Day 4</text><text text-anchor="middle" y="16" style="font-size:12.5px">step through</text><text text-anchor="middle" y="31" style="font-size:12.5px">time (ODE / SDE)</text></g>
+        <g transform="translate(990,125)"><polygon class="box plum" points="0,-62 54,-31 54,31 0,62 -54,31 -54,-31"/><text text-anchor="middle" y="-6" style="font-weight:800;font-size:17px">Day 5</text><text text-anchor="middle" y="16" style="font-size:12.5px">step in behaviour</text><text text-anchor="middle" y="31" style="font-size:12.5px">space (RL, agents)</text></g>
+        <text x="220" y="28" text-anchor="middle" class="small">residuals → weights</text><text x="660" y="28" text-anchor="middle" class="small">logits → velocities</text>
+        <text x="440" y="236" text-anchor="middle" class="small">gradients → sequences</text><text x="880" y="236" text-anchor="middle" class="small">denoising → reasoning</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:10px">
+  <div class="wrap grid-3">
+    <div class="card reveal"><div class="kicker">Who it's for</div><h3>Practitioners leveling up</h3><p>Data scientists, ML engineers, researchers, and ambitious students who have trained a model or two and want to know how modern ML <i>actually</i> works.</p></div>
+    <div class="card reveal"><div class="kicker">You should know</div><h3>Prerequisites</h3><ul><li>Comfortable Python + numpy</li><li>Basic PyTorch (tensors, <code>nn.Module</code>, a training loop)</li><li>Linear algebra and probability at the undergrad level</li><li>Some ML: train/test splits, overfitting, a classifier or two</li></ul></div>
+    <div class="card reveal"><div class="kicker">You will leave with</div><h3>Outcomes</h3><ul><li>16 working notebooks you wrote yourself</li><li>A mental map of ML from trees to agents</li><li>A capstone project to show off</li><li>Opinions about learning rates (sorry)</li></ul></div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:10px">
+  <div class="wrap">
+    <div class="section-head">
+      <div><div class="kicker">The hive manifesto</div><h2>Ten lessons you'll carry home.</h2></div>
+      <p>The week has hundreds of details. These are the ten principles underneath them, and they'll still be true in 2030.</p>
+    </div>
+    <div class="manifesto">
+      <div class="reveal"><b>01</b><h4>Look before you model.</h4><p>Plot the data, read 20 raw examples, and check the labels. Most "model bugs" are data bugs.</p></div>
+      <div class="reveal"><b>02</b><h4>Beat a strong baseline first.</h4><p>On tables that means a GBDT; for LLM apps, a good prompt. Fancy only counts if it wins.</p></div>
+      <div class="reveal"><b>03</b><h4>Validate like a skeptic.</h4><p>Held-out data, no leakage, several seeds. Report the variance, not just your best run.</p></div>
+      <div class="reveal"><b>04</b><h4>Predictions need error bars.</h4><p>Calibrate probabilities and conformalize intervals. Uncertainty is a feature.</p></div>
+      <div class="reveal"><b>05</b><h4>Blame the learning rate first.</h4><p>Then warmup, clipping and normalization. Most "it won't train" problems end here.</p></div>
+      <div class="reveal"><b>06</b><h4>Small runs predict big ones.</h4><p>Scaling laws turn guesses into forecasts. Fit the curve before you buy the cluster.</p></div>
+      <div class="reveal"><b>07</b><h4>Inference is the product.</h4><p>Latency, memory and cost per token are design constraints, not afterthoughts.</p></div>
+      <div class="reveal"><b>08</b><h4>Generation is transport.</h4><p>From noise to images, from prompts to answers: learn the flow, then steer it.</p></div>
+      <div class="reveal"><b>09</b><h4>Evals before optimization.</h4><p>If you can't measure it, you're not improving it, just changing it.</p></div>
+      <div class="reveal"><b>10</b><h4>Inputs are data, not orders.</h4><p>Anything an agent reads may be adversarial. Least privilege, confirmation, and isolation.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:10px">
+  <div class="wrap">
+    <div class="section-head">
+      <div><div class="kicker">Your hive</div><h2>Fill the honeycomb.</h2></div>
+      <p>Each cell is a lab. Mark a lab complete and its cell fills with honey. Your progress is saved in this browser. Click any cell to jump to that lab.</p>
+    </div>
+    <div class="card reveal" style="padding:26px"><!--HONEYCOMB--></div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:10px">
+  <div class="wrap">
+    <div class="buzz-strip reveal">
+      {{bee}}
+      <div><h3>Meet Buzz, your Backprop Bee 🐝</h3><p>Buzz floats in the corner of every page. Click for a tip whenever you're stuck, bored or curious. Your lab progress is saved in your browser, so you can come back any time.</p></div>
+      <a class="btn" href="{{root}}days/day-1.html" style="margin-left:auto;flex:none">Let's fly →</a>
+    </div>
+  </div>
+</section>

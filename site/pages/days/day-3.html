@@ -1,0 +1,197 @@
+<!--
+title: Day 3 · Transformers & Beyond
+description: Attention from first principles, the modern Llama-style block (RoPE, RMSNorm, SwiGLU, GQA), inference engineering, sampling, mixture-of-experts and state-space models.
+active: day3
+layout: day
+day: 3
+headline: Transformers <em>&amp; beyond.</em>
+lede: Today you build the architecture behind nearly every frontier model, then make it fast. KV caches, speculative decoding and quantization are what turn a research model into a product. We finish with the architectures trying to dethrone dense attention.
+chips: ⏱ ~7 hours | 🔦 attention | 🌀 RoPE | ⚡ KV cache | 🎲 sampling | 🧩 MoE | 🐍 Mamba
+-->
+
+<section id="plan" data-toc="Flight plan">
+  <h2><span class="n">00</span>Today's flight plan</h2>
+  <p>A modern LLM is surprisingly simple: <strong>embed tokens → N identical blocks → predict the next token</strong>. The details inside each block, and the engineering around generation, are where nearly ten years of progress went. Today you'll write all of it.</p>
+  <!--TLDR-->
+  <div class="agenda">
+    <div class="slot"><span class="t">09:15</span><div><b>Attention from first principles; the modern block</b><br><span>QKV, masks, heads, RoPE, RMSNorm, SwiGLU</span></div><span class="chip">lecture</span></div>
+    <div class="slot"><span class="t">10:15</span><div><b>Lab 3.1: A modern GPT from scratch</b><br><span>Train a Llama-style model on Shakespeare</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">13:15</span><div><b>Inference engineering &amp; new architectures</b><br><span>KV cache, sampling, speculation, MoE, SSMs</span></div><span class="chip">lecture</span></div>
+    <div class="slot"><span class="t">14:00</span><div><b>Lab 3.2: Inference engineering</b><br><span>Make generation fast and good</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">15:30</span><div><b>Lab 3.3: MoE &amp; SSMs</b><br><span>Routing, load balancing, selective scans</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">16:45</span><div><b>🎭 Shakespeare slam + capstone pitches</b><br><span>Your model's best sonnet; form capstone teams</span></div><span class="chip plum">fun</span></div>
+  </div>
+</section>
+
+<section id="attention" data-toc="Attention from first principles">
+  <h2><span class="n">01</span>Attention from first principles</h2>
+  <p>Attention is a <strong>soft, differentiable dictionary lookup</strong>. Each token emits a <em>query</em> ("what am I looking for?"), a <em>key</em> ("what do I contain?") and a <em>value</em> ("what will I hand over if chosen?"). A token's output is the average of all values, weighted by how well its query matches each key.</p>
+  <div class="eq"><div class="label">Scaled dot-product attention</div>
+    $$\mathrm{Attention}(Q,K,V) = \mathrm{softmax}\!\Big(\frac{QK^\top}{\sqrt{d_k}} + M\Big)V, \qquad M_{ij} = \begin{cases}0 & j \le i\\ -\infty & j > i\end{cases}$$
+    <p class="explain">If the entries of q and k have unit variance, $q\cdot k$ has variance $d_k$. Dividing by $\sqrt{d_k}$ keeps the softmax out of its saturated, zero-gradient regime. The causal mask $M$ stops a token from peeking at the future.</p></div>
+  <figure class="fig"><img src="{{root}}assets/img/d3-attention-heads.png" alt="Three attention patterns: previous-token head, attention-sink head, and induction head" loading="lazy"><figcaption><b>Three famous head types (illustrative patterns).</b> A <i>previous-token</i> head looks one step back. A <i>sink</i> head parks its attention on the first token when it has nothing better to do (Xiao et al., 2023). An <i>induction</i> head finds the earlier occurrence of the current token and looks at what came <i>after</i> it, which is a core mechanism behind in-context learning (Olsson et al., 2022).</figcaption></figure>
+<pre><code class="language-python">def causal_self_attention(x, W_qkv, W_o, n_heads):
+    B, T, C = x.shape
+    q, k, v = (x @ W_qkv).split(C, dim=-1)
+    q, k, v = [t.view(B, T, n_heads, C // n_heads).transpose(1, 2) for t in (q, k, v)]  # (B, h, T, d)
+    att = (q @ k.transpose(-2, -1)) / math.sqrt(k.size(-1))
+    att = att.masked_fill(torch.triu(torch.ones(T, T, dtype=torch.bool), 1), float("-inf"))
+    y = att.softmax(-1) @ v                              # (B, h, T, d)
+    return y.transpose(1, 2).reshape(B, T, C) @ W_o      # concatenate heads, project</code></pre>
+</section>
+
+<section id="block" data-toc="The modern block">
+  <h2><span class="n">02</span>The modern block (2017 → 2026)</h2>
+  <p>The original 2017 Transformer and a 2026 open-weights LLM differ mostly in <em>small</em> choices that add up to large gains in stability and efficiency. This is the "Llama-style" block you'll build in Lab 3.1:</p>
+  <div class="diagram">
+    <svg viewBox="0 0 1000 300" role="img" aria-label="Modern pre-norm transformer block">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink-2)"/></marker></defs>
+      <line x1="30" y1="150" x2="960" y2="150" style="stroke:var(--honey);stroke-width:10;stroke-linecap:round;opacity:.55"/>
+      <text x="40" y="135" style="font-weight:800;font-size:13px">residual stream x</text>
+      <path class="flow" d="M30 150 L960 150"/>
+      <g><rect class="box" x="120" y="40" width="110" height="46" rx="10"/><text x="175" y="68" text-anchor="middle" style="font-weight:700">RMSNorm</text></g>
+      <g><rect class="box indigo" x="260" y="25" width="210" height="76" rx="12"/><text x="365" y="55" text-anchor="middle" style="font-weight:800">Causal self-attention</text><text x="365" y="78" text-anchor="middle" class="small">RoPE on q,k · GQA · FlashAttention</text></g>
+      <circle class="box honey" cx="520" cy="150" r="20"/><text x="520" y="156" text-anchor="middle" class="on-honey" style="font-weight:800;font-size:18px">+</text>
+      <g><rect class="box" x="580" y="200" width="110" height="46" rx="10"/><text x="635" y="228" text-anchor="middle" style="font-weight:700">RMSNorm</text></g>
+      <g><rect class="box coral" x="720" y="190" width="170" height="70" rx="12"/><text x="805" y="219" text-anchor="middle" style="font-weight:800">SwiGLU MLP</text><text x="805" y="241" text-anchor="middle" class="small">(or a mixture of experts)</text></g>
+      <circle class="box honey" cx="930" cy="150" r="20"/><text x="930" y="156" text-anchor="middle" class="on-honey" style="font-weight:800;font-size:18px">+</text>
+      <path class="arrow" d="M100 150 L100 63 L116 63"/><path class="arrow" d="M230 63 L256 63"/><path class="arrow" d="M470 63 L520 63 L520 126"/>
+      <path class="arrow" d="M560 150 L560 223 L576 223"/><path class="arrow" d="M690 223 L716 223"/><path class="arrow" d="M890 223 L930 223 L930 174"/>
+      <text x="500" y="290" text-anchor="middle" class="small">pre-norm: each sublayer reads a normalized copy and <tspan style="font-weight:700">adds</tspan> its output back into the stream · ×N layers</text>
+    </svg>
+  </div>
+  <div class="table-scroll"><table class="sched" style="min-width:680px">
+    <thead><tr><th>Component</th><th>Original Transformer / GPT-2</th><th>Modern open LLMs (2024–26)</th><th>Why it changed</th></tr></thead>
+    <tbody>
+      <tr><td><b>Positions</b></td><td>Learned / sinusoidal absolute</td><td>RoPE (rotary)</td><td>Encodes relative position; extends to longer contexts with scaling tricks</td></tr>
+      <tr><td><b>Norm</b></td><td>LayerNorm, post-norm</td><td>RMSNorm, pre-norm</td><td>Cheaper; stable for very deep stacks</td></tr>
+      <tr><td><b>MLP</b></td><td>GELU / ReLU, 4× width</td><td>SwiGLU, ≈8/3× width</td><td>Gated units consistently score better per FLOP</td></tr>
+      <tr><td><b>KV heads</b></td><td>One per query head (MHA)</td><td>Grouped-query (GQA) or latent (MLA)</td><td>Shrinks the KV cache 4–8× or more</td></tr>
+      <tr><td><b>Kernel</b></td><td>Naive attention</td><td>FlashAttention</td><td>IO-aware tiling; never materializes the T×T matrix</td></tr>
+      <tr><td><b>FFN</b></td><td>Dense</td><td>Often mixture-of-experts</td><td>More parameters for the same FLOPs per token</td></tr>
+    </tbody></table></div>
+
+  <h3>🌀 RoPE: positions as rotations</h3>
+  <p>Rotary position embedding (Su et al., 2021) splits q and k into 2-D pairs and rotates pair $i$ by angle $m\theta_i$, where $m$ is the token position and $\theta_i = 10000^{-2i/d}$. Rotations preserve length, and the dot product of two rotated vectors depends only on the <em>difference</em> of their angles. So attention scores become a function of <strong>relative</strong> position:</p>
+  <div class="eq"><div class="label">The RoPE identity</div>
+    $$\langle R_{m} q,\; R_{n} k\rangle = \langle q,\; R_{n-m}\,k\rangle$$</div>
+  <figure class="fig"><img src="{{root}}assets/img/d3-rope.png" alt="Rotation of 2D sub-vectors at fast, medium and slow frequencies, and dot product versus relative distance" loading="lazy"><figcaption>Low dimension pairs spin fast and encode fine-grained local position. High pairs spin slowly and encode coarse long-range position. Right: the score between two rotated vectors as their relative distance grows.</figcaption></figure>
+  <div class="eq"><div class="label">SwiGLU MLP</div>
+    $$\mathrm{SwiGLU}(x) = W_2\big(\mathrm{SiLU}(W_1 x) \odot W_3 x\big), \qquad \mathrm{SiLU}(z) = z\,\sigma(z)$$
+    <p class="explain">One branch decides how much of the other to let through: a learned, smooth gate.</p></div>
+</section>
+
+<section id="inference" data-toc="Inference engineering">
+  <h2><span class="n">03</span>Inference engineering</h2>
+  <p>Generation has two phases. <strong>Prefill</strong> processes the whole prompt in parallel and is compute-bound. <strong>Decode</strong> produces one token at a time and is <em>memory-bandwidth</em>-bound: each new token needs the keys and values of every previous token. Recomputing them every step would cost $O(T^2)$ per token, so we store them in a <strong>KV cache</strong>, and that cache becomes the main memory cost of serving.</p>
+  <figure class="fig"><img src="{{root}}assets/img/d3-kv-memory.png" alt="KV cache size versus context length for MHA, GQA, MQA and latent attention" loading="lazy"><figcaption>For a 32-layer, d=4096 model in fp16, full multi-head attention needs <b>512 KB per token</b>. At 128k tokens that's 64 GB for a single sequence. Grouped-query and latent attention exist largely to shrink this.</figcaption></figure>
+  <div data-widget="kvcache"></div>
+  <div class="grid-2">
+    <div class="card"><h4>⚡ FlashAttention</h4><p>Attention is limited by memory traffic, not arithmetic. FlashAttention (Dao et al., 2022) tiles Q, K, V into on-chip SRAM and uses an <em>online softmax</em>, so the full T×T matrix never touches GPU main memory. The output is exactly the same, it's several times faster, and memory is linear in T.</p></div>
+    <div class="card"><h4>📄 PagedAttention</h4><p>vLLM (Kwon et al., 2023) stores the KV cache in fixed-size pages, like OS virtual memory. That removes fragmentation and lets requests share prefixes, which allows much larger batches and higher throughput.</p></div>
+    <div class="card"><h4>🏎️ Speculative decoding</h4><p>A small <em>draft</em> model guesses k tokens and the big model checks them all in <em>one</em> forward pass. Each token is accepted with probability $\min(1, p(x)/q(x))$; on rejection you resample from $\max(0, p-q)$. The output distribution is <b>exactly</b> the big model's. You'll verify this in Lab 3.2.</p></div>
+    <div class="card"><h4>🗜️ Quantization</h4><p>Store weights in int8, int4 or fp8 instead of bf16, which cuts memory and bandwidth 2–4×. Outlier weights ruin per-tensor scales, so practical schemes use <b>group-wise</b> scales (e.g. one per 64–128 weights) and error-aware methods such as GPTQ and AWQ.</p></div>
+  </div>
+  <figure class="fig"><img src="{{root}}assets/img/d5-quant.png" alt="Weight histogram with int4 grid and reconstruction error comparison" loading="lazy"><figcaption>Six outlier weights stretch the per-tensor int4 grid until most weights round to zero. Group-wise scaling fixes it.</figcaption></figure>
+</section>
+
+<section id="sampling" data-toc="Decoding & sampling">
+  <h2><span class="n">04</span>Decoding: turning logits into words</h2>
+  <p>The model outputs a distribution over the next token. <em>How</em> you sample from it changes the output's character more than most fine-tuning does. <strong>Temperature</strong> sharpens or flattens the distribution. <strong>Top-k</strong> keeps the k most likely tokens. <strong>Top-p</strong> (nucleus) keeps the smallest set whose total probability reaches p. <strong>Min-p</strong> drops any token less than p × the top token's probability, so it adapts to how confident the model is.</p>
+  <figure class="fig"><img src="{{root}}assets/img/d3-sampling.png" alt="Next-token distribution under temperature 0.5, temperature 1.5, top-k and top-p" loading="lazy"><figcaption>Dashed coral bars show the renormalized distribution after truncation.</figcaption></figure>
+  <div data-widget="sampling"></div>
+  <div class="callout buzz"><span class="title">Buzz says</span><p>Greedy decoding isn't "the most accurate". It tends to loop and produce bland, repetitive text. Reasoning models are typically sampled at a moderate temperature, and that's partly why majority voting over several samples helps (Day 5).</p></div>
+</section>
+
+<section id="moe" data-toc="Mixture-of-Experts">
+  <h2><span class="n">05</span>Mixture-of-Experts: more parameters, same FLOPs</h2>
+  <p>Replace the single MLP with $E$ expert MLPs and a tiny <strong>router</strong> that sends each token to its top-k experts. Total parameters grow with $E$, but the compute per token only grows with k. That decouples <em>knowledge capacity</em> from <em>cost per token</em>.</p>
+  <div class="eq"><div class="label">Top-k routing</div>
+    $$y = \sum_{e \in \mathrm{TopK}(r(x))} \frac{\exp r_e(x)}{\sum_{e'\in \mathrm{TopK}} \exp r_{e'}(x)}\; \mathrm{Expert}_e(x), \qquad r(x) = W_r x$$</div>
+  <figure class="fig"><img src="{{root}}assets/img/d3-moe.png" alt="Token routing fraction across 16 experts with and without load balancing" loading="lazy"><figcaption><b>Illustrative.</b> Left alone, routers collapse: a few popular experts get most tokens, train faster and become even more popular. An auxiliary <b>load-balancing loss</b> (Switch Transformer) or an adaptive per-expert bias keeps utilization even.</figcaption></figure>
+  <div class="callout frontier"><span class="title">Frontier MoEs</span><p>Mixtral 8×7B (2024) routes each token to 2 of 8 experts. DeepSeek-V3 (2024) has 671B total parameters but only ~37B active per token, using many <em>fine-grained</em> experts plus always-on <em>shared</em> experts, latent attention (MLA) for a small KV cache, and a bias-based balancing scheme without an auxiliary loss. Many of the strongest open-weights models in 2025–26 are MoEs.</p></div>
+</section>
+
+<section id="ssm" data-toc="State-space models">
+  <h2><span class="n">06</span>State-space models: attention's challengers</h2>
+  <p>Attention compares every token with every other: $O(T^2)$ compute and a KV cache that grows with T. A <strong>state-space model</strong> compresses the past into a fixed-size state and updates it with a linear recurrence. That means $O(T)$ compute and constant memory per generated token.</p>
+  <div class="eq"><div class="label">Selective SSM (Mamba)</div>
+    $$h_t = \bar A_t\, h_{t-1} + \bar B_t\, x_t, \qquad y_t = C_t\, h_t, \qquad (\Delta_t, B_t, C_t) = f(x_t)$$
+    <p class="explain">Earlier SSMs used fixed A, B, C. Mamba (Gu &amp; Dao, 2023) makes them <em>depend on the input</em>, so the model can choose what to remember and what to forget. Because the recurrence is linear in h, it can still be computed with a <b>parallel associative scan</b>, which you'll implement in Lab 3.3.</p></div>
+  <div class="compare">
+    <div><h4>🔦 Attention is great at…</h4><ul><li>Exact recall of anything in the context</li><li>Copying, lookup, in-context learning</li><li>Parallel training on GPUs</li></ul></div>
+    <div><h4>🐍 SSMs are great at…</h4><ul><li>Very long sequences at linear cost</li><li>Constant-memory, fast generation</li><li>Smooth, continuous signals (audio, genomics)</li></ul></div>
+  </div>
+  <p>The practical answer in 2025–26 is often <strong>hybrids</strong>: mostly SSM or linear-attention layers with a few full-attention layers mixed in for precise recall (e.g., AI21's Jamba, 2024). In Lab 3.3 you'll see both sides. On selective copying, a <em>non-selective</em> SSM fails while the selective one matches attention. Then, at 4× the training length, the SSM keeps working while attention falls apart. Input-dependent gating is what makes the difference.</p>
+</section>
+
+<section id="labs" data-toc="Today's labs">
+  <h2><span class="n">07</span>Today's labs</h2>
+  <!--LABS:3-->
+</section>
+
+<section id="takeaways" data-toc="🍯 Honey jar: key takeaways">
+  <h2><span class="n">🍯</span>The honey jar</h2>
+  <p>Today, distilled. If you remember nothing else, remember these.</p>
+  <!--TAKEAWAYS-->
+  <h3>🧨 Myth busters</h3>
+  <!--MYTHS-->
+  <h3>💼 Interview flashcards</h3>
+  <p>Say your answer out loud, <i>then</i> flip the card. Retrieval practice is the most reliable way to make knowledge stick.</p>
+  <!--CARDS-->
+  <p style="margin-top:22px"><a class="btn sm secondary" href="{{root}}cheatsheet.html">📄 Printable cheat sheet for the whole week</a></p>
+</section>
+
+<section id="quiz" data-toc="Quiz: check your honey">
+  <h2><span class="n">08</span>Quiz: check your honey</h2>
+  <p class="quiz-score">Score: <span>0 / 5</span></p>
+  <div class="quiz">
+    <div class="q" data-answer="2"><div class="qtext">Why divide the attention logits by √d<sub>k</sub>?</div><div class="opts">
+      <button class="opt">To make attention causal</button><button class="opt">To save memory</button><button class="opt">Dot products grow with dimension; scaling keeps the softmax out of saturation so gradients flow</button><button class="opt">It's required for RoPE</button></div>
+      <div class="why">With unit-variance entries, q·k has variance d<sub>k</sub>. Large logits make the softmax nearly one-hot, and its gradient nearly zero.</div></div>
+    <div class="q" data-answer="0"><div class="qtext">What does the KV cache store, and why?</div><div class="opts">
+      <button class="opt">Past tokens' keys and values, so each new token only computes its own q, k, v</button><button class="opt">Past logits, to speed up sampling</button><button class="opt">The model weights, in compressed form</button><button class="opt">Attention matrices, for visualization</button></div>
+      <div class="why">Keys and values of earlier tokens don't change in a causal model, so caching them avoids recomputing the whole prefix at every step.</div></div>
+    <div class="q" data-answer="3"><div class="qtext">The key property of RoPE is that the attention score between positions m and n depends on…</div><div class="opts">
+      <button class="opt">m only</button><button class="opt">m + n</button><button class="opt">neither; RoPE removes position information</button><button class="opt">only the offset n − m (plus the content)</button></div>
+      <div class="why">Rotations compose: (R<sub>m</sub>q)·(R<sub>n</sub>k) = q·(R<sub>n−m</sub>k). Relative position falls out automatically.</div></div>
+    <div class="q" data-answer="1"><div class="qtext">A model has 671B total parameters but 37B active per token. Which statement is true?</div><div class="opts">
+      <button class="opt">It needs only 37B parameters' worth of GPU memory</button><button class="opt">Per-token compute is like a ~37B dense model, but all 671B must be stored and served</button><button class="opt">It's equivalent to a 37B dense model in quality</button><button class="opt">It can't be trained with backprop</button></div>
+      <div class="why">MoE saves FLOPs per token, not memory. All experts must be resident (or sharded across devices).</div></div>
+    <div class="q" data-answer="2"><div class="qtext">Speculative decoding with the min(1, p/q) acceptance rule produces outputs that are…</div><div class="opts">
+      <button class="opt">slightly lower quality than the target model</button><button class="opt">identical to the draft model's distribution</button><button class="opt">distributed exactly as the target model's samples</button><button class="opt">always greedy</button></div>
+      <div class="why">The accept/reject plus residual-resampling scheme is a form of rejection sampling that recovers the target distribution exactly. Only the speed depends on how good the draft is.</div></div>
+  </div>
+</section>
+
+<section id="challenge" data-toc="🎭 Daily challenge">
+  <h2><span class="n">09</span>Daily challenge</h2>
+  <div class="challenge">
+    <span class="chip">16:45 · 30 minutes + pitches</span>
+    <h3>🎭 The Shakespeare slam</h3>
+    <p>Load your Lab 3.1 model. You get <strong>three prompts and any sampler settings you like</strong> to produce the most convincing four lines of faux-Shakespeare.</p>
+    <ul>
+      <li>Read your lines aloud with full dramatic commitment. The room votes. 🎭</li>
+      <li>A separate prize goes to the lowest validation loss on the held-out text (sorry, no ensembling).</li>
+      <li>Then <strong>capstone pitches</strong>: 60 seconds per idea, and teams form for Thursday and Friday.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="reading" data-toc="Reading & going deeper">
+  <h2><span class="n">10</span>Reading &amp; going deeper</h2>
+  <ul class="reading">
+    <li><div><b>Attention Is All You Need</b><span>Vaswani et al. · NeurIPS 2017</span></div></li>
+    <li class="video"><div><b>Let's build GPT: from scratch, in code, spelled out</b><span>Andrej Karpathy · YouTube</span></div></li>
+    <li><div><b>RoFormer: Enhanced Transformer with Rotary Position Embedding</b><span>Su et al. · 2021</span></div></li>
+    <li><div><b>GLU Variants Improve Transformer</b><span>Shazeer · 2020</span></div></li>
+    <li><div><b>GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints</b><span>Ainslie et al. · EMNLP 2023</span></div></li>
+    <li><div><b>FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness</b><span>Dao et al. · NeurIPS 2022</span></div></li>
+    <li><div><b>Efficient Memory Management for Large Language Model Serving with PagedAttention</b><span>Kwon et al. · SOSP 2023 · vLLM</span></div></li>
+    <li><div><b>Fast Inference from Transformers via Speculative Decoding</b><span>Leviathan, Kalman, Matias · ICML 2023</span></div></li>
+    <li><div><b>In-context Learning and Induction Heads</b><span>Olsson et al. · Anthropic, 2022</span></div></li>
+    <li><div><b>Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity</b><span>Fedus, Zoph, Shazeer · JMLR 2022</span></div></li>
+    <li><div><b>DeepSeek-V3 Technical Report</b><span>DeepSeek-AI · 2024</span></div></li>
+    <li><div><b>Mamba: Linear-Time Sequence Modeling with Selective State Spaces</b><span>Gu &amp; Dao · 2023</span></div></li>
+  </ul>
+</section>

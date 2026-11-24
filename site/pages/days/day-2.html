@@ -1,0 +1,208 @@
+<!--
+title: Day 2 · The Deep Learning Engine Room
+description: Autodiff from scratch, initialization, normalization and residuals, optimizers from SGD to AdamW to Muon, LR schedules, grokking and scaling laws.
+active: day2
+layout: day
+day: 2
+headline: The deep learning <em>engine room.</em>
+lede: Today we open the hood. You'll write backprop yourself, learn why some networks train and others explode, race optimizers from 1951 against ones from 2024, and meet the scaling laws that decide how frontier models are built.
+chips: ⏱ ~7 hours | ⛓️ autodiff | 🧱 init & norms | 🏎️ AdamW → Muon | 📅 schedules | 💡 grokking | 📈 scaling laws
+-->
+
+<section id="plan" data-toc="Flight plan">
+  <h2><span class="n">00</span>Today's flight plan</h2>
+  <p>Every deep learning system, from a 3-layer MLP to a trillion-parameter MoE, is the same loop: <strong>forward, backward, update</strong>. Today we make each part concrete and fast. By tonight, "the loss went NaN" will be a puzzle you know how to solve rather than a mystery.</p>
+  <!--TLDR-->
+  <div class="agenda">
+    <div class="slot"><span class="t">09:15</span><div><b>Autodiff, init, normalization &amp; residual streams</b><br><span>Why deep nets are trainable at all</span></div><span class="chip">lecture</span></div>
+    <div class="slot"><span class="t">10:15</span><div><b>Lab 2.1: Build your own autograd engine</b><br><span>From a scalar Value class to a numpy tensor engine</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">13:15</span><div><b>Optimizers, schedules &amp; scaling laws</b><br><span>SGD → Adam → AdamW → Muon; Chinchilla</span></div><span class="chip">lecture</span></div>
+    <div class="slot"><span class="t">14:00</span><div><b>Lab 2.2: Optimizer arena</b><br><span>Seven optimizers, two arenas, one champion</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">15:30</span><div><b>Lab 2.3: Grokking</b><br><span>Watch a network suddenly <i>understand</i></span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">16:45</span><div><b>🥊 The optimizer bracket</b><br><span>Single elimination, fixed compute budget</span></div><span class="chip plum">fun</span></div>
+  </div>
+</section>
+
+<section id="autodiff" data-toc="Backprop is just bookkeeping">
+  <h2><span class="n">01</span>Backprop is just bookkeeping</h2>
+  <p>A neural network is a big composition of simple functions. <strong>Reverse-mode automatic differentiation</strong> records each operation during the forward pass, then walks the graph backwards and applies the chain rule once per edge. It gives the gradient of one scalar loss with respect to <em>millions</em> of parameters at roughly the cost of one extra forward pass. That asymmetry is the reason deep learning is computationally possible.</p>
+  <div class="eq"><div class="label">The adjoint recursion</div>
+    $$\bar v_i \;\equiv\; \frac{\partial L}{\partial v_i} \;=\; \sum_{j \,\in\, \text{children}(i)} \bar v_j \,\frac{\partial v_j}{\partial v_i}, \qquad \bar L = 1$$
+    <p class="explain">Process nodes in <em>reverse topological order</em>. Each node adds its contribution into its parents' gradients. That's why frameworks <em>accumulate</em> gradients with <code>+=</code>.</p></div>
+  <div class="diagram">
+    <svg viewBox="0 0 1000 250" role="img" aria-label="Computation graph with forward values and backward gradients">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink-2)"/></marker></defs>
+      <g style="font-size:15px">
+      <rect class="box" x="20" y="30" width="110" height="56" rx="12"/><text x="75" y="56" text-anchor="middle" style="font-weight:700">x = 2.0</text><text x="75" y="76" text-anchor="middle" class="mono" style="fill:var(--coral);font-size:12px">∂L/∂x = 1.15</text>
+      <rect class="box" x="20" y="160" width="110" height="56" rx="12"/><text x="75" y="186" text-anchor="middle" style="font-weight:700">w = −0.5</text><text x="75" y="206" text-anchor="middle" class="mono" style="fill:var(--coral);font-size:12px">∂L/∂w = −4.60</text>
+      <circle class="box honey" cx="250" cy="123" r="34"/><text x="250" y="129" text-anchor="middle" class="on-honey" style="font-weight:800;font-size:20px">×</text>
+      <rect class="box" x="335" y="160" width="110" height="56" rx="12"/><text x="390" y="186" text-anchor="middle" style="font-weight:700">b = 0.5</text><text x="390" y="206" text-anchor="middle" class="mono" style="fill:var(--coral);font-size:12px">∂L/∂b = −2.30</text>
+      <circle class="box honey" cx="500" cy="123" r="34"/><text x="500" y="129" text-anchor="middle" class="on-honey" style="font-weight:800;font-size:20px">+</text>
+      <circle class="box honey" cx="680" cy="123" r="34"/><text x="680" y="129" text-anchor="middle" class="on-honey" style="font-weight:800;font-size:15px">tanh</text>
+      <rect class="box dark" x="830" y="95" width="150" height="56" rx="12"/><text x="905" y="121" text-anchor="middle" class="on-dark" style="font-weight:700">L = (y − 1)²</text><text x="905" y="141" text-anchor="middle" class="on-dark mono" style="font-size:12px">y = −0.46</text>
+      <path class="arrow" d="M130 65 L218 110"/><path class="arrow" d="M130 185 L218 138"/><path class="arrow" d="M284 123 L466 123"/><path class="arrow" d="M445 180 L472 145"/><path class="arrow" d="M534 123 L646 123"/><path class="arrow" d="M714 123 L826 123"/>
+      <text x="375" y="112" text-anchor="middle" class="mono small">−1.0</text><text x="590" y="112" text-anchor="middle" class="mono small">−0.5</text><text x="770" y="112" text-anchor="middle" class="mono small">−0.46</text>
+      <path d="M826 160 C 700 235, 300 240, 140 220" style="stroke:var(--coral);stroke-width:2.5;fill:none;stroke-dasharray:7 6" marker-end="url(#ah)"/>
+      <text x="520" y="244" text-anchor="middle" style="fill:var(--coral);font-weight:700;font-size:13px">backward pass: multiply local derivatives, accumulate into parents</text>
+      </g>
+    </svg>
+    <figcaption>Forward values flow right (black). Gradients flow left (coral). Each node only needs its <i>local</i> derivative. You'll implement exactly this as a <code>Value</code> class.</figcaption>
+  </div>
+<pre><code class="language-python">class Value:
+    def __init__(self, data, parents=()):
+        self.data, self.grad, self._parents, self._backward = data, 0.0, parents, lambda: None
+
+    def __mul__(self, other):
+        out = Value(self.data * other.data, (self, other))
+        def _backward():                       # local derivative × upstream gradient
+            self.grad  += other.data * out.grad
+            other.grad += self.data  * out.grad
+        out._backward = _backward
+        return out
+
+    def backward(self):
+        order, seen = [], set()
+        def topo(v):
+            if v not in seen:
+                seen.add(v); [topo(p) for p in v._parents]; order.append(v)
+        topo(self); self.grad = 1.0
+        for v in reversed(order): v._backward()</code></pre>
+</section>
+
+<section id="trainable" data-toc="Why deep nets train at all">
+  <h2><span class="n">02</span>Why deep nets train at all</h2>
+  <p>Stack 100 layers naively and the signal either explodes or vanishes: each layer multiplies activations and gradients by something, and products of many numbers rarely stay near 1. Three inventions turned "deep" from impossible into routine.</p>
+  <div class="grid-3">
+    <div class="card"><h4>🎲 Careful initialization</h4><p>Choose the weight variance so each layer preserves the activation variance. For ReLU, <b>He init</b> uses $\mathrm{Var}(w) = 2/\text{fan}_\text{in}$; for tanh, <b>Xavier</b> uses $2/(\text{fan}_\text{in}+\text{fan}_\text{out})$.</p></div>
+    <div class="card"><h4>⚖️ Normalization</h4><p><b>LayerNorm</b> re-centers and re-scales every token's features. <b>RMSNorm</b> skips the centering: $\;x / \sqrt{\overline{x^2}+\epsilon}\cdot g$. It's cheaper and works as well, which is why most modern LLMs use it.</p></div>
+    <div class="card"><h4>🛣️ Residual connections</h4><p>$x_{l+1} = x_l + F(x_l)$. The identity path gives gradients a highway straight to early layers. In transformers this sum is the <b>residual stream</b>, a shared memory every layer reads from and writes to.</p></div>
+  </div>
+  <div class="callout key"><span class="title">Key idea: pre-norm</span><p>Modern transformers normalize the <em>input</em> to each sublayer, $x + F(\mathrm{Norm}(x))$, instead of the output. That keeps the residual stream an untouched sum, which makes very deep stacks stable and makes LR warmup less critical.</p></div>
+</section>
+
+<section id="optimizers" data-toc="Optimizers: SGD to Muon">
+  <h2><span class="n">03</span>Optimizers: from SGD to Muon</h2>
+  <p>The gradient tells you which way is downhill <em>locally</em>. Optimizers decide how far to go and how to use the history of past gradients. Seventy years of progress fits in a few equations:</p>
+  <div class="eq"><div class="label">Momentum → Adam → AdamW</div>
+    $$m_t = \beta_1 m_{t-1} + (1-\beta_1)\,g_t,\quad v_t = \beta_2 v_{t-1} + (1-\beta_2)\,g_t^2,\quad \theta_{t} = \theta_{t-1} - \eta\Big(\frac{\hat m_t}{\sqrt{\hat v_t}+\epsilon} + \lambda\,\theta_{t-1}\Big)$$
+    <p class="explain">$\hat m, \hat v$ are bias-corrected. The final $\lambda\theta$ term is AdamW's <b>decoupled</b> weight decay (Loshchilov &amp; Hutter, 2019). Adding L2 to the loss instead would get divided by $\sqrt{\hat v}$, so parameters with large gradients would barely be regularized.</p></div>
+  <figure class="fig"><img src="{{root}}assets/img/d2-optimizers.png" alt="SGD, momentum, RMSProp and Adam trajectories on the Rosenbrock function" loading="lazy"><figcaption><b>Real trajectories, 2500 steps each.</b> Plain SGD crawls along the curved valley floor. Momentum builds speed. Adaptive methods rescale each coordinate and head for the minimum, with some oscillation.</figcaption></figure>
+  <p>Now race them yourself. Click to drop the ball anywhere, change the landscape, and try to find a learning rate that makes SGD win (it's possible on one of these!).</p>
+  <div data-widget="gd"></div>
+
+  <h3>🚀 Muon: orthogonalized updates</h3>
+  <p><strong>Muon</strong> (Jordan et al., 2024) treats each hidden weight matrix as a matrix rather than a bag of numbers. It takes the momentum $M$ and replaces it with the nearest <em>orthogonal</em> matrix: if $M = U\Sigma V^\top$, the update is $UV^\top$. All singular values become 1, so rare directions get as much push as dominant ones. Computing an SVD every step would be too slow, so Muon uses a few iterations of a <strong>Newton–Schulz</strong> polynomial that runs well in bf16 on GPUs:</p>
+<pre><code class="language-python">def newton_schulz5(G, steps=5, eps=1e-7):
+    a, b, c = 3.4445, -4.7750, 2.0315          # tuned quintic coefficients
+    X = G / (G.norm() + eps)                    # put singular values in [0, 1]
+    tall = X.size(0) > X.size(1)
+    if tall: X = X.T
+    for _ in range(steps):
+        A = X @ X.T
+        X = a * X + (b * A + c * A @ A) @ X     # pushes every singular value toward 1
+    return X.T if tall else X
+
+# Muon step for a 2-D hidden weight W (embeddings, heads, and gains still use AdamW):
+#   buf = mu * buf + grad;  W -= lr * newton_schulz5(buf) * max(1, rows/cols) ** 0.5</code></pre>
+  <div class="callout frontier"><span class="title">2025–26 frontier</span><p>Muon started as a speedrunning trick for small GPTs and was then scaled to LLM pretraining: Moonshot AI's "Muon is Scalable for LLM Training" (2025) reported roughly 2× compute efficiency over AdamW, and a Muon variant was used to train the Kimi K2 model. Expect to see AdamW and Muon side by side in modern training stacks, with AdamW for embeddings and norms and Muon for the big matrices.</p></div>
+</section>
+
+<section id="schedules" data-toc="Learning-rate schedules">
+  <h2><span class="n">04</span>Learning-rate schedules</h2>
+  <p>The single most important hyperparameter is the learning rate, and the second most important is how it changes over time. <strong>Warmup</strong> protects the early steps, when Adam's second-moment estimates are still noisy and the weights are far from equilibrium. <strong>Decay</strong> lets the optimizer settle into a minimum instead of bouncing around it.</p>
+  <figure class="fig"><img src="{{root}}assets/img/d2-schedules.png" alt="Warmup plus cosine, warmup-stable-decay, and step decay schedules" loading="lazy"><figcaption><b>WSD</b> (warmup–stable–decay, popularized by MiniCPM in 2024) keeps the LR flat and only cools down at the end. You can branch a short cooldown off any checkpoint, which is handy when you don't know your final token budget in advance.</figcaption></figure>
+  <div class="callout pitfall"><span class="title">Debugging checklist when loss explodes</span><ul><li>LR too high? Halve it. Is warmup present?</li><li>Gradient clipping on (e.g. max-norm 1.0)?</li><li><code>log(0)</code>, division by zero, or fp16 overflow? Prefer bf16.</li><li>A bad batch? Log the loss for each batch.</li><li>Missing a normalization, or residual branches initialized too large?</li></ul></div>
+</section>
+
+<section id="grokking" data-toc="Grokking: delayed understanding">
+  <h2><span class="n">05</span>Grokking: delayed understanding</h2>
+  <p>Train a small network on modular arithmetic, $(a+b) \bmod p$, using only part of the table. It quickly memorizes the training set (100% train accuracy) while test accuracy stays at chance. Keep training, with weight decay, for thousands more steps, and test accuracy suddenly shoots to 100%. Power et al. (2022) called this <strong>grokking</strong>.</p>
+  <figure class="fig"><img src="{{root}}assets/img/d2-grokking.png" alt="Schematic of train accuracy saturating early and test accuracy jumping much later" loading="lazy"><figcaption><b>Schematic.</b> You'll produce the real curve in Lab 2.3 in a few minutes of CPU time.</figcaption></figure>
+  <p>What happened? Nanda et al. (2023) reverse-engineered the network and found it had learned a <strong>Fourier-based algorithm</strong>: it embeds numbers as rotations and adds angles using trig identities. Weight decay slowly favors this compact, general circuit over the bulky memorization solution. In the lab you'll find those frequencies in the embedding matrix yourself.</p>
+  <div class="callout buzz"><span class="title">Buzz says</span><p>"Train loss is zero, so we're done" is a trap. Sometimes the interesting learning happens <i>after</i> the model has memorized. Regularization decides which solution you end up with.</p></div>
+</section>
+
+<section id="scaling" data-toc="Scaling laws">
+  <h2><span class="n">06</span>Scaling laws: the physics of LLMs</h2>
+  <p>Across many orders of magnitude, language-model loss falls as a <strong>smooth power law</strong> in parameters $N$, data $D$ and compute $C \approx 6ND$ (Kaplan et al., 2020). Hoffmann et al. (2022, "Chinchilla") fitted a parametric form and showed that earlier models were <em>under-trained</em>: for a fixed compute budget you should scale parameters and tokens <strong>together</strong>, roughly 20 tokens per parameter.</p>
+  <div class="eq"><div class="label">Chinchilla parametric loss</div>
+    $$L(N, D) = E + \frac{A}{N^{\alpha}} + \frac{B}{D^{\beta}}, \qquad E\!\approx\!1.69,\ A\!\approx\!406.4,\ B\!\approx\!410.7,\ \alpha\!\approx\!0.34,\ \beta\!\approx\!0.28$$
+    <p class="explain">Minimize $L$ subject to $6ND = C$ to get the compute-optimal $N^*(C)$ and $D^*(C)$. Both grow roughly as $\sqrt{C}$.</p></div>
+  <figure class="fig"><img src="{{root}}assets/img/d2-scaling.png" alt="Loss versus compute for model sizes from 30M to 300B parameters, with the compute-optimal frontier" loading="lazy"><figcaption>Each thin curve is one model size trained on more and more tokens. The black envelope is the best you can do at each compute budget.</figcaption></figure>
+  <p>Plan your own training run. How big should the model be for your budget, and how long will it take?</p>
+  <div data-widget="chinchilla"></div>
+  <div class="callout frontier"><span class="title">Beyond Chinchilla (2024–26)</span><ul>
+    <li><b>Over-training on purpose:</b> inference costs dominate at scale, so production models train small models on far more than 20 tokens per parameter (Llama 3 8B saw over 15T tokens).</li>
+    <li><b>The data wall:</b> high-quality text is finite, so synthetic data, repeated epochs and multimodal data now matter a lot.</li>
+    <li><b>New scaling axes:</b> RL post-training and <i>test-time compute</i> (thinking longer at inference) show their own scaling curves. More on Day 5.</li></ul></div>
+</section>
+
+<section id="labs" data-toc="Today's labs">
+  <h2><span class="n">07</span>Today's labs</h2>
+  <!--LABS:2-->
+</section>
+
+<section id="takeaways" data-toc="🍯 Honey jar: key takeaways">
+  <h2><span class="n">🍯</span>The honey jar</h2>
+  <p>Today, distilled. If you remember nothing else, remember these.</p>
+  <!--TAKEAWAYS-->
+  <h3>🧨 Myth busters</h3>
+  <!--MYTHS-->
+  <h3>💼 Interview flashcards</h3>
+  <p>Say your answer out loud, <i>then</i> flip the card. Retrieval practice is the most reliable way to make knowledge stick.</p>
+  <!--CARDS-->
+  <p style="margin-top:22px"><a class="btn sm secondary" href="{{root}}cheatsheet.html">📄 Printable cheat sheet for the whole week</a></p>
+</section>
+
+<section id="quiz" data-toc="Quiz: check your honey">
+  <h2><span class="n">08</span>Quiz: check your honey</h2>
+  <p class="quiz-score">Score: <span>0 / 5</span></p>
+  <div class="quiz">
+    <div class="q" data-answer="1"><div class="qtext">Why do we use reverse-mode (not forward-mode) autodiff to train neural nets?</div><div class="opts">
+      <button class="opt">It's more numerically stable</button><button class="opt">One scalar output and millions of inputs: reverse mode gets all the gradients in about one backward pass</button><button class="opt">Forward mode can't handle nonlinearities</button><button class="opt">It uses less memory</button></div>
+      <div class="why">Forward mode costs one pass per <i>input</i> direction; reverse mode costs one pass per <i>output</i>. With one loss, reverse wins enormously. (The price is memory: it must store the forward activations.)</div></div>
+    <div class="q" data-answer="2"><div class="qtext">What's the practical difference between Adam + L2 penalty and AdamW?</div><div class="opts">
+      <button class="opt">None, they're mathematically identical</button><button class="opt">AdamW uses no momentum</button><button class="opt">AdamW applies decay directly to the weights, so it isn't divided by the adaptive denominator √v</button><button class="opt">AdamW only decays biases</button></div>
+      <div class="why">With L2-in-the-loss, the decay gradient λθ gets rescaled by 1/√v, so weights with large gradient history are barely regularized. Decoupling fixes that.</div></div>
+    <div class="q" data-answer="0"><div class="qtext">What does Muon do to the momentum matrix before applying it?</div><div class="opts">
+      <button class="opt">Approximately orthogonalizes it (sets all singular values to ~1) via Newton–Schulz</button><button class="opt">Takes its sign, like Lion</button><button class="opt">Divides it elementwise by an RMS estimate, like Adam</button><button class="opt">Projects it onto a low-rank subspace, like LoRA</button></div>
+      <div class="why">Muon maps M = UΣVᵀ to UVᵀ, so the update has the same strength in every singular direction.</div></div>
+    <div class="q" data-answer="3"><div class="qtext">Under the Chinchilla analysis, if your compute budget grows 100×, the compute-optimal model should grow by roughly…</div><div class="opts">
+      <button class="opt">100×, with the same data</button><button class="opt">1× (just train longer)</button><button class="opt">1000×</button><button class="opt">~10× in parameters and ~10× in tokens</button></div>
+      <div class="why">Both N* and D* scale roughly as √C, and √100 = 10.</div></div>
+    <div class="q" data-answer="1"><div class="qtext">In grokking experiments, which ingredient most reliably makes the delayed generalization happen?</div><div class="opts">
+      <button class="opt">A larger batch size</button><button class="opt">Weight decay (a pressure toward simpler, lower-norm solutions)</button><button class="opt">Dropout of 0.9</button><button class="opt">Removing the training data</button></div>
+      <div class="why">Without regularization, the memorizing solution is stable. Weight decay gradually favors the compact, general (Fourier) circuit.</div></div>
+  </div>
+</section>
+
+<section id="challenge" data-toc="🥊 Daily challenge">
+  <h2><span class="n">09</span>Daily challenge</h2>
+  <div class="challenge">
+    <span class="chip">16:45 · 45 minutes · teams of 2</span>
+    <h3>🥊 The optimizer bracket</h3>
+    <p>Every team gets the <strong>same CNN, the same FashionMNIST data and the same budget: 2 epochs</strong>. You choose the optimizer, LR, schedule, warmup, weight decay and batch size. Nothing else.</p>
+    <ul>
+      <li>Bracket: head-to-head matches on validation accuracy, single elimination, with the winner announced live.</li>
+      <li>Teams must <strong>declare their config before running</strong>. No secret re-runs!</li>
+      <li>🍯 Bonus round: the best result with plain SGD (no momentum) earns the "Purist" honey jar.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="reading" data-toc="Reading & going deeper">
+  <h2><span class="n">10</span>Reading &amp; going deeper</h2>
+  <ul class="reading">
+    <li class="video"><div><b>The spelled-out intro to neural networks and backpropagation: building micrograd</b><span>Andrej Karpathy · YouTube · the perfect companion to Lab 2.1</span></div></li>
+    <li><div><b>Deep Residual Learning for Image Recognition</b><span>He, Zhang, Ren, Sun · CVPR 2016</span></div></li>
+    <li><div><b>Root Mean Square Layer Normalization</b><span>Zhang &amp; Sennrich · NeurIPS 2019</span></div></li>
+    <li><div><b>Adam: A Method for Stochastic Optimization</b><span>Kingma &amp; Ba · ICLR 2015</span></div></li>
+    <li><div><b>Decoupled Weight Decay Regularization</b><span>Loshchilov &amp; Hutter · ICLR 2019 · AdamW</span></div></li>
+    <li class="code"><div><b>Muon: An optimizer for hidden layers in neural networks</b><span>Keller Jordan et al. · blog post, 2024</span></div></li>
+    <li><div><b>Muon is Scalable for LLM Training</b><span>Liu et al. (Moonshot AI) · 2025</span></div></li>
+    <li><div><b>Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets</b><span>Power, Burda, Edwards, Babuschkin, Misra · 2022</span></div></li>
+    <li><div><b>Progress measures for grokking via mechanistic interpretability</b><span>Nanda, Chan, Lieberum, Smith, Steinhardt · ICLR 2023</span></div></li>
+    <li><div><b>Scaling Laws for Neural Language Models</b><span>Kaplan et al. · 2020</span></div></li>
+    <li><div><b>Training Compute-Optimal Large Language Models</b><span>Hoffmann et al. · NeurIPS 2022 · "Chinchilla"</span></div></li>
+  </ul>
+</section>

@@ -1,0 +1,191 @@
+{
+  "1": {
+    "tldr": [
+      "On tables, a well-tuned gradient-boosted tree ensemble is still the model to beat.",
+      "A probability is only useful if it's <b>calibrated</b>. Check a reliability diagram before you trust a score.",
+      "<b>Conformal prediction</b> wraps any model in intervals or sets with a guaranteed coverage rate."
+    ],
+    "takeaways": [
+      "Expected test error = <b>bias² + variance + noise</b>. Capacity trades the first two; nothing beats the third.",
+      "Past the interpolation threshold, adding parameters can <b>reduce</b> test error (double descent). Implicit regularization decides which solution you get.",
+      "Boosting is <b>gradient descent in function space</b>: each tree fits the negative gradient of the loss.",
+      "Small learning rate + many trees + early stopping on validation data beats big steps. Your baseline for any table is a GBDT.",
+      "<b>Accuracy ≠ calibration.</b> Fit Platt, isotonic or temperature scaling on held-out data to make confidences honest.",
+      "Split conformal: take a quantile of held-out residuals and get ≥ 1−α coverage for <i>any</i> model. The guarantee is marginal, so check your subgroups.",
+      "SHAP explains the <b>model</b>, not the world. Correlated features split credit unpredictably.",
+      "Tabular foundation models (TabPFN) do in-context learning on small tables in one forward pass, and often beat tuned GBDTs there."
+    ],
+    "myths": [
+      ["Deep learning beats everything now.", "On typical tabular benchmarks, tuned tree ensembles still often win, and they're cheaper to train and serve."],
+      ["A predicted 0.9 means a 90% chance.", "Only if the model is calibrated. Many models, including modern neural nets, are systematically over-confident."],
+      ["High feature importance means the feature causes the outcome.", "Importance (and SHAP) describes what the model relies on. Causal claims need causal assumptions or experiments."]
+    ],
+    "cards": [
+      ["What does each new tree fit in gradient boosting?", "The pseudo-residuals: the negative gradient of the loss with respect to the current predictions (y − p for log loss)."],
+      ["Why doesn't temperature scaling change accuracy?", "Dividing every logit by the same T > 0 preserves their order, so the argmax (and the accuracy) are unchanged."],
+      ["What does conformal prediction assume?", "Only that calibration and test points are exchangeable (e.g. i.i.d.). Nothing about the model or the distribution."],
+      ["What is the interpolation threshold?", "The capacity at which a model can just fit the training data exactly. Test error spikes there under double descent."],
+      ["Name two SHAP pitfalls.", "Credit split arbitrarily between correlated features, and evaluating the model off the data manifold (interventional SHAP)."],
+      ["When would you pick TabPFN over a GBDT?", "Small datasets (≲10k rows), little tuning time, and when calibrated probabilities matter. Pick the GBDT for huge tables and tight CPU latency."]
+    ],
+    "equations": [
+      ["Bias–variance", "\\mathbb{E}[(y-\\hat f)^2] = \\text{bias}^2 + \\text{var} + \\sigma^2"],
+      ["Boosting step", "F_m = F_{m-1} + \\nu\\, h_m,\\quad h_m \\approx -\\nabla_F L"],
+      ["XGBoost leaf weight", "w^* = -G/(H+\\lambda)"],
+      ["ECE", "\\sum_b \\tfrac{|S_b|}{n}\\,|\\mathrm{acc}(b) - \\mathrm{conf}(b)|"],
+      ["Split conformal", "\\hat q = Q_{\\lceil (n+1)(1-\\alpha)\\rceil / n}(|y-\\hat\\mu(x)|)"],
+      ["Shapley value", "\\phi_i = \\sum_{S} \\tfrac{|S|!(|F|-|S|-1)!}{|F|!}[v(S\\cup i) - v(S)]"]
+    ]
+  },
+  "2": {
+    "tldr": [
+      "Backprop is the chain rule applied in reverse topological order, about one extra pass for <i>all</i> gradients.",
+      "Deep nets train because of <b>init + normalization + residual connections</b>, plus a good optimizer and LR schedule.",
+      "Loss follows <b>power laws</b> in parameters, data and compute, which tells you how to spend a budget."
+    ],
+    "takeaways": [
+      "Reverse-mode autodiff gives every gradient of a scalar loss for roughly the cost of a forward pass, at the price of storing activations.",
+      "Trainability comes from variance-preserving init, (pre-)normalization, and residual streams that carry gradients straight through.",
+      "<b>AdamW</b> (Adam + decoupled weight decay) is the default for transformers. L2 inside Adam is not the same thing.",
+      "<b>Muon</b> orthogonalizes the momentum of 2-D weight matrices. It's a strong 2025-era alternative for hidden layers.",
+      "The learning rate is hyperparameter #1. Use warmup, then cosine or WSD decay, and clip gradients.",
+      "<b>Grokking</b>: generalization can arrive long after memorization, and weight decay is what pushes the model there.",
+      "Compute-optimal training scales N and D together (~20 tokens/param), but production models over-train small models because inference is what costs money."
+    ],
+    "myths": [
+      ["Training loss hit zero, so we're done.", "Grokking shows the most important learning can happen after memorization, driven by regularization."],
+      ["Adam + L2 regularization = AdamW.", "In Adam, the L2 gradient is divided by √v, so heavily-updated weights barely decay. AdamW decays the weights directly."],
+      ["For a fixed budget, always train the biggest model you can.", "Chinchilla showed many big models were under-trained. Splitting compute between parameters and tokens gives lower loss."]
+    ],
+    "cards": [
+      ["Why do frameworks accumulate gradients with +=?", "A value used in several places receives a gradient contribution from each use. The chain rule sums them."],
+      ["What does LR warmup protect against?", "Huge, noisy early updates while the weights and Adam's second-moment estimates are still far from equilibrium."],
+      ["He initialization variance for ReLU layers?", "Var(w) = 2 / fan_in, which keeps activation variance roughly constant through depth."],
+      ["Muon's idealized update for momentum M = UΣVᵀ?", "UVᵀ: the same matrix with every singular value set to 1, approximated cheaply with Newton–Schulz iterations."],
+      ["What's the Chinchilla rule of thumb?", "Roughly 20 training tokens per parameter at the compute-optimal point. Both N and D grow ~√C."],
+      ["Why pre-norm instead of post-norm?", "Pre-norm (x + F(Norm(x))) keeps the residual stream an untouched sum, which stabilizes very deep stacks."]
+    ],
+    "equations": [
+      ["Adjoint recursion", "\\bar v_i = \\sum_{j\\in\\text{ch}(i)} \\bar v_j\\, \\partial v_j/\\partial v_i"],
+      ["He init", "\\mathrm{Var}(w) = 2/\\text{fan}_{\\text{in}}"],
+      ["RMSNorm", "x / \\sqrt{\\overline{x^2}+\\epsilon}\\odot g"],
+      ["AdamW", "\\theta \\leftarrow \\theta - \\eta\\big(\\hat m/(\\sqrt{\\hat v}+\\epsilon) + \\lambda\\theta\\big)"],
+      ["Muon", "\\Delta W \\propto \\mathrm{NS}(M) \\approx UV^\\top"],
+      ["Chinchilla", "L(N,D) = E + A/N^{\\alpha} + B/D^{\\beta},\\ C\\approx 6ND"]
+    ]
+  },
+  "3": {
+    "tldr": [
+      "Attention is a <b>soft, differentiable dictionary lookup</b>: softmax(QKᵀ/√d)·V.",
+      "Modern blocks = pre-norm RMSNorm + RoPE + SwiGLU + GQA, run with FlashAttention.",
+      "Generation is <b>memory-bound</b>: the KV cache, sampling, speculation and quantization decide speed and quality."
+    ],
+    "takeaways": [
+      "Attention lets every token read from every earlier token, weighted by query–key match. The causal mask stops it from reading the future.",
+      "Scale logits by 1/√d<sub>k</sub> so the softmax doesn't saturate and gradients keep flowing.",
+      "<b>RoPE</b> rotates q and k by position, so scores depend only on relative offset.",
+      "The <b>KV cache</b> trades memory for compute. At long context it dominates serving cost, which is why GQA and latent attention exist.",
+      "Decoding settings (temperature, top-p, min-p) shape the output's character as much as fine-tuning does.",
+      "<b>Speculative decoding is exact</b>: the target model's distribution is preserved; only the speed depends on the draft model.",
+      "<b>MoE</b> separates parameters (memory) from FLOPs per token, and needs load balancing so experts don't collapse.",
+      "<b>SSMs</b> give linear-time, constant-memory sequence modeling. Input-dependent selectivity is what makes them work, and hybrids with attention are common."
+    ],
+    "myths": [
+      ["Greedy decoding gives the best output.", "Greedy decoding tends to loop and produce bland text. Moderate-temperature sampling is usually better, and enables voting."],
+      ["A 671B-parameter MoE only needs the memory of its 37B active parameters.", "Every expert must be stored and served. MoE saves FLOPs per token, not memory."],
+      ["Quantization loses a little precision everywhere, evenly.", "A few outlier weights can wreck a per-tensor scale. Group-wise scales and outlier-aware methods are essential."]
+    ],
+    "cards": [
+      ["Why divide attention logits by √d<sub>k</sub>?", "Dot products of d-dim unit-variance vectors have variance d. Scaling keeps the softmax out of its saturated, zero-gradient regime."],
+      ["KV-cache size per token?", "2 (K and V) × layers × KV heads × head dim × bytes per element."],
+      ["What does grouped-query attention share?", "Each K/V head is shared by a group of query heads, shrinking the KV cache by (query heads / KV heads)."],
+      ["Speculative decoding acceptance rule?", "Accept the draft token with probability min(1, p(x)/q(x)); on rejection, resample from the normalized max(0, p − q)."],
+      ["Why can Mamba train with a parallel scan?", "Its recurrence is linear in the hidden state, so steps compose associatively and can be combined in a tree."],
+      ["What is an induction head?", "A head that finds the earlier occurrence of the current token and copies what came next, a core in-context-learning circuit."]
+    ],
+    "equations": [
+      ["Attention", "\\mathrm{softmax}(QK^\\top/\\sqrt{d_k} + M)\\,V"],
+      ["RoPE identity", "\\langle R_m q, R_n k\\rangle = \\langle q, R_{n-m} k\\rangle"],
+      ["SwiGLU", "W_2(\\mathrm{SiLU}(W_1x)\\odot W_3x)"],
+      ["KV cache", "\\text{bytes} = 2\\,L\\,H_{kv}\\,d_h\\,b\\cdot T"],
+      ["Speculative accept", "\\min\\big(1,\\ p(x)/q(x)\\big)"],
+      ["Selective SSM", "h_t = \\bar A_t h_{t-1} + \\bar B_t x_t,\\ y_t = C_t h_t"]
+    ]
+  },
+  "4": {
+    "tldr": [
+      "Generation = <b>transporting noise to data</b> along a learned vector field.",
+      "Flow matching regresses the velocity of straight noise→data paths, then samples by solving an ODE.",
+      "Guidance steers samples; latents + DiTs scale them up; CLIP connects images and text."
+    ],
+    "takeaways": [
+      "Diffusion, score models and flow matching are one family: a time-dependent field that carries a simple distribution to the data distribution.",
+      "Flow-matching loss: regress v<sub>θ</sub>(x<sub>t</sub>, t) onto x₁ − x₀. Training needs no simulation and is about as simple as it gets.",
+      "Sampling is ODE solving. Fewer steps are faster but blurrier; reflow and distillation fix that.",
+      "<b>Classifier-free guidance</b> trades diversity for fidelity: (1+w)·conditional − w·unconditional.",
+      "Latent diffusion + diffusion transformers (DiT) are the scalable recipe for images and video.",
+      "CLIP's contrastive loss builds a shared image–text space, which gives you zero-shot classification and retrieval.",
+      "Vision-language models feed vision-encoder tokens into an LLM through a small projector."
+    ],
+    "myths": [
+      ["Diffusion models need hundreds of steps.", "Distillation, consistency models and straighter flows bring high-quality sampling down to 1–4 steps."],
+      ["Higher guidance is always better.", "Large w over-saturates images and collapses diversity. It's a knob to tune, not a dial to max out."],
+      ["VAEs are obsolete.", "VAEs are the compressor inside most latent diffusion systems. They're still doing important work."]
+    ],
+    "cards": [
+      ["What's the conditional flow-matching regression target?", "The straight-path velocity x₁ − x₀ (data minus noise) at the point x<sub>t</sub> = (1−t)x₀ + t x₁."],
+      ["Why does 1-step sampling land on the data mean?", "At t = 0 the noisy point carries no information about its destination, so the optimal velocity points to E[x₁]."],
+      ["What does label dropout enable?", "One network learns both conditional and unconditional predictions, which is what classifier-free guidance needs."],
+      ["Where do CLIP's negatives come from?", "The other N−1 pairs in the batch. Bigger batches give more and harder negatives."],
+      ["What did DiT replace?", "The UNet denoiser, with a plain transformer over patches of the latent. It scales predictably, like LLMs."],
+      ["What does reflow do?", "It re-pairs noise with the model's own outputs and retrains, which straightens trajectories so few-step sampling works."]
+    ],
+    "equations": [
+      ["ELBO", "\\log p(x) \\ge \\mathbb{E}_q[\\log p(x|z)] - \\mathrm{KL}(q(z|x)\\|p(z))"],
+      ["DDPM loss", "\\|\\epsilon - \\epsilon_\\theta(\\sqrt{\\bar\\alpha_t}x_0 + \\sqrt{1-\\bar\\alpha_t}\\epsilon, t)\\|^2"],
+      ["Flow matching", "\\|v_\\theta(x_t,t) - (x_1 - x_0)\\|^2,\\ x_t=(1-t)x_0+tx_1"],
+      ["Sampling ODE", "dx/dt = v_\\theta(x,t),\\ t: 0\\to 1"],
+      ["CFG", "(1+w)\\,\\epsilon_\\theta(x,c) - w\\,\\epsilon_\\theta(x,\\varnothing)"],
+      ["InfoNCE", "-\\log \\frac{e^{s_{ii}/\\tau}}{\\sum_j e^{s_{ij}/\\tau}}"]
+    ]
+  },
+  "5": {
+    "tldr": [
+      "Post-training (SFT → preferences → RL) turns a pretrained autocomplete into an assistant, and then a reasoner.",
+      "<b>RL with verifiable rewards + GRPO</b> produced reasoning models; test-time compute is the second scaling axis.",
+      "An <b>agent</b> is an LLM in a loop with tools. MCP standardizes the tools, and evals tell you if any of it works."
+    ],
+    "takeaways": [
+      "Knowledge mostly comes from pretraining. Post-training shapes <b>behaviour</b>: format, helpfulness, judgment, reasoning.",
+      "<b>LoRA</b> learns a low-rank update ΔW = (α/r)·BA. Merge it for zero latency; QLoRA keeps the frozen base in 4-bit.",
+      "<b>DPO</b> optimizes preference pairs directly, with no reward model and no RL loop, anchored to a reference model.",
+      "<b>GRPO</b>: sample a group, normalize rewards within it, and push up the better-than-average answers. No critic needed.",
+      "Test-time compute (longer thinking, voting, verifiers) buys accuracy, especially where answers can be checked.",
+      "An agent is a <code>while</code> loop: think → call tool → observe. MCP lets any client use any tool server.",
+      "Treat everything an agent reads as <b>data, not instructions</b>. Prompt injection is the top agent risk.",
+      "Write evals <b>before</b> you optimize, and read your failures every week.",
+      "Sparse autoencoders pull interpretable features out of superposition, and adding a feature's direction can steer the model."
+    ],
+    "myths": [
+      ["Fine-tuning is the best way to teach a model new facts.", "For facts, retrieval (RAG) is usually cheaper, fresher and citable. Fine-tune for behaviour, format and style."],
+      ["A reasoning model's chain of thought shows exactly how it got its answer.", "It's text shaped by RL. It's often useful, but it isn't guaranteed to be a faithful account of the computation."],
+      ["You need a big framework to build an agent.", "The core is a short loop around tool calls. Spend your effort on tools, evals and guardrails."]
+    ],
+    "cards": [
+      ["Trainable parameters LoRA adds to a d_in × d_out matrix?", "r · (d_in + d_out), compared with d_in · d_out for full fine-tuning."],
+      ["GRPO advantage for sample i?", "Â<sub>i</sub> = (r<sub>i</sub> − mean(r)) / std(r), computed within the group of answers to the same prompt."],
+      ["Why does DPO keep a reference model?", "The log-ratio to π<sub>ref</sub> acts as an implicit KL anchor (strength β), so the policy can't drift arbitrarily far."],
+      ["What does MCP standardize?", "How AI applications discover and call tools, read resources and use prompts exposed by external servers."],
+      ["What is superposition?", "Representing more features than dimensions by using nearly-orthogonal directions, which works because features are sparse."],
+      ["When does majority voting hurt?", "When one particular wrong answer is more likely than the right one. Voting then locks in the error."]
+    ],
+    "equations": [
+      ["LoRA", "h = W_0x + \\tfrac{\\alpha}{r}BAx"],
+      ["DPO", "-\\log\\sigma\\big(\\beta\\log\\tfrac{\\pi_\\theta(y_w)}{\\pi_{ref}(y_w)} - \\beta\\log\\tfrac{\\pi_\\theta(y_l)}{\\pi_{ref}(y_l)}\\big)"],
+      ["GRPO advantage", "\\hat A_i = (r_i - \\bar r)/\\sigma_r"],
+      ["PPO clip", "\\min(\\rho \\hat A,\\ \\mathrm{clip}(\\rho,1\\pm\\epsilon)\\hat A)"],
+      ["pass@N", "1-(1-p)^N"],
+      ["SAE", "\\|x-\\hat x\\|^2 + \\lambda\\|f\\|_1,\\ f=\\mathrm{ReLU}(W_e(x-b_d)+b_e)"]
+    ]
+  }
+}

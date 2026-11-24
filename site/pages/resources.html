@@ -1,0 +1,131 @@
+<!--
+title: Resources
+description: Setup guide, glossary, instructor notes and FAQ for Advanced ML Week.
+active: resources
+-->
+<section class="page-hero">
+  <div class="wrap">
+    <div class="kicker">Resources</div>
+    <h1>Everything else.</h1>
+    <p class="lede">Setup, a glossary of the week's jargon, notes for instructors running the course, and answers to common questions.</p>
+    <div class="chips" style="margin-top:16px"><a class="chip honey" href="#setup">⚙️ Setup</a><a class="chip" href="#reading">📚 Reading</a><a class="chip" href="#glossary">🔤 Glossary</a><a class="chip" href="#instructors">🧑‍🏫 Instructor notes</a><a class="chip" href="#faq">❓ FAQ</a></div>
+  </div>
+</section>
+
+<section class="block" id="setup" style="padding-top:10px">
+  <div class="wrap">
+    <div class="section-head"><div><div class="kicker">Before Day 1</div><h2>Setup (10 minutes)</h2></div></div>
+    <div class="grid-3">
+      <div class="card"><h3>1 · Accounts</h3><ul><li>A Google account for <b>Colab</b></li><li>A <b>GitHub</b> account (to fork the repo)</li><li>Optional: a <b>Hugging Face</b> account (faster model downloads)</li><li>Optional: an <b>Anthropic API key</b> for Lab 5.3. Everything also runs offline with a mock LLM</li></ul></div>
+      <div class="card"><h3>2 · Smoke test</h3><p>Open <a href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab01_boosting_from_scratch.ipynb" target="_blank" rel="noopener">Lab 1.1 in Colab</a> and run the first two cells. If you see the 🐝 banner and a plot, you're ready.</p><p>For GPU labs: <b>Runtime → Change runtime type → T4 GPU</b>.</p></div>
+      <div class="card"><h3>3 · Local (optional)</h3>
+<pre><code class="language-bash">git clone https://github.com/varoonsahgal/advancedml.git
+cd advancedml
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+jupyter lab notebooks/</code></pre></div>
+    </div>
+    <div class="callout key"><span class="title">Secrets hygiene</span><p>In Colab, store API keys with the 🔑 <b>Secrets</b> panel (left sidebar) and read them with <code>google.colab.userdata.get("ANTHROPIC_API_KEY")</code>. Never paste keys into a notebook cell you might share or commit.</p></div>
+  </div>
+</section>
+
+<section class="block" id="reading" style="padding-top:10px">
+  <div class="wrap">
+    <div class="section-head"><div><div class="kicker">Going deeper</div><h2>Reading list</h2></div><p>Each day page ends with a curated list. If you only read five things after the course, read these:</p></div>
+    <ul class="reading">
+      <li><div><b>A Gentle Introduction to Conformal Prediction</b><span>Angelopoulos &amp; Bates, 2021 · the most practically useful idea most ML engineers haven't learned</span></div></li>
+      <li><div><b>Training Compute-Optimal Large Language Models</b><span>Hoffmann et al., 2022 · how to think about compute</span></div></li>
+      <li><div><b>Flow Matching for Generative Modeling</b><span>Lipman et al., 2023 · the cleanest view of modern generation</span></div></li>
+      <li><div><b>DeepSeek-R1</b><span>DeepSeek-AI, 2025 · an open, readable account of RL-trained reasoning</span></div></li>
+      <li><div><b>Scaling Monosemanticity</b><span>Templeton et al., 2024 · what's inside a production LLM</span></div></li>
+    </ul>
+    <div class="chips" style="margin-top:16px"><a class="chip" href="{{root}}days/day-1.html#reading">Day 1 reading</a><a class="chip" href="{{root}}days/day-2.html#reading">Day 2 reading</a><a class="chip" href="{{root}}days/day-3.html#reading">Day 3 reading</a><a class="chip" href="{{root}}days/day-4.html#reading">Day 4 reading</a><a class="chip" href="{{root}}days/day-5.html#reading">Day 5 reading</a></div>
+  </div>
+</section>
+
+<section class="block" id="glossary" style="padding-top:10px">
+  <div class="wrap">
+    <div class="section-head"><div><div class="kicker">Speak fluent ML</div><h2>Glossary</h2></div></div>
+    <div class="glossary">
+      <div><b>Bias–variance</b>Split of expected error into systematic error (bias), sensitivity to the training sample (variance), and irreducible noise.</div>
+      <div><b>Double descent</b>Test error that peaks at the interpolation threshold, then falls again as capacity grows.</div>
+      <div><b>Gradient boosting</b>An additive ensemble in which each weak learner fits the negative gradient (pseudo-residuals) of the loss.</div>
+      <div><b>ECE</b>Expected calibration error: the size-weighted gap between confidence and accuracy across bins.</div>
+      <div><b>Conformal prediction</b>A wrapper that turns any model into prediction sets or intervals with finite-sample coverage guarantees.</div>
+      <div><b>Shapley value</b>A feature's average marginal contribution across all coalitions; the basis of SHAP.</div>
+      <div><b>TabPFN</b>A transformer pretrained on synthetic tables that predicts new tabular tasks in context.</div>
+      <div><b>Reverse-mode AD</b>Backpropagation: gradients of one output with respect to all inputs at about the cost of one extra pass.</div>
+      <div><b>RMSNorm</b>Normalization by root-mean-square only (no mean-centering), standard in modern LLMs.</div>
+      <div><b>AdamW</b>Adam with weight decay applied directly to the weights rather than through the loss.</div>
+      <div><b>Muon</b>An optimizer that orthogonalizes the momentum of 2-D weight matrices with Newton–Schulz iterations.</div>
+      <div><b>WSD schedule</b>Warmup–stable–decay: a flat learning rate with a short cooldown at the end.</div>
+      <div><b>Grokking</b>Generalization that arrives long after the model has memorized the training set.</div>
+      <div><b>Scaling law</b>A power-law relationship between loss and parameters, data or compute.</div>
+      <div><b>RoPE</b>Rotary position embedding: rotates q and k so attention depends on relative position.</div>
+      <div><b>SwiGLU</b>A gated MLP, SiLU(W₁x) ⊙ W₃x, then W₂.</div>
+      <div><b>GQA / MQA</b>Grouped- or multi-query attention: query heads share K/V heads, shrinking the KV cache.</div>
+      <div><b>KV cache</b>Stored keys and values of past tokens, reused at each decoding step.</div>
+      <div><b>FlashAttention</b>An exact attention kernel that tiles through on-chip memory to avoid materializing the T×T matrix.</div>
+      <div><b>Speculative decoding</b>A draft model proposes tokens and the target model verifies them in parallel, with exact output distribution.</div>
+      <div><b>Top-p / min-p</b>Truncation samplers: the smallest set with mass ≥ p, or tokens above p × the max probability.</div>
+      <div><b>Mixture-of-experts</b>A router sends each token to a few expert MLPs: more parameters at the same FLOPs per token.</div>
+      <div><b>State-space model</b>A linear recurrence with a fixed-size state; Mamba makes its parameters input-dependent.</div>
+      <div><b>ELBO</b>Evidence lower bound: reconstruction minus KL to the prior; the VAE objective.</div>
+      <div><b>Diffusion</b>Generation by learning to reverse a gradual noising process.</div>
+      <div><b>Flow matching</b>Regressing a velocity field along simple noise→data paths, then sampling by solving an ODE.</div>
+      <div><b>Rectified flow / reflow</b>Straightening flow paths by re-pairing noise with generated samples, enabling few-step sampling.</div>
+      <div><b>CFG</b>Classifier-free guidance: extrapolating from unconditional toward conditional predictions.</div>
+      <div><b>DiT</b>Diffusion transformer: a transformer denoiser over latent patches.</div>
+      <div><b>InfoNCE</b>A contrastive loss that classifies the true pair among in-batch negatives; the CLIP objective.</div>
+      <div><b>LoRA / QLoRA</b>Low-rank adapters on frozen weights; QLoRA keeps the frozen base in 4-bit.</div>
+      <div><b>DPO</b>Direct preference optimization: preference learning without a reward model or RL loop.</div>
+      <div><b>RLVR</b>RL from verifiable rewards: rewards from automatic checkers (tests, exact answers).</div>
+      <div><b>GRPO</b>Group relative policy optimization: PPO-style updates with advantages normalized within a group of samples.</div>
+      <div><b>Test-time compute</b>Spending more inference (longer reasoning, sampling, voting, search) to improve answers.</div>
+      <div><b>RAG</b>Retrieval-augmented generation: fetch relevant documents and condition the answer on them.</div>
+      <div><b>MCP</b>Model Context Protocol: an open standard for exposing tools, resources and prompts to AI applications.</div>
+      <div><b>Prompt injection</b>Malicious instructions hidden in content an LLM reads, aiming to hijack its behaviour.</div>
+      <div><b>Superposition</b>Representing more features than dimensions using nearly orthogonal directions.</div>
+      <div><b>Sparse autoencoder</b>An overcomplete, sparsity-penalized autoencoder used to extract interpretable features from activations.</div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="instructors" style="padding-top:10px">
+  <div class="wrap">
+    <div class="section-head"><div><div class="kicker">Running the course</div><h2>Instructor notes</h2></div><p>Notes for whoever is leading the hive.</p></div>
+    <div class="grid-2">
+      <div class="card"><h3>🗓️ Pacing</h3><ul>
+        <li>Lectures are 45–60 minutes. Stop at 60 even when you're on a roll; the labs are where people learn.</li>
+        <li>Every lab has a natural "minimum viable" stopping point before the 🏆 Boss Level. Tell people it's fine to stop there.</li>
+        <li>Fast finishers: point them at Boss Level challenges or the capstone, not the next lab.</li>
+        <li>Run the morning quiz from the previous day as a warm-up. Retrieval practice works.</li></ul></div>
+      <div class="card"><h3>🧑‍🤝‍🧑 Room setup</h3><ul>
+        <li>Pair programming: driver and navigator, swapping at each ✔️ checkpoint.</li>
+        <li>One TA per ~10 learners. TAs circulate during labs and don't lecture.</li>
+        <li>Put up a "parking lot" board for deep questions to answer at the end of the day.</li>
+        <li>Keep the playground open on a big screen during lectures for live demos.</li></ul></div>
+      <div class="card"><h3>✂️ Shorter formats</h3><ul>
+        <li><b>3 days:</b> Day 1 (1.1, 1.2) → Day 2+3 merged (2.1, 3.1, 3.2) → Day 4+5 merged (4.1, 5.1, 5.3).</li>
+        <li><b>Self-paced:</b> one day per week over five weeks, with the capstone as a final project.</li>
+        <li><b>LLM-focused:</b> skip Day 1 and add Labs 5.3/5.4 together.</li></ul></div>
+      <div class="card"><h3>🧯 Common snags</h3><ul>
+        <li>Colab disconnects: save a copy to Drive first and checkpoint models to disk.</li>
+        <li>HF download throttling: have learners log in with <code>huggingface-cli login</code> or set a token.</li>
+        <li>Slow CPU runs: <code>LAB_FAST=1</code> shrinks everything for demos.</li>
+        <li>No API key for Lab 5.3: the built-in MockLLM keeps the whole loop runnable.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="faq" style="padding-top:10px">
+  <div class="wrap-narrow">
+    <div class="section-head"><div><div class="kicker">Questions</div><h2>FAQ</h2></div></div>
+    <details class="solution"><summary>Do I need a GPU?</summary><p>No. Every lab runs on CPU (Colab's free tier is fine). Labs marked ⚡ are faster on a free T4 GPU and produce prettier results, especially diffusion (4.2), LoRA (5.1) and GRPO (5.2).</p></details>
+    <details class="solution"><summary>How much math do I need?</summary><p>Comfort with derivatives, matrix multiplication, and expectations and variances. Each concept is introduced with intuition first, and the equations are annotated.</p></details>
+    <details class="solution"><summary>Why implement things from scratch when libraries exist?</summary><p>Because you can't debug, tune or extend what you don't understand. Each lab ends by comparing your version with the production library, so you leave knowing both.</p></details>
+    <details class="solution"><summary>Can I use this material for my own course?</summary><p>Yes. Fork the repo, change <code>site/</code> and <code>notebooks/</code>, and rebuild with <code>python scripts/build.py</code>. Please keep attribution to the original papers in the reading lists.</p></details>
+    <details class="solution"><summary>Why a bee?</summary><p>Bees are distributed, gradient-following optimizers that turn noise (flowers everywhere!) into structure (honeycomb). Also, yellow is a very pleasant color to read on. 🐝</p></details>
+  </div>
+</section>

@@ -1,0 +1,61 @@
+<!--
+title: All Labs
+description: Sixteen hands-on notebook labs, from gradient boosting to sparse autoencoders. One click to Colab; runs on CPU.
+active: labs
+-->
+<section class="page-hero">
+  <div class="wrap">
+    <div class="kicker">The honeycomb</div>
+    <h1>16 labs. Zero setup.</h1>
+    <p class="lede">Each lab is a guided Jupyter notebook: intuition first, then the math, then code you write yourself, with checkpoints that confirm you got it right. Open any of them in Colab with one click.</p>
+    <div class="grid-2" style="margin-top:28px;align-items:stretch">
+      <div class="card"><!--HONEYCOMB--><!--PROGRESS:all--><p class="muted" style="margin:10px 0 0;font-size:.9rem">Tick "Mark complete" on each lab to fill its cell. Progress is saved in this browser.</p></div>
+      <div class="card"><b>Anatomy of a lab</b>
+        <div class="chips" style="margin-top:10px"><span class="chip honey">🗺️ roadmap</span><span class="chip">🎯 objectives</span><span class="chip">🔮 predict-then-run</span><span class="chip teal">🧪 your turn</span><span class="chip">✅ solutions</span><span class="chip indigo">✔️ checkpoints</span><span class="chip honey">🍯 key takeaways</span><span class="chip coral">🏆 boss level</span><span class="chip plum">💼 interview corner</span><span class="chip">🐝 fun fact</span></div>
+        <ol style="margin:16px 0 0;padding-left:1.2em;color:var(--ink-2);font-size:.93rem">
+          <li><b>Predict</b> the outcome before you run each key experiment.</li>
+          <li><b>Build</b> it from scratch in the 🧪 cells. Hints are right there, and solutions follow if you're stuck.</li>
+          <li><b>Verify</b>: the ✔️ checkpoints compare your code with a reference implementation.</li>
+          <li><b>Compare</b> with the production library you'll use at work.</li>
+          <li><b>Consolidate</b> with key takeaways, interview questions and a 🏆 stretch challenge.</li>
+        </ol></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:10px">
+  <div class="wrap">
+    <div class="filters">
+      <button class="on" data-filter="all">All days</button>
+      <button data-filter="1">Day 1 · Classical</button>
+      <button data-filter="2">Day 2 · Engine room</button>
+      <button data-filter="3">Day 3 · Transformers</button>
+      <button data-filter="4">Day 4 · Generative</button>
+      <button data-filter="5">Day 5 · Reasoning &amp; agents</button>
+    </div>
+    <!--LABS:all-->
+  </div>
+</section>
+
+<section class="block" style="padding-top:0">
+  <div class="wrap grid-2">
+    <div class="card">
+      <h3>☁️ Running in Colab (recommended)</h3>
+      <ol>
+        <li>Click <b>▶ Open in Colab</b> on any lab.</li>
+        <li><b>File → Save a copy in Drive</b> so your work persists.</li>
+        <li>Optional: <b>Runtime → Change runtime type → T4 GPU</b> for labs marked ⚡.</li>
+        <li>Run the setup cell first; it installs anything Colab is missing.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>💻 Running locally</h3>
+<pre><code class="language-bash">git clone https://github.com/varoonsahgal/advancedml.git
+cd advancedml
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+jupyter lab notebooks/</code></pre>
+      <p class="muted" style="font-size:.9rem;margin:0">Python 3.10+. Set <code>LAB_FAST=1</code> for a quick smoke-test run of any notebook.</p>
+    </div>
+  </div>
+</section>

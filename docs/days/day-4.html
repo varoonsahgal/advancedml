@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 4 · Generative Worlds · Gradient Hive</title>
+<meta name="description" content="The generative model family tree — VAEs, diffusion, flow matching and rectified flow, classifier-free guidance, latent diffusion and DiTs, and multimodal models from CLIP to VLMs.">
+<meta property="og:title" content="Day 4 · Generative Worlds · Gradient Hive">
+<meta property="og:description" content="The generative model family tree — VAEs, diffusion, flow matching and rectified flow, classifier-free guidance, latent diffusion and DiTs, and multimodal models from CLIP to VLMs.">
+<meta property="og:image" content="../assets/img/og-image.png">
+<meta name="theme-color" content="#F5B700">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2064%2064%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22bbi%22%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpolygon%20points%3D%2232%2C2%2058%2C17%2058%2C47%2032%2C62%206%2C47%206%2C17%22%20fill%3D%22%23F5B700%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%3Cellipse%20cx%3D%2228%22%20cy%3D%2222%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%28-20%2028%2022%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2239%22%20cy%3D%2221%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%2818%2039%2021%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22%23FFE680%22/%3E%3Cg%20clip-path%3D%22url%28%23bbi%29%22%20fill%3D%22%231F1B16%22%3E%3Crect%20x%3D%2229%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2224%22%20width%3D%226%22%20height%3D%2226%22/%3E%3C/g%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%231F1B16%22/%3E%3Ccircle%20cx%3D%2215.5%22%20cy%3D%2233%22%20r%3D%222.4%22%20fill%3D%22%23FFFDF4%22/%3E%3Cpath%20d%3D%22M14%2028%20Q10%2020%207%2021%20M20%2027%20Q20%2019%2016%2017%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M50%2037%20l6%200%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="../assets/css/style.css?v=6acdf6d1">
+<script>try{var t=localStorage.getItem("hive-theme");if(t)document.documentElement.setAttribute("data-theme",JSON.parse(t))}catch(e){}</script>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="brand" href="../index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbn"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbn)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg><span>Gradient Hive<small>Advanced ML Week · 2026</small></span></a>
+  <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+  <nav class="nav-links">
+    <div class="nav-days"><a title="Day 1: Classical, Sharpened" class="" href="../days/day-1.html">1</a><a title="Day 2: The Deep Learning Engine Room" class="" href="../days/day-2.html">2</a><a title="Day 3: Transformers & Beyond" class="" href="../days/day-3.html">3</a><a title="Day 4: Generative Worlds" class=" active" href="../days/day-4.html">4</a><a title="Day 5: LLMs, Reasoning & Agents" class="" href="../days/day-5.html">5</a></div>
+    <a class="" href="../labs.html">Labs</a>
+    <a class="" href="../playground.html">Playground</a>
+    <a class="" href="../capstone.html">Capstone</a>
+    <a class="" href="../cheatsheet.html">Cheat sheet</a>
+    <a class="" href="../resources.html">Resources</a>
+    <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">🌙</button>
+  </nav>
+</div></header>
+<main>
+<header class="day-hero">
+  <img class="bg" src="../assets/img/cover-day4.png" alt="">
+  <div class="wrap">
+    <div class="kicker" style="color:#F5B700">Day 4 · Thu</div>
+    <h1>Generative <em>worlds.</em></h1>
+    <p class="lede">How do you turn pure noise into a photograph, a video, or a molecule? Today you'll learn the one idea behind modern image and video generators (transport noise to data along a learned flow), build it from scratch, and steer it with guidance.</p>
+    <div class="meta"><span class="chip honey">3 labs</span><span class="chip">⏱ ~7 hours</span><span class="chip">🧬 VAE</span><span class="chip">🌫️ diffusion</span><span class="chip">🌊 flow matching</span><span class="chip">🎚️ CFG</span><span class="chip">🧱 DiT</span><span class="chip">🖼️ CLIP</span></div>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside class="toc"><h4>On this day</h4><ol><li><a href="#plan">Flight plan</a></li><li><a href="#map">The generative family tree</a></li><li><a href="#diffusion">Diffusion: learning to denoise</a></li><li><a href="#flow">Flow matching &amp; rectified flow</a></li><li><a href="#guidance">Classifier-free guidance</a></li><li><a href="#scale">Scaling up: latents, DiT, video</a></li><li><a href="#multimodal">Multimodal: CLIP &amp; VLMs</a></li><li><a href="#labs">Today&#x27;s labs</a></li><li><a href="#takeaways">🍯 Honey jar: key takeaways</a></li><li><a href="#quiz">Quiz: check your honey</a></li><li><a href="#challenge">🖼️ Daily challenge</a></li><li><a href="#reading">Reading &amp; going deeper</a></li></ol><div class="progress" data-progress="lab10,lab11,lab12"><b>Lab progress</b> <span class="count muted mono"></span><div class="bar"><i></i></div></div></aside>
+  <article class="content">
+
+<section id="plan" data-toc="Flight plan">
+  <h2><span class="n">00</span>Today's flight plan</h2>
+  <p>A generative model learns $p(x)$, the distribution your data came from, well enough to <strong>sample new data</strong> from it. Yesterday's GPT did this one token at a time. Today we generate whole images in one shot by learning to undo noise.</p>
+  <div class="tldr"><div class="tldr-head">⚡ The one-minute version</div><ul><li>Generation = <b>transporting noise to data</b> along a learned vector field.</li><li>Flow matching regresses the velocity of straight noise→data paths, then samples by solving an ODE.</li><li>Guidance steers samples; latents + DiTs scale them up; CLIP connects images and text.</li></ul></div>
+  <div class="agenda">
+    <div class="slot"><span class="t">09:15</span><div><b>The generative map: VAE → diffusion → flow matching</b><br><span>One family tree, one unifying idea</span></div><span class="chip">lecture</span></div>
+    <div class="slot"><span class="t">10:15</span><div><b>Lab 4.1: Flow matching from scratch</b><br><span>Noise → art in 2D, plus reflow</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">13:15</span><div><b>Guidance, latents, DiT &amp; multimodality</b><br><span>How text-to-image actually works</span></div><span class="chip">lecture</span></div>
+    <div class="slot"><span class="t">14:00</span><div><b>Lab 4.2: Diffusion + CFG on MNIST</b><br><span>Turn the guidance knob</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">15:30</span><div><b>Lab 4.3: CLIP &amp; contrastive learning</b><br><span>Zero-shot classification, retrieval</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">16:45</span><div><b>🖼️ Gallery walk + capstone sprint</b><br><span>The weirdest digit wins</span></div><span class="chip plum">fun</span></div>
+  </div>
+</section>
+
+<section id="map" data-toc="The generative family tree">
+  <h2><span class="n">01</span>The generative family tree</h2>
+  <div class="grid-3">
+    <div class="card"><h4>📜 Autoregressive</h4><p>Factorize $p(x)=\prod_t p(x_t\mid x_{&lt;t})$ and predict one piece at a time. Exact likelihood, great for discrete sequences (text, code), and slow to sample long outputs. <i>Day 3.</i></p></div>
+    <div class="card"><h4>🧬 VAEs</h4><p>Encode to a latent $z$, decode back, and keep the latent distribution close to a simple prior. Fast to sample but often blurry on its own. Its big modern role is as the <b>compressor</b> for latent diffusion.</p></div>
+    <div class="card"><h4>⚔️ GANs</h4><p>A generator tries to fool a discriminator. Sharp samples, but adversarial training is unstable and prone to mode collapse. Today they mostly survive as an extra loss for few-step distillation.</p></div>
+    <div class="card"><h4>🌫️ Diffusion</h4><p>Gradually add noise, learn to remove it. Stable training and excellent sample quality; classically needs many denoising steps.</p></div>
+    <div class="card"><h4>🌊 Flow matching</h4><p>Learn a velocity field that moves noise to data along simple (often straight) paths, then integrate an ODE. The simplest objective, and widely used in recent image and video models.</p></div>
+    <div class="card"><h4>⚡ Few-step models</h4><p>Consistency models and distillation compress a 50-step sampler into 1–4 steps, making generation feel real-time.</p></div>
+  </div>
+  <div class="eq"><div class="label">The VAE objective (ELBO)</div>
+    $$\log p_\theta(x) \;\ge\; \underbrace{\mathbb{E}_{q_\phi(z\mid x)}\big[\log p_\theta(x\mid z)\big]}_{\text{reconstruct}} \;-\; \underbrace{\mathrm{KL}\big(q_\phi(z\mid x)\,\|\,p(z)\big)}_{\text{stay near the prior}}$$
+    <p class="explain">The reparameterization trick $z = \mu + \sigma\odot\epsilon$ lets gradients flow through sampling.</p></div>
+</section>
+
+<section id="diffusion" data-toc="Diffusion: learning to denoise">
+  <h2><span class="n">02</span>Diffusion: learning to denoise</h2>
+  <p>Define a path that slowly destroys data by mixing it with Gaussian noise. Destroying is easy. A network trained to undo one small step at a time can then start from pure noise and walk all the way back to data.</p>
+  <figure class="fig"><img src="../assets/img/d4-forward.png" alt="A spiral dataset progressively mixed with Gaussian noise" loading="lazy"><figcaption>The noising path on a 2-D spiral. Every generative model today learns to reverse something like this.</figcaption></figure>
+  <div class="eq"><div class="label">DDPM in one line (Ho et al., 2020)</div>
+    $$x_t = \sqrt{\bar\alpha_t}\,x_0 + \sqrt{1-\bar\alpha_t}\,\epsilon,\qquad \mathcal{L} = \mathbb{E}_{t,\,x_0,\,\epsilon}\,\big\|\epsilon - \epsilon_\theta(x_t, t)\big\|^2$$
+    <p class="explain">Predicting the noise is equivalent, up to scaling, to estimating the <b>score</b> $\nabla_x \log p_t(x)$, the direction that increases data likelihood (Song et al., 2021). Sampling follows the score downhill in noise level.</p></div>
+</section>
+
+<section id="flow" data-toc="Flow matching & rectified flow">
+  <h2><span class="n">03</span>Flow matching: the elegant version</h2>
+  <p>Flow matching (Lipman et al., 2023) and rectified flow (Liu et al., 2023) strip the idea down. Pick a noise sample $x_0$ and a data sample $x_1$, and connect them with a <strong>straight line</strong>. Train a network to predict the velocity along that line. At sampling time, start at noise and integrate the learned velocity field.</p>
+  <div class="eq"><div class="label">Conditional flow matching</div>
+    $$x_t = (1-t)\,x_0 + t\,x_1,\quad x_0\sim\mathcal N(0,I),\ x_1\sim p_\text{data},\qquad \mathcal{L}(\theta) = \mathbb{E}_{t,x_0,x_1}\big\|v_\theta(x_t,t) - (x_1 - x_0)\big\|^2$$
+    <p class="explain">Sampling: solve $\tfrac{dx}{dt} = v_\theta(x,t)$ from $t=0$ to $1$ with Euler or Heun steps. The regression target is just "where you're going minus where you started".</p></div>
+<pre><code class="language-python">for x1 in loader:                                   # a batch of data
+    x0 = torch.randn_like(x1)                       # a batch of noise
+    t  = torch.rand(len(x1), 1)
+    xt = (1 - t) * x0 + t * x1                      # a point on the straight path
+    loss = ((model(xt, t) - (x1 - x0)) ** 2).mean() # regress the velocity
+    opt.zero_grad(); loss.backward(); opt.step()
+
+x = torch.randn(n, 2)                               # sample: Euler-integrate the ODE
+for i in range(steps):
+    t = torch.full((n, 1), i / steps)
+    x = x + model(x, t) / steps</code></pre>
+  <p>Below is the <em>exact</em> flow-matching velocity field for a finite dataset, computed live in your browser. It's what a perfectly trained network would learn. Try different step counts: <b>with one step, every particle lands near the data's mean.</b> The individual paths are straight, but the <em>marginal</em> flow (averaged over all the noise–data pairings that pass through a point) curves. That's why few-step sampling is hard, and why <em>reflow</em> and distillation exist.</p>
+  <div data-widget="flow"></div>
+  <figure class="fig"><img src="../assets/img/d4-trajectories.png" alt="Trajectories from noise to a heart shape with 100 steps versus 4 steps" loading="lazy"><figcaption>Same field, different step counts. With 100 steps the heart is crisp; with 4 the samples are smeared. <b>Reflow</b> (re-pairing each noise sample with the output it produces and training again) straightens the paths so that a few steps become enough.</figcaption></figure>
+  <div class="callout key"><span class="title">Key idea: it's all one family</span><p>DDPM, score-based SDEs and flow matching are different parameterizations of the same picture: a time-dependent vector field transporting a simple distribution to the data distribution. Flow matching just chooses the simplest path and the simplest regression target.</p></div>
+</section>
+
+<section id="guidance" data-toc="Classifier-free guidance">
+  <h2><span class="n">04</span>Steering: classifier-free guidance</h2>
+  <p>A conditional model $v_\theta(x, t, c)$ follows a prompt or class $c$ only loosely. <strong>Classifier-free guidance</strong> (Ho &amp; Salimans, 2022) trains one network both with the condition and without it (by randomly dropping $c$ about 10% of the time), then extrapolates <em>away</em> from the unconditional prediction at sampling time:</p>
+  <div class="eq"><div class="label">CFG</div>
+    $$\tilde\epsilon_\theta(x,t,c) = (1+w)\,\epsilon_\theta(x,t,c) \;-\; w\,\epsilon_\theta(x,t,\varnothing)$$
+    <p class="explain">$w=0$ is plain conditional sampling. Larger $w$ gives samples that look more like class $c$ and less like the others: higher fidelity, lower diversity, and eventually over-saturated images.</p></div>
+  <figure class="fig"><img src="../assets/img/d4-cfg.png" alt="Samples from a 3-class Gaussian mixture under increasing guidance scale" loading="lazy"><figcaption><b>Computed with exact scores of a Gaussian mixture.</b> As w grows, samples of the top class move away from the overlapping classes and bunch together. That's the fidelity/diversity trade-off in miniature.</figcaption></figure>
+</section>
+
+<section id="scale" data-toc="Scaling up: latents, DiT, video">
+  <h2><span class="n">05</span>Scaling up: latents, DiTs and video</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 1000 220" role="img" aria-label="Latent diffusion transformer pipeline">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink-2)"/></marker></defs>
+      <rect class="box" x="10" y="20" width="150" height="70" rx="12"/><text x="85" y="50" text-anchor="middle" style="font-weight:700">"a bee wearing</text><text x="85" y="70" text-anchor="middle" style="font-weight:700">sunglasses"</text>
+      <rect class="box indigo" x="200" y="20" width="150" height="70" rx="12"/><text x="275" y="50" text-anchor="middle" style="font-weight:700">text encoder</text><text x="275" y="70" text-anchor="middle" class="small">CLIP / T5 / an LLM</text>
+      <rect class="box" x="10" y="130" width="150" height="70" rx="12"/><text x="85" y="160" text-anchor="middle" style="font-weight:700">noise latent</text><text x="85" y="180" text-anchor="middle" class="small">e.g. 64×64×16</text>
+      <rect class="box honey" x="390" y="60" width="260" height="110" rx="14"/><text x="520" y="100" text-anchor="middle" class="on-honey" style="font-weight:800;font-size:18px">Diffusion Transformer</text><text x="520" y="124" text-anchor="middle" class="on-honey" style="font-size:13px">patchify → transformer blocks</text><text x="520" y="144" text-anchor="middle" class="on-honey" style="font-size:13px">predicts velocity, run N steps</text>
+      <rect class="box teal" x="690" y="80" width="140" height="70" rx="12"/><text x="760" y="110" text-anchor="middle" style="font-weight:700">VAE decoder</text><text x="760" y="130" text-anchor="middle" class="small">latent → pixels</text>
+      <rect class="box dark" x="860" y="80" width="130" height="70" rx="12"/><text x="925" y="120" text-anchor="middle" class="on-dark" style="font-weight:700">🖼️ 1024²</text>
+      <path class="arrow" d="M160 55 L196 55"/><path class="arrow" d="M350 55 C 380 55, 380 90, 386 92"/><path class="arrow" d="M160 165 C 300 165, 330 140, 386 138"/><path class="arrow" d="M650 115 L686 115"/><path class="arrow" d="M830 115 L856 115"/>
+    </svg>
+    <figcaption>The anatomy of a modern text-to-image model. Video models follow the same recipe with <i>spacetime</i> patches.</figcaption>
+  </div>
+  <div class="grid-2">
+    <div class="card"><h4>🗜️ Latent diffusion</h4><p>Running diffusion on 1024×1024×3 pixels is wasteful. Rombach et al. (2022) first compress images with an autoencoder (~8× per side) and run diffusion in that latent space, which is far cheaper and keeps perceptual quality.</p></div>
+    <div class="card"><h4>🧱 DiT</h4><p>Peebles &amp; Xie (2023) replaced the UNet with a plain transformer over latent patches, and it scales predictably like LLMs. Stable Diffusion 3 (2024) combined rectified flow with a multimodal DiT in which text and image tokens attend to each other.</p></div>
+    <div class="card"><h4>🎬 Video &amp; world models</h4><p>Treat video as a 3-D grid of spacetime patches and apply the same diffusion-transformer recipe. Push further and condition on <i>actions</i>, and you get interactive <b>world models</b> (such as DeepMind's Genie line) that generate explorable environments frame by frame.</p></div>
+    <div class="card"><h4>⚡ Few-step generation</h4><p>Consistency models (Song et al., 2023) and adversarial or distribution-matching distillation train students that jump from noise to image in 1–4 steps, which is what makes real-time generation possible.</p></div>
+  </div>
+</section>
+
+<section id="multimodal" data-toc="Multimodal: CLIP & VLMs">
+  <h2><span class="n">06</span>Multimodal: CLIP and vision-language models</h2>
+  <p><strong>CLIP</strong> (Radford et al., 2021) trains an image encoder and a text encoder so that matching pairs land close together in a shared embedding space. Train on enough internet image–caption pairs and you get <em>zero-shot</em> classification for free: embed "a photo of a {class}" for each class and pick the closest one.</p>
+  <div class="eq"><div class="label">Symmetric InfoNCE (the CLIP loss)</div>
+    $$\mathcal{L} = -\frac{1}{2N}\sum_{i=1}^{N}\Big[\log\frac{e^{s_{ii}/\tau}}{\sum_j e^{s_{ij}/\tau}} + \log\frac{e^{s_{ii}/\tau}}{\sum_j e^{s_{ji}/\tau}}\Big],\qquad s_{ij} = \frac{\langle f(\text{img}_i),\, g(\text{txt}_j)\rangle}{\|f\|\,\|g\|}$$
+    <p class="explain">A batch of N pairs gives N² candidate matches, of which N are correct: cross-entropy over rows (image→text) and columns (text→image). SigLIP (Zhai et al., 2023) replaces the softmax with independent sigmoids, which scales better across devices.</p></div>
+  <figure class="fig"><img src="../assets/img/d4-clip.png" alt="Image-text cosine similarity matrix with high values on the diagonal" loading="lazy"><figcaption><b>Illustrative.</b> Training pushes the diagonal up and everything else down. In Lab 4.3 you'll watch this matrix go from noise to diagonal.</figcaption></figure>
+  <div class="callout frontier"><span class="title">How VLMs see</span><p>Most vision-language models follow the LLaVA-style recipe: a pretrained vision encoder (often CLIP- or SigLIP-style) turns an image into patch embeddings, a small projector maps them into the LLM's token space, and the LLM reads them as "visual tokens" alongside text. Newer natively multimodal models train on interleaved image and text from the start, and some generate images too.</p></div>
+</section>
+
+<section id="labs" data-toc="Today's labs">
+  <h2><span class="n">07</span>Today's labs</h2>
+  <div class="labs"><article class="lab-card reveal" data-lab="lab10" data-day="4" id="lab10">
+  <div class="hexnum"><div><small>LAB</small>4.1</div></div>
+  <div>
+    <h3>Flow Matching From Scratch (Noise → Art in 2D)</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span><span class="chip coral">generative</span><span class="chip plum">from scratch</span></div>
+    <p>The core idea behind modern image and video generators, in 2D where you can see everything. Train a velocity field, integrate an ODE from noise to data, then straighten the paths with reflow.</p>
+    <figure class="lab-preview"><img src="../assets/img/labs/lab10.png" alt="Noise particles flowing along learned trajectories into Buzz the Backprop Bee." loading="lazy"><figcaption><b>What you'll build:</b> Noise particles flowing along learned trajectories into Buzz the Backprop Bee.</figcaption></figure>
+    <ul class="obj"><li>Trace the path from VAE to diffusion to flow matching</li><li>Train conditional flow matching with linear paths</li><li>Write Euler and Heun ODE samplers</li><li>Use reflow to get good few-step sampling</li><li>Compare against DDPM noise prediction</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab10_flow_matching_2d.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab10_flow_matching_2d.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab11" data-day="4" id="lab11">
+  <div class="hexnum"><div><small>LAB</small>4.2</div></div>
+  <div>
+    <h3>Class-Conditional Generation with Classifier-Free Guidance</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝🐝 spicy</span><span class="chip coral">⚡ GPU optional</span><span class="chip coral">diffusion</span><span class="chip teal">images</span></div>
+    <p>Train a small conditional UNet on MNIST, add label dropout, and turn the classifier-free guidance knob to see the quality vs. diversity trade-off appear in front of you.</p>
+    <figure class="lab-preview"><img src="../assets/img/labs/lab11.png" alt="Same noise, guidance w = 0, 1, 2: scribbles become crisp, class-correct digits." loading="lazy"><figcaption><b>What you'll build:</b> Same noise, guidance w = 0, 1, 2: scribbles become crisp, class-correct digits.</figcaption></figure>
+    <ul class="obj"><li>Build a time- and class-conditioned UNet</li><li>Train with label dropout for CFG</li><li>Sweep guidance scales and compare sample grids</li><li>Make denoising filmstrips</li><li>Understand latent diffusion and DiT at a conceptual level</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab11_diffusion_mnist_cfg.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab11_diffusion_mnist_cfg.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab12" data-day="4" id="lab12">
+  <div class="hexnum"><div><small>LAB</small>4.3</div></div>
+  <div>
+    <h3>Multimodal Magic: Contrastive Learning &amp; CLIP</h3>
+    <div class="meta"><span class="chip honey">⏱ 1.5 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span><span class="chip indigo">multimodal</span><span class="chip teal">contrastive</span></div>
+    <p>Implement the InfoNCE loss and watch a tiny two-tower model align images with text, then use a pretrained CLIP for zero-shot classification, prompt ensembling and retrieval.</p>
+    <figure class="lab-preview"><img src="../assets/img/labs/lab12.png" alt="CLIP text-to-image search: &quot;a red car&quot;, &quot;antlers&quot;, &quot;a ship on the water&quot;." loading="lazy"><figcaption><b>What you'll build:</b> CLIP text-to-image search: &quot;a red car&quot;, &quot;antlers&quot;, &quot;a ship on the water&quot;.</figcaption></figure>
+    <ul class="obj"><li>Implement symmetric InfoNCE (the CLIP loss)</li><li>Train a toy two-tower model</li><li>Classify zero-shot with prompt engineering</li><li>Retrieve images and text from a shared embedding space</li><li>Implement the SigLIP sigmoid loss</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab12_clip_multimodal.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab12_clip_multimodal.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article></div>
+</section>
+
+<section id="takeaways" data-toc="🍯 Honey jar: key takeaways">
+  <h2><span class="n">🍯</span>The honey jar</h2>
+  <p>Today, distilled. If you remember nothing else, remember these.</p>
+  <ol class="honeyjar"><li><span class="num">1</span><div>Diffusion, score models and flow matching are one family: a time-dependent field that carries a simple distribution to the data distribution.</div></li><li><span class="num">2</span><div>Flow-matching loss: regress v<sub>θ</sub>(x<sub>t</sub>, t) onto x₁ − x₀. Training needs no simulation and is about as simple as it gets.</div></li><li><span class="num">3</span><div>Sampling is ODE solving. Fewer steps are faster but blurrier; reflow and distillation fix that.</div></li><li><span class="num">4</span><div><b>Classifier-free guidance</b> trades diversity for fidelity: (1+w)·conditional − w·unconditional.</div></li><li><span class="num">5</span><div>Latent diffusion + diffusion transformers (DiT) are the scalable recipe for images and video.</div></li><li><span class="num">6</span><div>CLIP's contrastive loss builds a shared image–text space, which gives you zero-shot classification and retrieval.</div></li><li><span class="num">7</span><div>Vision-language models feed vision-encoder tokens into an LLM through a small projector.</div></li></ol>
+  <h3>🧨 Myth busters</h3>
+  <div class="myths"><div class="myth"><div class="m"><span>MYTH</span>Diffusion models need hundreds of steps.</div><div class="r"><span>REALITY</span>Distillation, consistency models and straighter flows bring high-quality sampling down to 1–4 steps.</div></div><div class="myth"><div class="m"><span>MYTH</span>Higher guidance is always better.</div><div class="r"><span>REALITY</span>Large w over-saturates images and collapses diversity. It's a knob to tune, not a dial to max out.</div></div><div class="myth"><div class="m"><span>MYTH</span>VAEs are obsolete.</div><div class="r"><span>REALITY</span>VAEs are the compressor inside most latent diffusion systems. They're still doing important work.</div></div></div>
+  <h3>💼 Interview flashcards</h3>
+  <p>Say your answer out loud, <i>then</i> flip the card. Retrieval practice is the most reliable way to make knowledge stick.</p>
+  <div class="flashcards"><button class="flash" aria-label="Flip card"><span class="inner"><span class="front"><small>Q1</small>What's the conditional flow-matching regression target?<em>tap to flip ↻</em></span><span class="back"><small>A1</small>The straight-path velocity x₁ − x₀ (data minus noise) at the point x<sub>t</sub> = (1−t)x₀ + t x₁.</span></span></button><button class="flash" aria-label="Flip card"><span class="inner"><span class="front"><small>Q2</small>Why does 1-step sampling land on the data mean?<em>tap to flip ↻</em></span><span class="back"><small>A2</small>At t = 0 the noisy point carries no information about its destination, so the optimal velocity points to E[x₁].</span></span></button><button class="flash" aria-label="Flip card"><span class="inner"><span class="front"><small>Q3</small>What does label dropout enable?<em>tap to flip ↻</em></span><span class="back"><small>A3</small>One network learns both conditional and unconditional predictions, which is what classifier-free guidance needs.</span></span></button><button class="flash" aria-label="Flip card"><span class="inner"><span class="front"><small>Q4</small>Where do CLIP's negatives come from?<em>tap to flip ↻</em></span><span class="back"><small>A4</small>The other N−1 pairs in the batch. Bigger batches give more and harder negatives.</span></span></button><button class="flash" aria-label="Flip card"><span class="inner"><span class="front"><small>Q5</small>What did DiT replace?<em>tap to flip ↻</em></span><span class="back"><small>A5</small>The UNet denoiser, with a plain transformer over patches of the latent. It scales predictably, like LLMs.</span></span></button><button class="flash" aria-label="Flip card"><span class="inner"><span class="front"><small>Q6</small>What does reflow do?<em>tap to flip ↻</em></span><span class="back"><small>A6</small>It re-pairs noise with the model's own outputs and retrains, which straightens trajectories so few-step sampling works.</span></span></button></div>
+  <p style="margin-top:22px"><a class="btn sm secondary" href="../cheatsheet.html">📄 Printable cheat sheet for the whole week</a></p>
+</section>
+
+<section id="quiz" data-toc="Quiz: check your honey">
+  <h2><span class="n">08</span>Quiz: check your honey</h2>
+  <p class="quiz-score">Score: <span>0 / 5</span></p>
+  <div class="quiz">
+    <div class="q" data-answer="1"><div class="qtext">In conditional flow matching with straight paths, what is the regression target for $v_\theta(x_t, t)$?</div><div class="opts">
+      <button class="opt">The noise ε</button><button class="opt">The velocity x₁ − x₀ (data minus noise)</button><button class="opt">The clean image x₁</button><button class="opt">The score ∇ log p(x)</button></div>
+      <div class="why">For x<sub>t</sub> = (1−t)x₀ + t x₁, the time derivative is x₁ − x₀. Simple regression, no simulation needed during training.</div></div>
+    <div class="q" data-answer="2"><div class="qtext">Why does sampling with a single Euler step from pure noise give a blurry, average-looking result?</div><div class="opts">
+      <button class="opt">The network is undertrained</button><button class="opt">Euler is unstable</button><button class="opt">At t=0 the optimal velocity points every sample toward the data mean, because the marginal flow averages over all pairings</button><button class="opt">The noise is too small</button></div>
+      <div class="why">At t=0, x<sub>t</sub> tells you nothing about which data point you're heading to, so E[x₁ | x₀] = E[x₁]. Paths only "decide" as t grows, so you need several steps (or reflow / distillation).</div></div>
+    <div class="q" data-answer="0"><div class="qtext">Raising the classifier-free guidance scale w usually…</div><div class="opts">
+      <button class="opt">increases prompt adherence and fidelity but reduces diversity</button><button class="opt">increases diversity</button><button class="opt">has no effect after training</button><button class="opt">makes sampling faster</button></div>
+      <div class="why">CFG extrapolates away from the unconditional prediction: sharper, more "on-prompt" samples, fewer modes, and at high w, over-saturation.</div></div>
+    <div class="q" data-answer="3"><div class="qtext">What's the main reason modern image generators run diffusion in a VAE latent space?</div><div class="opts">
+      <button class="opt">Latents are discrete</button><button class="opt">It removes the need for noise</button><button class="opt">The VAE makes images sharper</button><button class="opt">It compresses the input heavily, so the expensive denoiser runs on far fewer elements</button></div>
+      <div class="why">Pixels are mostly redundant high-frequency detail. Spend compute on semantics in latent space and let the decoder handle the texture.</div></div>
+    <div class="q" data-answer="1"><div class="qtext">How does CLIP classify an image zero-shot?</div><div class="opts">
+      <button class="opt">It fine-tunes a linear head on the new classes</button><button class="opt">It compares the image embedding with text embeddings of prompts like "a photo of a {class}" and picks the most similar</button><button class="opt">It generates a caption and parses it</button><button class="opt">It uses k-NN over ImageNet</button></div>
+      <div class="why">The shared embedding space turns classification into retrieval. Prompt wording and prompt ensembling noticeably change accuracy.</div></div>
+  </div>
+</section>
+
+<section id="challenge" data-toc="🖼️ Daily challenge">
+  <h2><span class="n">09</span>Daily challenge</h2>
+  <div class="challenge">
+    <span class="chip">16:45 · 30 minutes · then capstone sprint</span>
+    <h3>🖼️ The gallery walk: weirdest digit wins</h3>
+    <p>Using your Lab 4.2 model, create the most <strong>creative, impossible digit</strong> you can. Allowed tricks:</p>
+    <ul>
+      <li><strong>Negative guidance</strong> (w &lt; 0): "anything <i>but</i> a 7"</li>
+      <li><strong>Class interpolation</strong>: blend the embeddings of 3 and 8 halfway</li>
+      <li><strong>Guidance schedules</strong>: strong early, weak late, or the reverse</li>
+      <li>Print your best grid, pin it on the wall, and vote with honey stickers 🍯</li>
+    </ul>
+  </div>
+</section>
+
+<section id="reading" data-toc="Reading & going deeper">
+  <h2><span class="n">10</span>Reading &amp; going deeper</h2>
+  <ul class="reading">
+    <li><div><b>Auto-Encoding Variational Bayes</b><span>Kingma &amp; Welling · ICLR 2014</span></div></li>
+    <li><div><b>Denoising Diffusion Probabilistic Models</b><span>Ho, Jain, Abbeel · NeurIPS 2020</span></div></li>
+    <li><div><b>Score-Based Generative Modeling through Stochastic Differential Equations</b><span>Song et al. · ICLR 2021</span></div></li>
+    <li><div><b>Flow Matching for Generative Modeling</b><span>Lipman et al. · ICLR 2023</span></div></li>
+    <li><div><b>Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow</b><span>Liu, Gong, Liu · ICLR 2023</span></div></li>
+    <li><div><b>Classifier-Free Diffusion Guidance</b><span>Ho &amp; Salimans · 2022</span></div></li>
+    <li><div><b>High-Resolution Image Synthesis with Latent Diffusion Models</b><span>Rombach et al. · CVPR 2022</span></div></li>
+    <li><div><b>Scalable Diffusion Models with Transformers</b><span>Peebles &amp; Xie · ICCV 2023 · DiT</span></div></li>
+    <li><div><b>Scaling Rectified Flow Transformers for High-Resolution Image Synthesis</b><span>Esser et al. · ICML 2024 · Stable Diffusion 3</span></div></li>
+    <li><div><b>Consistency Models</b><span>Song, Dhariwal, Chen, Sutskever · ICML 2023</span></div></li>
+    <li><div><b>Learning Transferable Visual Models From Natural Language Supervision</b><span>Radford et al. · ICML 2021 · CLIP</span></div></li>
+    <li><div><b>Sigmoid Loss for Language Image Pre-Training</b><span>Zhai et al. · ICCV 2023 · SigLIP</span></div></li>
+    <li><div><b>Visual Instruction Tuning</b><span>Liu, Li, Wu, Lee · NeurIPS 2023 · LLaVA</span></div></li>
+  </ul>
+</section>
+<nav class="pager"><a class="prev" href="../days/day-3.html"><small>← Day 3</small><b>Transformers & Beyond</b></a><a class="next" href="../days/day-5.html"><small>Day 5 →</small><b>LLMs, Reasoning & Agents</b></a></nav></article>
+</div>
+</main>
+<footer class="site"><div class="wrap">
+  <div><div class="brand" style="color:#F6EFD9"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg><span>Gradient Hive<small style="color:#cdbf9c">Advanced ML Week · 2026</small></span></div>
+  <p style="margin-top:14px">A five-day, lab-first journey from gradient boosting to reasoning agents. Built for curious practitioners who learn by building. 🐝</p></div>
+  <div><h4>The week</h4><a href="../days/day-1.html">Day 1 · Classical, Sharpened</a><a href="../days/day-2.html">Day 2 · The Deep Learning Engine Room</a><a href="../days/day-3.html">Day 3 · Transformers & Beyond</a><a href="../days/day-4.html">Day 4 · Generative Worlds</a><a href="../days/day-5.html">Day 5 · LLMs, Reasoning & Agents</a></div>
+  <div><h4>Hands-on</h4><a href="../labs.html">All 16 labs</a><a href="../playground.html">Interactive playground</a><a href="../capstone.html">Capstone: Hive Demo Day</a><a href="https://github.com/varoonsahgal/advancedml" target="_blank" rel="noopener">GitHub repo</a></div>
+  <div><h4>Support</h4><a href="../resources.html#setup">Setup guide</a><a href="../resources.html#reading">Reading list</a><a href="../resources.html#glossary">Glossary</a><a href="../resources.html#instructors">Instructor notes</a><a href="../cheatsheet.html">Printable cheat sheet</a></div>
+</div></footer>
+<button class="flybee" aria-label="Ask Buzz for a tip"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbb"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbb)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/js/main.js?v=f2753687"></script>
+<script src="../assets/js/widgets.js?v=dd92d7f4"></script>
+</body>
+</html>

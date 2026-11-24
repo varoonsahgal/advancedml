@@ -1,0 +1,73 @@
+<!--
+title: Capstone · Hive Demo Day
+description: Capstone project guide for Advanced ML Week — project ideas across classical ML, deep learning, generative models and agents, timeline, deliverables and rubric.
+active: capstone
+-->
+<section class="page-hero">
+  <div class="wrap">
+    <div class="kicker">Capstone</div>
+    <h1>Hive Demo Day 🎤</h1>
+    <p class="lede">In teams of 2–4, build something real with what you learned. Pitch it Wednesday, build Thursday and Friday, demo Friday at 16:45. Small and polished beats big and broken.</p>
+    <div class="chips" style="margin-top:16px"><span class="chip honey">Wed: pitch &amp; form teams</span><span class="chip">Thu 16:45: sprint 1</span><span class="chip">Fri lunch: sprint 2</span><span class="chip dark">Fri 16:45: demo</span></div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:10px">
+  <div class="wrap">
+    <div class="section-head"><div><div class="kicker">Pick a track</div><h2>Project ideas</h2></div><p>Steal one, remix one, or pitch your own. Each idea links back to the labs it builds on.</p></div>
+    <div class="grid-3">
+      <div class="card reveal"><span class="chip teal">Classical · Labs 1.1–1.3</span><h3 style="margin-top:12px">🏥 The honest predictor</h3><p>Take a real tabular dataset (health, housing, churn). Ship a GBDT with conformal intervals, per-subgroup coverage checks, SHAP explanations, and a TabPFN comparison, all in one clean report.</p></div>
+      <div class="card reveal"><span class="chip teal">Classical · Lab 1.2</span><h3 style="margin-top:12px">🎯 Calibrate an LLM</h3><p>Ask an LLM multiple-choice questions, extract its answer probabilities, measure ECE, apply temperature scaling, and build conformal prediction sets so it knows when to say "I'm not sure".</p></div>
+      <div class="card reveal"><span class="chip coral">Deep learning · Labs 2.2–2.3</span><h3 style="margin-top:12px">🏎️ Muon vs AdamW, properly</h3><p>A careful optimizer study: tune the LR for each optimizer, run multiple seeds, try two schedules, and report compute-to-target-loss on a small GPT. Present it like a paper.</p></div>
+      <div class="card reveal"><span class="chip coral">Transformers · Labs 3.1–3.2</span><h3 style="margin-top:12px">⚡ Make it fly</h3><p>Take your Lab 3.1 GPT and make inference as fast as you can: KV cache, int8 weights, speculative decoding with a tiny draft model. Plot tokens/sec at every step and check output quality.</p></div>
+      <div class="card reveal"><span class="chip coral">Architectures · Lab 3.3</span><h3 style="margin-top:12px">🐍 The recall showdown</h3><p>Attention vs. SSM vs. a hybrid on synthetic memory tasks (copying, associative recall, induction). Find the sequence length where each one breaks.</p></div>
+      <div class="card reveal"><span class="chip indigo">Generative · Labs 4.1–4.2</span><h3 style="margin-top:12px">🎨 Few-step generator</h3><p>Train flow matching on a small image set (emoji, sprites, FashionMNIST), then apply reflow or distillation and get good samples in 1–4 steps. Show a filmstrip and an FID-style metric.</p></div>
+      <div class="card reveal"><span class="chip indigo">Multimodal · Lab 4.3</span><h3 style="margin-top:12px">🔎 Search your photos</h3><p>Build a CLIP-powered natural-language search over a folder of images, with an eval set of queries and recall@k. Bonus: add a reranker.</p></div>
+      <div class="card reveal"><span class="chip plum">LLMs · Labs 5.1–5.2</span><h3 style="margin-top:12px">🧮 Tiny reasoner</h3><p>SFT a small model on a reasoning format, then GRPO it on a verifiable task (arithmetic, Countdown, Sudoku-lite). Plot the reward curve, then accuracy vs. samples with majority voting.</p></div>
+      <div class="card reveal"><span class="chip plum">Agents · Lab 5.3</span><h3 style="margin-top:12px">🛠️ An MCP toolbox</h3><p>Write an MCP server for something you care about (your notes, a public API, a database), connect it to an agent, write 20 eval tasks, and measure the pass rate. Include a prompt-injection red-team.</p></div>
+      <div class="card reveal"><span class="chip plum">Interpretability · Lab 5.4</span><h3 style="margin-top:12px">🔬 Feature safari</h3><p>Train a bigger SAE on GPT-2, catalogue 20 interesting features with evidence, and show one convincing steering demo. Bonus: an auto-interpretation pipeline that uses an LLM to label features.</p></div>
+      <div class="card reveal"><span class="chip">Wildcard</span><h3 style="margin-top:12px">🐝 Your idea here</h3><p>Got a dataset from work or a weird hobby? Pitch it Wednesday. The only rule: it has to use at least two ideas from different days of the course.</p></div>
+      <div class="card reveal"><span class="chip">Wildcard</span><h3 style="margin-top:12px">📚 Reproduce a figure</h3><p>Pick a figure from a paper on the reading list and reproduce it at small scale. Where your results differ, explain why.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:10px">
+  <div class="wrap grid-2">
+    <div class="card">
+      <h3>📦 Deliverables</h3>
+      <ul>
+        <li><b>A repo or notebook</b> that runs top to bottom</li>
+        <li><b>A README</b>: problem → approach → results → limitations</li>
+        <li><b>One eval</b> with numbers you trust (and how you know)</li>
+        <li><b>A 5-minute demo</b>: live if you dare, recorded if you're wise</li>
+        <li><b>One failure</b> you analyzed honestly</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>🧭 Tips from past hives</h3>
+      <ul>
+        <li>Get a <i>baseline</i> working in the first hour. Then improve it.</li>
+        <li>Pick a scope you can finish by Thursday night; Friday is for polish.</li>
+        <li>Plots beat tables, and one great plot beats ten okay ones.</li>
+        <li>Write the eval <i>before</i> you start tuning.</li>
+        <li>Split roles: builder, evaluator, storyteller.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:10px">
+  <div class="wrap">
+    <div class="section-head"><div><div class="kicker">How it's judged</div><h2>Rubric</h2></div><p>100 points, plus glory and honey.</p></div>
+    <div class="table-scroll"><table class="sched" style="min-width:640px">
+      <thead><tr><th>Criterion</th><th>Points</th><th>What "excellent" looks like</th></tr></thead>
+      <tbody>
+        <tr><td><b>Technical depth</b></td><td class="time">25</td><td>Uses course ideas correctly and non-trivially; at least one component built from scratch or meaningfully extended</td></tr>
+        <tr><td><b>Evaluation rigor</b></td><td class="time">25</td><td>A clear metric, a baseline, multiple seeds or confidence intervals, and no leakage. Honest about what the number means</td></tr>
+        <tr><td><b>Insight</b></td><td class="time">20</td><td>The team learned something non-obvious and can explain <i>why</i> it happened</td></tr>
+        <tr><td><b>Communication</b></td><td class="time">20</td><td>A tight story, great visuals, a demo that works, and a crisp README</td></tr>
+        <tr><td><b>Creativity</b></td><td class="time">10</td><td>Surprising, delightful, or useful in a way nobody expected</td></tr>
+      </tbody></table></div>
+  </div>
+</section>

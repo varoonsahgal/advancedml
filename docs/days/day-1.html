@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 1 · Classical, Sharpened · Gradient Hive</title>
+<meta name="description" content="Bias–variance and double descent, gradient boosting from scratch, calibration, conformal prediction, SHAP and tabular foundation models.">
+<meta property="og:title" content="Day 1 · Classical, Sharpened · Gradient Hive">
+<meta property="og:description" content="Bias–variance and double descent, gradient boosting from scratch, calibration, conformal prediction, SHAP and tabular foundation models.">
+<meta property="og:image" content="../assets/img/og-image.png">
+<meta name="theme-color" content="#F5B700">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2064%2064%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22bbi%22%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpolygon%20points%3D%2232%2C2%2058%2C17%2058%2C47%2032%2C62%206%2C47%206%2C17%22%20fill%3D%22%23F5B700%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%3Cellipse%20cx%3D%2228%22%20cy%3D%2222%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%28-20%2028%2022%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2239%22%20cy%3D%2221%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%2818%2039%2021%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22%23FFE680%22/%3E%3Cg%20clip-path%3D%22url%28%23bbi%29%22%20fill%3D%22%231F1B16%22%3E%3Crect%20x%3D%2229%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2224%22%20width%3D%226%22%20height%3D%2226%22/%3E%3C/g%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%231F1B16%22/%3E%3Ccircle%20cx%3D%2215.5%22%20cy%3D%2233%22%20r%3D%222.4%22%20fill%3D%22%23FFFDF4%22/%3E%3Cpath%20d%3D%22M14%2028%20Q10%2020%207%2021%20M20%2027%20Q20%2019%2016%2017%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M50%2037%20l6%200%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="../assets/css/style.css?v=6acdf6d1">
+<script>try{var t=localStorage.getItem("hive-theme");if(t)document.documentElement.setAttribute("data-theme",JSON.parse(t))}catch(e){}</script>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="brand" href="../index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbn"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbn)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg><span>Gradient Hive<small>Advanced ML Week · 2026</small></span></a>
+  <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+  <nav class="nav-links">
+    <div class="nav-days"><a title="Day 1: Classical, Sharpened" class=" active" href="../days/day-1.html">1</a><a title="Day 2: The Deep Learning Engine Room" class="" href="../days/day-2.html">2</a><a title="Day 3: Transformers & Beyond" class="" href="../days/day-3.html">3</a><a title="Day 4: Generative Worlds" class="" href="../days/day-4.html">4</a><a title="Day 5: LLMs, Reasoning & Agents" class="" href="../days/day-5.html">5</a></div>
+    <a class="" href="../labs.html">Labs</a>
+    <a class="" href="../playground.html">Playground</a>
+    <a class="" href="../capstone.html">Capstone</a>
+    <a class="" href="../cheatsheet.html">Cheat sheet</a>
+    <a class="" href="../resources.html">Resources</a>
+    <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">🌙</button>
+  </nav>
+</div></header>
+<main>
+<header class="day-hero">
+  <img class="bg" src="../assets/img/cover-day1.png" alt="">
+  <div class="wrap">
+    <div class="kicker" style="color:#F5B700">Day 1 · Mon</div>
+    <h1>Classical, <em>sharpened.</em></h1>
+    <p class="lede">Before we touch a transformer, we master the tools that still win on tables: boosted trees, honest probabilities, guaranteed uncertainty, and explanations you can defend. Then we meet the foundation model that's coming for them.</p>
+    <div class="meta"><span class="chip honey">3 labs</span><span class="chip">⏱ ~7 hours</span><span class="chip">📈 bias–variance</span><span class="chip">🌳 boosting</span><span class="chip">🎯 calibration</span><span class="chip">🛡️ conformal</span><span class="chip">🔍 SHAP</span><span class="chip">🧠 TabPFN</span></div>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside class="toc"><h4>On this day</h4><ol><li><a href="#plan">Flight plan</a></li><li><a href="#bias-variance">Bias, variance &amp; double descent</a></li><li><a href="#boosting">Gradient boosting, demystified</a></li><li><a href="#calibration">Calibration: honest probabilities</a></li><li><a href="#conformal">Conformal prediction</a></li><li><a href="#shap">Explaining predictions with SHAP</a></li><li><a href="#tabpfn">Frontier: foundation models for tables</a></li><li><a href="#labs">Today&#x27;s labs</a></li><li><a href="#takeaways">🍯 Honey jar: key takeaways</a></li><li><a href="#quiz">Quiz: check your honey</a></li><li><a href="#challenge">🏆 Daily challenge</a></li><li><a href="#reading">Reading &amp; going deeper</a></li></ol><div class="progress" data-progress="lab01,lab02,lab03"><b>Lab progress</b> <span class="count muted mono"></span><div class="bar"><i></i></div></div></aside>
+  <article class="content">
+
+<section id="plan" data-toc="Flight plan">
+  <h2><span class="n">00</span>Today's flight plan</h2>
+  <p>Deep learning gets the headlines, but on <strong>tabular data</strong> (most of the data in most companies) gradient-boosted trees are still the default to beat. Today you'll learn them well enough to implement them in 30 lines, and you'll learn the two skills that separate a good ML engineer from a great one: <strong>quantifying uncertainty</strong> and <strong>explaining predictions</strong>.</p>
+  <div class="tldr"><div class="tldr-head">⚡ The one-minute version</div><ul><li>On tables, a well-tuned gradient-boosted tree ensemble is still the model to beat.</li><li>A probability is only useful if it's <b>calibrated</b>. Check a reliability diagram before you trust a score.</li><li><b>Conformal prediction</b> wraps any model in intervals or sets with a guaranteed coverage rate.</li></ul></div>
+  <div class="agenda">
+    <div class="slot"><span class="t">09:15</span><div><b>Bias, variance &amp; double descent</b><br><span>Why the classic U-curve is only half the story</span></div><span class="chip">lecture</span></div>
+    <div class="slot"><span class="t">10:15</span><div><b>Lab 1.1: Gradient boosting from scratch</b><br><span>Residuals, shrinkage, early stopping, LightGBM showdown</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">13:15</span><div><b>Uncertainty you can trust</b><br><span>Calibration, then conformal prediction</span></div><span class="chip">lecture</span></div>
+    <div class="slot"><span class="t">14:00</span><div><b>Lab 1.2: Calibration &amp; conformal</b><br><span>ECE, temperature scaling, CQR, prediction sets</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">15:30</span><div><b>Lab 1.3: SHAP vs TabPFN</b><br><span>Exact Shapley values; in-context learning on tables</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">16:45</span><div><b>🏆 Kaggle-in-an-hour</b><br><span>Leaderboard challenge with a twist</span></div><span class="chip plum">fun</span></div>
+  </div>
+</section>
+
+<section id="bias-variance" data-toc="Bias, variance & double descent">
+  <h2><span class="n">01</span>Bias, variance &amp; double descent</h2>
+  <p>Imagine retraining your model on a fresh sample of data, over and over. The predictions wobble. <strong>Variance</strong> measures how much they wobble. <strong>Bias</strong> measures how far the <em>average</em> prediction sits from the truth. For squared error, the expected test error splits exactly into three parts:</p>
+  <div class="eq"><div class="label">Bias–variance decomposition</div>
+    $$\mathbb{E}\big[(y - \hat f(x))^2\big] = \underbrace{\big(\mathbb{E}[\hat f(x)] - f(x)\big)^2}_{\text{bias}^2} + \underbrace{\mathbb{E}\big[(\hat f(x) - \mathbb{E}[\hat f(x)])^2\big]}_{\text{variance}} + \underbrace{\sigma^2}_{\text{noise}}$$
+    <p class="explain">The expectation is over <em>training sets</em>. Noise σ² is the floor: no model can beat it.</p></div>
+  <figure class="fig"><img src="../assets/img/d1-bias-variance.png" alt="Polynomial fits of degree 1, 4 and 12 across 25 resampled training sets, and bias, variance and total error versus degree" loading="lazy"><figcaption><b>Computed, not drawn.</b> 200 resampled training sets of 25 points from sin(2πx) + noise. Low capacity gives consistently wrong fits (bias); high capacity gives fits that are right on average but wild individually (variance).</figcaption></figure>
+
+  <p>Don't take our word for it. Drag the sliders below. Push the degree up until the refits go wild, then add a little ridge penalty and watch the variance collapse.</p>
+  <div data-widget="biasvar"></div>
+
+  <h3>…but then deep learning broke the U-curve</h3>
+  <p>Classical theory says test error rises forever as capacity grows. Yet modern networks with far more parameters than data points generalize well. The resolution is <strong>double descent</strong> (Belkin et al., 2019; Nakkiran et al., 2019). Error peaks at the <em>interpolation threshold</em>, where the model has just enough capacity to fit the training data exactly, and then <em>falls again</em> as capacity keeps growing, because among the many solutions that fit the data, the optimizer's implicit bias picks a smooth, minimum-norm one.</p>
+  <figure class="fig"><img src="../assets/img/d1-double-descent.png" alt="Test error versus number of random ReLU features showing a spike at the interpolation threshold and a second descent" loading="lazy"><figcaption><b>Double descent in 15 lines of numpy.</b> Minimum-norm least squares on random ReLU features with 60 training points. The spike sits exactly at 60 features. You'll reproduce this in Lab 1.1.</figcaption></figure>
+  <div class="callout key"><span class="title">Key idea</span><p>"More parameters means more overfitting" is a rule for the <em>classical regime</em>. Past the interpolation threshold, <strong>implicit regularization</strong> (from the optimizer, early stopping and architecture) governs generalization. Explicit regularization such as ridge or weight decay smooths out the spike.</p></div>
+</section>
+
+<section id="boosting" data-toc="Gradient boosting, demystified">
+  <h2><span class="n">02</span>Gradient boosting, demystified</h2>
+  <p>Boosting is <strong>gradient descent in function space</strong>. Start with a constant prediction. At each round, compute how the loss would like each prediction to move (the negative gradient, or <em>pseudo-residual</em>), fit a small tree to those residuals, and add a damped copy of it to the ensemble.</p>
+  <div class="eq"><div class="label">The boosting update</div>
+    $$r_i^{(m)} = -\left.\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}\right|_{F=F_{m-1}}, \qquad h_m = \arg\min_{h\in\text{trees}} \sum_i \big(r_i^{(m)} - h(x_i)\big)^2, \qquad F_m = F_{m-1} + \nu\, h_m$$
+    <p class="explain">For squared loss, $r_i = y_i - F(x_i)$, the literal residual. For log loss, $r_i = y_i - p_i$. The learning rate (shrinkage) ν ≈ 0.05–0.1 trades more trees for better generalization.</p></div>
+  <figure class="fig"><img src="../assets/img/d1-boosting-stages.png" alt="Boosting fit after 1, 3, 10 and 100 depth-2 trees, with residuals and the next tree's fit below" loading="lazy"><figcaption><b>Top:</b> the ensemble after 1, 3, 10 and 100 depth-2 trees (ν=0.3). <b>Bottom:</b> the residuals at that stage and the tree fitted to them. As the residuals shrink toward pure noise, it's time to stop.</figcaption></figure>
+  <p>Here is the whole algorithm. You'll extend it to classification, subsampling and early stopping in the lab:</p>
+<pre><code class="language-python">from sklearn.tree import DecisionTreeRegressor
+import numpy as np
+
+class TinyGBM:
+    def __init__(self, n_trees=200, lr=0.1, max_depth=3):
+        self.n_trees, self.lr, self.max_depth = n_trees, lr, max_depth
+
+    def fit(self, X, y):
+        self.f0 = y.mean()                       # best constant under squared loss
+        F = np.full(len(y), self.f0)
+        self.trees = []
+        for _ in range(self.n_trees):
+            residual = y - F                     # = -dL/dF for L = ½(y-F)²
+            tree = DecisionTreeRegressor(max_depth=self.max_depth).fit(X, residual)
+            F += self.lr * tree.predict(X)       # a small step in function space
+            self.trees.append(tree)
+        return self
+
+    def predict(self, X):
+        return self.f0 + self.lr * sum(t.predict(X) for t in self.trees)</code></pre>
+
+  <h3>The big three, and what they added</h3>
+  <div class="compare">
+    <div><h4>XGBoost <span class="chip">2016</span></h4><ul><li>Second-order (Newton) steps: leaf weight $w^* = -G/(H+\lambda)$</li><li>Regularized split gain; sparsity-aware splits</li><li>Made boosting fast and robust enough for production</li></ul></div>
+    <div><h4>LightGBM <span class="chip">2017</span></h4><ul><li>Histogram binning of features → huge speedups</li><li>Leaf-wise growth (watch <code>num_leaves</code>!)</li><li>GOSS sampling + exclusive feature bundling</li></ul></div>
+    <div><h4>CatBoost <span class="chip">2018</span></h4><ul><li>Ordered target statistics for categoricals with no leakage</li><li>Symmetric (oblivious) trees → very fast inference</li><li>Strong defaults with little tuning</li></ul></div>
+    <div><h4>scikit-learn HGB <span class="chip">today</span></h4><ul><li><code>HistGradientBoosting*</code>: LightGBM-style, built in</li><li>Native missing-value and categorical support</li><li>A great first baseline</li></ul></div>
+  </div>
+  <div class="callout pitfall"><span class="title">Pitfall: feature importance lies</span><p>Default "gain" or "split count" importances favor high-cardinality and continuous features, and they split credit arbitrarily between correlated features. Use <strong>permutation importance on held-out data</strong> or SHAP, and still be careful with correlated features (section 05).</p></div>
+  <div class="callout buzz"><span class="title">Buzz says</span><p>On typical tabular benchmarks, tuned tree ensembles still beat most deep nets (Grinsztajn et al., 2022). Trees handle irregular target functions and uninformative features gracefully. Your first baseline for any table should be a GBDT. 🌳</p></div>
+</section>
+
+<section id="calibration" data-toc="Calibration: honest probabilities">
+  <h2><span class="n">03</span>Calibration: honest probabilities</h2>
+  <p>A classifier is <strong>calibrated</strong> if, among all the times it says "70%", the event happens about 70% of the time. Accuracy doesn't measure this. Modern neural networks are often <em>over</em>-confident (Guo et al., 2017), and Naive Bayes is famously so. Any decision that uses the probability directly (pricing, triage, medical thresholds, an LLM deciding whether to answer) needs it to be calibrated.</p>
+  <div class="eq"><div class="label">Expected calibration error</div>
+    $$\mathrm{ECE} = \sum_{b=1}^{B} \frac{|S_b|}{n}\,\Big|\,\underbrace{\tfrac{1}{|S_b|}\textstyle\sum_{i\in S_b} \mathbb{1}[y_i=1]}_{\text{observed frequency}} - \underbrace{\tfrac{1}{|S_b|}\textstyle\sum_{i\in S_b} \hat p_i}_{\text{mean confidence}}\Big|$$
+    <p class="explain">Bin predictions by confidence and average the gaps, weighted by bin size. It's a useful summary, but it depends on the binning, so look at the reliability diagram too.</p></div>
+  <figure class="fig"><img src="../assets/img/d1-calibration.png" alt="Reliability diagram showing raw Naive Bayes far from the diagonal and isotonic-calibrated model on the diagonal, with histograms of predicted probabilities" loading="lazy"><figcaption><b>Left:</b> raw Naive Bayes (coral) is badly over-confident; isotonic regression fitted with cross-validation (teal) lands on the diagonal. <b>Right:</b> over-confidence shows up as probability mass piled at 0 and 1.</figcaption></figure>
+  <div class="grid-3">
+    <div class="card"><h4>Platt scaling</h4><p>Fit a logistic regression $\sigma(a\cdot s + b)$ on held-out scores. Two parameters, data-efficient, assumes a sigmoid-shaped distortion.</p></div>
+    <div class="card"><h4>Temperature scaling</h4><p>Divide logits by a single $T&gt;0$ learned on validation data. It doesn't change the argmax, so accuracy is untouched. The default for neural nets.</p></div>
+    <div class="card"><h4>Isotonic regression</h4><p>A non-parametric monotone map. Very flexible but needs more data, and can overfit on small calibration sets.</p></div>
+  </div>
+</section>
+
+<section id="conformal" data-toc="Conformal prediction">
+  <h2><span class="n">04</span>Conformal prediction: guarantees for free</h2>
+  <p>Calibration fixes probabilities <em>on average</em>. <strong>Conformal prediction</strong> goes further: it wraps <em>any</em> trained model (a GBM, a neural net, even an LLM) and outputs a set or interval that contains the truth with a chosen probability, say 90%. It assumes nothing about the model or the data distribution beyond exchangeability.</p>
+  <div class="eq"><div class="label">Split conformal in three lines</div>
+    $$s_i = |y_i - \hat\mu(x_i)| \text{ on a calibration set},\qquad \hat q = \text{Quantile}\Big(s_{1..n};\ \tfrac{\lceil (n+1)(1-\alpha)\rceil}{n}\Big),\qquad C(x) = [\hat\mu(x) - \hat q,\ \hat\mu(x) + \hat q]$$
+    <p class="explain">Guarantee: $\mathbb{P}\big(Y_{\text{new}} \in C(X_{\text{new}})\big) \ge 1-\alpha$, in finite samples. The $(n+1)$ is the "plus one" for the test point itself.</p></div>
+  <figure class="fig"><img src="../assets/img/d1-conformal.png" alt="Split conformal constant-width band versus conformalized quantile regression band that widens with noise" loading="lazy"><figcaption>Both hit ~90% coverage, but <b>CQR</b> (right) adapts its width: narrow where the data is quiet, wide where it's noisy. Same guarantee, far more useful intervals.</figcaption></figure>
+<pre><code class="language-python">alpha = 0.1
+scores = np.abs(y_cal - model.predict(X_cal))                 # nonconformity scores
+n = len(scores)
+q_hat = np.quantile(scores, np.ceil((n + 1) * (1 - alpha)) / n, method="higher")
+lo, hi = model.predict(X_test) - q_hat, model.predict(X_test) + q_hat
+print("coverage:", np.mean((y_test >= lo) & (y_test <= hi)))  # ≈ 0.90, guaranteed ≥ 0.90 in expectation</code></pre>
+  <div class="callout frontier"><span class="title">2026 frontier</span><p>Conformal methods have moved well beyond tabular regression. They're used for LLM uncertainty (prediction sets over answers, deciding when to abstain), conformal risk control for losses beyond coverage, and adaptive conformal inference for time series under distribution shift. The production library <code>MAPIE</code> wraps much of this for scikit-learn-style models.</p></div>
+  <div class="callout pitfall"><span class="title">Pitfall</span><p>The guarantee is <em>marginal</em>, averaged over all inputs, not <em>conditional</em> on a particular x or subgroup. A 90% interval can still under-cover a minority subgroup. Check coverage per group, and use Mondrian (group-conditional) conformal when it matters.</p></div>
+</section>
+
+<section id="shap" data-toc="Explaining predictions with SHAP">
+  <h2><span class="n">05</span>Explaining predictions with SHAP</h2>
+  <p>How much did each feature contribute to <em>this</em> prediction? Shapley values from cooperative game theory give the unique attribution that satisfies efficiency (contributions sum to prediction minus baseline), symmetry, dummy and additivity. Each feature gets its average marginal contribution over all orders in which features could "join the coalition":</p>
+  <div class="eq"><div class="label">Shapley value of feature i</div>
+    $$\phi_i = \sum_{S \subseteq F \setminus \{i\}} \frac{|S|!\,(|F|-|S|-1)!}{|F|!}\Big[v(S \cup \{i\}) - v(S)\Big]$$
+    <p class="explain">That's exponential in the number of features. In the lab you'll compute it exactly by brute force for 4 features, then check that <strong>TreeSHAP</strong> (Lundberg et al., 2020) gets the same numbers in polynomial time.</p></div>
+  <div class="callout pitfall"><span class="title">Pitfall: explanations explain the model, not the world</span><p>SHAP tells you what the <em>model</em> relies on. It isn't causal. With correlated features, "interventional" and "observational" SHAP can disagree sharply, and credit can move between near-duplicate features. Always state which value function you used.</p></div>
+</section>
+
+<section id="tabpfn" data-toc="Frontier: foundation models for tables">
+  <h2><span class="n">06</span>Frontier: foundation models for tables</h2>
+  <p>What if a single pretrained network could solve <em>any</em> small tabular problem in one forward pass, with no gradient steps on your data? That's <strong>TabPFN</strong> (Hollmann et al., <i>Nature</i> 2025). It's a transformer pretrained on millions of <em>synthetic</em> datasets drawn from a prior over structural causal models. At inference it receives your whole training set plus the test rows as one input and predicts the test labels <strong>in context</strong>, much as an LLM learns from examples in its prompt.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 1000 230" role="img" aria-label="TabPFN pipeline">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink-2)"/></marker></defs>
+      <rect class="box indigo" x="10" y="30" width="200" height="170" rx="14"/><text x="110" y="62" text-anchor="middle" style="font-weight:800">Offline (once)</text>
+      <text x="110" y="92" text-anchor="middle" class="small">sample a random causal graph</text><text x="110" y="112" text-anchor="middle" class="small">→ generate a synthetic table</text><text x="110" y="132" text-anchor="middle" class="small">→ train to predict held-out</text><text x="110" y="152" text-anchor="middle" class="small">labels ×millions of tables</text>
+      <path class="arrow" d="M215 115 L300 115"/>
+      <rect class="box honey" x="305" y="55" width="250" height="120" rx="14"/><text x="430" y="100" text-anchor="middle" class="on-honey" style="font-weight:800;font-size:18px">Pretrained transformer</text><text x="430" y="125" text-anchor="middle" class="on-honey" style="font-size:13px">attention across rows &amp; features</text><text x="430" y="145" text-anchor="middle" class="on-honey" style="font-size:13px">≈ amortized Bayesian inference</text>
+      <rect class="box" x="620" y="25" width="170" height="70" rx="12"/><text x="705" y="55" text-anchor="middle" style="font-weight:700">your (X_train, y_train)</text><text x="705" y="76" text-anchor="middle" class="small">the "prompt"</text>
+      <rect class="box" x="620" y="135" width="170" height="70" rx="12"/><text x="705" y="165" text-anchor="middle" style="font-weight:700">X_test</text><text x="705" y="186" text-anchor="middle" class="small">the "question"</text>
+      <path class="arrow" d="M615 60 L560 95"/><path class="arrow" d="M615 170 L560 140"/>
+      <rect class="box teal" x="845" y="80" width="145" height="70" rx="12"/><text x="917" y="110" text-anchor="middle" style="font-weight:700">p(y_test)</text><text x="917" y="131" text-anchor="middle" class="small">one forward pass</text>
+      <path class="arrow" d="M555 115 C 700 115, 760 115, 840 115"/>
+    </svg>
+    <figcaption>TabPFN's recipe: learn a learning algorithm offline on synthetic data, then apply it to a real dataset without training on it.</figcaption>
+  </div>
+  <div class="compare">
+    <div><h4>🧠 Where TabPFN shines</h4><ul><li>Small-to-medium datasets (up to roughly 10k rows in v2)</li><li>No tuning budget; you need a strong answer fast</li><li>Well-calibrated probabilities out of the box</li></ul></div>
+    <div><h4>🌳 Where GBDTs still rule</h4><ul><li>Large tables (millions of rows)</li><li>Strict latency and CPU-only inference</li><li>Heavy feature engineering and domain constraints</li></ul></div>
+  </div>
+  <p>In Lab 1.3 you'll run a fair head-to-head on several datasets and decide for yourself.</p>
+</section>
+
+<section id="labs" data-toc="Today's labs">
+  <h2><span class="n">07</span>Today's labs</h2>
+  <p>Each lab opens in Colab with one click. Work in pairs if you can: one person drives, one navigates, and you swap at every ✔️ checkpoint.</p>
+  <div class="labs"><article class="lab-card reveal" data-lab="lab01" data-day="1" id="lab01">
+  <div class="hexnum"><div><small>LAB</small>1.1</div></div>
+  <div>
+    <h3>Gradient Boosting From Scratch</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span><span class="chip teal">boosting</span><span class="chip plum">from scratch</span></div>
+    <p>Build gradient boosting with nothing but decision trees and calculus, watch each tree fit the previous residuals, then race your version against HistGradientBoosting and LightGBM on real data.</p>
+    <figure class="lab-preview"><img src="../assets/img/labs/lab01.png" alt="Boosting stage by stage: each tree fits the shrinking residuals." loading="lazy"><figcaption><b>What you'll build:</b> Boosting stage by stage: each tree fits the shrinking residuals.</figcaption></figure>
+    <ul class="obj"><li>See bias vs. variance by bootstrapping many models</li><li>Reproduce double descent with random features</li><li>Implement boosting for squared loss and log loss</li><li>Use shrinkage, subsampling and early stopping well</li><li>Benchmark against production GBDT libraries</li><li>Spot misleading feature importances</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab01_boosting_from_scratch.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab01_boosting_from_scratch.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab02" data-day="1" id="lab02">
+  <div class="hexnum"><div><small>LAB</small>1.2</div></div>
+  <div>
+    <h3>Trust Issues: Calibration &amp; Conformal Prediction</h3>
+    <div class="meta"><span class="chip honey">⏱ 1.5 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span><span class="chip indigo">uncertainty</span><span class="chip teal">guarantees</span></div>
+    <p>Your model says 90%. Is it right 90% of the time? Diagnose overconfidence, fix it, then wrap any model in distribution-free prediction intervals and sets with guaranteed coverage.</p>
+    <figure class="lab-preview"><img src="../assets/img/labs/lab02.png" alt="Split conformal vs CQR bands: adaptive intervals that widen where noise grows." loading="lazy"><figcaption><b>What you'll build:</b> Split conformal vs CQR bands: adaptive intervals that widen where noise grows.</figcaption></figure>
+    <ul class="obj"><li>Plot reliability diagrams and compute ECE</li><li>Fix calibration with Platt, isotonic, and temperature scaling</li><li>Implement split conformal regression intervals</li><li>Build conformalized quantile regression (CQR)</li><li>Create classification prediction sets</li><li>Check empirical coverage against the target</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab02_calibration_conformal.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab02_calibration_conformal.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab03" data-day="1" id="lab03">
+  <div class="hexnum"><div><small>LAB</small>1.3</div></div>
+  <div>
+    <h3>Explain &amp; Dethrone: SHAP vs Tabular Foundation Models</h3>
+    <div class="meta"><span class="chip honey">⏱ 1.5 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span><span class="chip plum">XAI</span><span class="chip indigo">2025 frontier</span></div>
+    <p>Compute exact Shapley values by brute force and check them against TreeSHAP. Then meet TabPFN, a transformer that does in-context learning on tables, and see when it beats tuned GBDTs.</p>
+    <figure class="lab-preview"><img src="../assets/img/labs/lab03.png" alt="Boxes vs a learned prior: GBDT and TabPFN decision surfaces as the data grows." loading="lazy"><figcaption><b>What you'll build:</b> Boxes vs a learned prior: GBDT and TabPFN decision surfaces as the data grows.</figcaption></figure>
+    <ul class="obj"><li>Derive Shapley values by enumerating coalitions</li><li>Read beeswarm, waterfall and dependence plots</li><li>Know the correlated-feature pitfalls of SHAP</li><li>Run TabPFN in-context learning</li><li>Hold a fair GBDT vs. foundation-model showdown</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab03_shap_tabpfn.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab03_shap_tabpfn.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article></div>
+</section>
+
+<section id="takeaways" data-toc="🍯 Honey jar: key takeaways">
+  <h2><span class="n">🍯</span>The honey jar</h2>
+  <p>Today, distilled. If you remember nothing else, remember these.</p>
+  <ol class="honeyjar"><li><span class="num">1</span><div>Expected test error = <b>bias² + variance + noise</b>. Capacity trades the first two; nothing beats the third.</div></li><li><span class="num">2</span><div>Past the interpolation threshold, adding parameters can <b>reduce</b> test error (double descent). Implicit regularization decides which solution you get.</div></li><li><span class="num">3</span><div>Boosting is <b>gradient descent in function space</b>: each tree fits the negative gradient of the loss.</div></li><li><span class="num">4</span><div>Small learning rate + many trees + early stopping on validation data beats big steps. Your baseline for any table is a GBDT.</div></li><li><span class="num">5</span><div><b>Accuracy ≠ calibration.</b> Fit Platt, isotonic or temperature scaling on held-out data to make confidences honest.</div></li><li><span class="num">6</span><div>Split conformal: take a quantile of held-out residuals and get ≥ 1−α coverage for <i>any</i> model. The guarantee is marginal, so check your subgroups.</div></li><li><span class="num">7</span><div>SHAP explains the <b>model</b>, not the world. Correlated features split credit unpredictably.</div></li><li><span class="num">8</span><div>Tabular foundation models (TabPFN) do in-context learning on small tables in one forward pass, and often beat tuned GBDTs there.</div></li></ol>
+  <h3>🧨 Myth busters</h3>
+  <div class="myths"><div class="myth"><div class="m"><span>MYTH</span>Deep learning beats everything now.</div><div class="r"><span>REALITY</span>On typical tabular benchmarks, tuned tree ensembles still often win, and they're cheaper to train and serve.</div></div><div class="myth"><div class="m"><span>MYTH</span>A predicted 0.9 means a 90% chance.</div><div class="r"><span>REALITY</span>Only if the model is calibrated. Many models, including modern neural nets, are systematically over-confident.</div></div><div class="myth"><div class="m"><span>MYTH</span>High feature importance means the feature causes the outcome.</div><div class="r"><span>REALITY</span>Importance (and SHAP) describes what the model relies on. Causal claims need causal assumptions or experiments.</div></div></div>
+  <h3>💼 Interview flashcards</h3>
+  <p>Say your answer out loud, <i>then</i> flip the card. Retrieval practice is the most reliable way to make knowledge stick.</p>
+  <div class="flashcards"><button class="flash" aria-label="Flip card"><span class="inner"><span class="front"><small>Q1</small>What does each new tree fit in gradient boosting?<em>tap to flip ↻</em></span><span class="back"><small>A1</small>The pseudo-residuals: the negative gradient of the loss with respect to the current predictions (y − p for log loss).</span></span></button><button class="flash" aria-label="Flip card"><span class="inner"><span class="front"><small>Q2</small>Why doesn't temperature scaling change accuracy?<em>tap to flip ↻</em></span><span class="back"><small>A2</small>Dividing every logit by the same T > 0 preserves their order, so the argmax (and the accuracy) are unchanged.</span></span></button><button class="flash" aria-label="Flip card"><span class="inner"><span class="front"><small>Q3</small>What does conformal prediction assume?<em>tap to flip ↻</em></span><span class="back"><small>A3</small>Only that calibration and test points are exchangeable (e.g. i.i.d.). Nothing about the model or the distribution.</span></span></button><button class="flash" aria-label="Flip card"><span class="inner"><span class="front"><small>Q4</small>What is the interpolation threshold?<em>tap to flip ↻</em></span><span class="back"><small>A4</small>The capacity at which a model can just fit the training data exactly. Test error spikes there under double descent.</span></span></button><button class="flash" aria-label="Flip card"><span class="inner"><span class="front"><small>Q5</small>Name two SHAP pitfalls.<em>tap to flip ↻</em></span><span class="back"><small>A5</small>Credit split arbitrarily between correlated features, and evaluating the model off the data manifold (interventional SHAP).</span></span></button><button class="flash" aria-label="Flip card"><span class="inner"><span class="front"><small>Q6</small>When would you pick TabPFN over a GBDT?<em>tap to flip ↻</em></span><span class="back"><small>A6</small>Small datasets (≲10k rows), little tuning time, and when calibrated probabilities matter. Pick the GBDT for huge tables and tight CPU latency.</span></span></button></div>
+  <p style="margin-top:22px"><a class="btn sm secondary" href="../cheatsheet.html">📄 Printable cheat sheet for the whole week</a></p>
+</section>
+
+<section id="quiz" data-toc="Quiz: check your honey">
+  <h2><span class="n">08</span>Quiz: check your honey</h2>
+  <p class="quiz-score">Score: <span>0 / 5</span></p>
+  <div class="quiz">
+    <div class="q" data-answer="2"><div class="qtext">You increase polynomial degree from 3 to 12 on 20 noisy points. What happens to bias and variance?</div><div class="opts">
+      <button class="opt">Both decrease</button><button class="opt">Bias increases, variance decreases</button><button class="opt">Bias decreases, variance increases</button><button class="opt">Both increase</button></div>
+      <div class="why">More capacity lets the average fit get closer to the truth (lower bias), but each individual fit chases the noise in its particular sample (higher variance).</div></div>
+    <div class="q" data-answer="1"><div class="qtext">In gradient boosting with log loss, what does each new tree fit?</div><div class="opts">
+      <button class="opt">The original labels y</button><button class="opt">The pseudo-residuals y − p (negative gradient of the loss)</button><button class="opt">The squared errors</button><button class="opt">Random bootstrap samples, like a random forest</button></div>
+      <div class="why">Boosting is functional gradient descent. For log loss, −∂L/∂F = y − σ(F) = y − p.</div></div>
+    <div class="q" data-answer="3"><div class="qtext">Temperature scaling on a neural net's logits changes…</div><div class="opts">
+      <button class="opt">its accuracy</button><button class="opt">its argmax predictions</button><button class="opt">its ranking of classes</button><button class="opt">only its confidence (probabilities), not its predictions</button></div>
+      <div class="why">Dividing all logits by the same T&gt;0 preserves their order, so argmax and accuracy are unchanged. Only the sharpness of the softmax changes.</div></div>
+    <div class="q" data-answer="0"><div class="qtext">Split conformal prediction with α = 0.1 guarantees…</div><div class="opts">
+      <button class="opt">≥ 90% coverage on average over test points, assuming exchangeability</button><button class="opt">≥ 90% coverage for every individual x</button><button class="opt">the narrowest possible intervals</button><button class="opt">a calibrated point predictor</button></div>
+      <div class="why">The guarantee is marginal. Conditional coverage for every x is impossible in general without extra assumptions.</div></div>
+    <div class="q" data-answer="2"><div class="qtext">TabPFN makes predictions on a new dataset by…</div><div class="opts">
+      <button class="opt">fine-tuning on your data for a few epochs</button><button class="opt">retrieving similar datasets from a database</button><button class="opt">a forward pass that conditions on your training set in context</button><button class="opt">fitting a GBDT internally</button></div>
+      <div class="why">It's in-context learning: the pretrained transformer reads the labeled training rows and predicts the test rows in a single pass, with no gradient updates.</div></div>
+  </div>
+</section>
+
+<section id="challenge" data-toc="🏆 Daily challenge">
+  <h2><span class="n">09</span>Daily challenge</h2>
+  <div class="challenge">
+    <span class="chip">16:45 · 45 minutes · teams of 2–3</span>
+    <h3>🏆 Kaggle-in-an-hour: the honest leaderboard</h3>
+    <p>Dataset: California Housing (<code>sklearn.datasets.fetch_california_housing</code>), with a hidden test split held by the instructor. Any model goes. The catch: you must submit <strong>90% prediction intervals</strong> as well as point predictions.</p>
+    <ul>
+      <li><strong>Score</strong> = RMSE × (1 + 5 × max(0, 0.90 − coverage)) + 0.1 × mean interval width</li>
+      <li>Under-cover and you get punished. Over-wide intervals cost you too.</li>
+      <li>Bonus 🍯 for the team whose SHAP plot reveals the most surprising insight.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="reading" data-toc="Reading & going deeper">
+  <h2><span class="n">10</span>Reading &amp; going deeper</h2>
+  <ul class="reading">
+    <li><div><b>Reconciling modern machine-learning practice and the classical bias–variance trade-off</b><span>Belkin, Hsu, Ma, Mandal · PNAS 2019 · where "double descent" was named</span></div></li>
+    <li><div><b>Greedy Function Approximation: A Gradient Boosting Machine</b><span>Friedman · Annals of Statistics 2001 · the original</span></div></li>
+    <li><div><b>XGBoost: A Scalable Tree Boosting System</b><span>Chen &amp; Guestrin · KDD 2016</span></div></li>
+    <li><div><b>Why do tree-based models still outperform deep learning on typical tabular data?</b><span>Grinsztajn, Oyallon, Varoquaux · NeurIPS 2022 Datasets &amp; Benchmarks</span></div></li>
+    <li><div><b>On Calibration of Modern Neural Networks</b><span>Guo, Pleiss, Sun, Weinberger · ICML 2017 · temperature scaling</span></div></li>
+    <li><div><b>A Gentle Introduction to Conformal Prediction and Distribution-Free Uncertainty Quantification</b><span>Angelopoulos &amp; Bates · 2021 · the best place to start</span></div></li>
+    <li><div><b>A Unified Approach to Interpreting Model Predictions</b><span>Lundberg &amp; Lee · NeurIPS 2017 · SHAP</span></div></li>
+    <li><div><b>Accurate predictions on small data with a tabular foundation model</b><span>Hollmann et al. · Nature 2025 · TabPFN v2</span></div></li>
+  </ul>
+</section>
+<nav class="pager"><a class="prev" href="../index.html"><small>← Home</small><b>Course overview</b></a><a class="next" href="../days/day-2.html"><small>Day 2 →</small><b>The Deep Learning Engine Room</b></a></nav></article>
+</div>
+</main>
+<footer class="site"><div class="wrap">
+  <div><div class="brand" style="color:#F6EFD9"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg><span>Gradient Hive<small style="color:#cdbf9c">Advanced ML Week · 2026</small></span></div>
+  <p style="margin-top:14px">A five-day, lab-first journey from gradient boosting to reasoning agents. Built for curious practitioners who learn by building. 🐝</p></div>
+  <div><h4>The week</h4><a href="../days/day-1.html">Day 1 · Classical, Sharpened</a><a href="../days/day-2.html">Day 2 · The Deep Learning Engine Room</a><a href="../days/day-3.html">Day 3 · Transformers & Beyond</a><a href="../days/day-4.html">Day 4 · Generative Worlds</a><a href="../days/day-5.html">Day 5 · LLMs, Reasoning & Agents</a></div>
+  <div><h4>Hands-on</h4><a href="../labs.html">All 16 labs</a><a href="../playground.html">Interactive playground</a><a href="../capstone.html">Capstone: Hive Demo Day</a><a href="https://github.com/varoonsahgal/advancedml" target="_blank" rel="noopener">GitHub repo</a></div>
+  <div><h4>Support</h4><a href="../resources.html#setup">Setup guide</a><a href="../resources.html#reading">Reading list</a><a href="../resources.html#glossary">Glossary</a><a href="../resources.html#instructors">Instructor notes</a><a href="../cheatsheet.html">Printable cheat sheet</a></div>
+</div></footer>
+<button class="flybee" aria-label="Ask Buzz for a tip"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbb"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbb)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/js/main.js?v=f2753687"></script>
+<script src="../assets/js/widgets.js?v=dd92d7f4"></script>
+</body>
+</html>

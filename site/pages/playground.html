@@ -1,0 +1,51 @@
+<!--
+title: Playground
+description: Interactive in-browser ML demos — flow matching, optimizer races, bias–variance, decoding, test-time compute, scaling laws, KV-cache and LoRA calculators.
+active: playground
+-->
+<section class="page-hero">
+  <div class="wrap">
+    <div class="kicker">The playground</div>
+    <h1>Touch the math.</h1>
+    <p class="lede">Every demo here runs live in your browser with the real equations, no server involved. Use them to build intuition before a lab, or to explain an idea to a colleague in thirty seconds.</p>
+    <div class="chips" style="margin-top:16px">
+      <a class="chip honey" href="#flow">🌊 Flow matching</a><a class="chip" href="#gd">🏎️ Optimizer arena</a><a class="chip" href="#bv">📈 Bias–variance</a><a class="chip" href="#decode">🎲 Decoding</a><a class="chip" href="#ttc">🗳 Test-time compute</a><a class="chip" href="#scaling">📐 Scaling laws</a><a class="chip" href="#kv">⚡ KV cache</a><a class="chip" href="#lora">🪶 LoRA</a>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:10px">
+  <div class="wrap-narrow" style="width:min(1080px,100% - 32px)">
+    <div id="flow"><div class="kicker">Day 4 · generative models</div><h2>Noise → data with flow matching</h2>
+      <p>Each particle starts as Gaussian noise and follows the exact flow-matching velocity field toward a target shape. Type your name into "text". Then drop to <b>1–2 steps</b> to see why few-step generation is the hard frontier.</p>
+      <div data-widget="flow"></div></div>
+
+    <div id="gd" style="margin-top:70px"><div class="kicker">Day 2 · optimization</div><h2>The optimizer arena</h2>
+      <p>Same start, same learning rate, different update rules. Click the landscape to move the start point. Can you find a setting where momentum overshoots and Adam doesn't? Where Lion's sign updates rattle around?</p>
+      <div data-widget="gd"></div></div>
+
+    <div id="bv" style="margin-top:70px"><div class="kicker">Day 1 · generalization</div><h2>Bias–variance, live</h2>
+      <p>The faint honey curves are fits to <i>other</i> random training sets drawn from the same distribution; their spread <i>is</i> the variance. Find the degree that minimizes test MSE for 10 points, then for 100.</p>
+      <div data-widget="biasvar"></div></div>
+
+    <div id="decode" style="margin-top:70px"><div class="kicker">Day 3 · inference</div><h2>Decoding lab</h2>
+      <p>Temperature, top-k, top-p and min-p, all composable. Crank the temperature to 2.5 and the bees start making <i>taxes</i>. Then add min-p = 0.1 and watch it clean up the tail.</p>
+      <div data-widget="sampling"></div></div>
+
+    <div id="ttc" style="margin-top:70px"><div class="kicker">Day 5 · reasoning</div><h2>Test-time compute: voting</h2>
+      <p>Each dot is one sampled answer (teal = correct). Set the spread to 1 (one dominant wrong answer) with p = 0.35 and watch voting make things <i>worse</i>.</p>
+      <div data-widget="majority"></div></div>
+
+    <div id="scaling" style="margin-top:70px"><div class="kicker">Day 2 · scaling laws</div><h2>Compute-optimal planner</h2>
+      <p>Given a FLOP budget, how big should your model be and how many tokens should it see?</p>
+      <div data-widget="chinchilla"></div></div>
+
+    <div id="kv" style="margin-top:70px"><div class="kicker">Day 3 · serving</div><h2>KV-cache calculator</h2>
+      <p>Why serving 128k-context models is expensive, and how much grouped-query attention saves.</p>
+      <div data-widget="kvcache"></div></div>
+
+    <div id="lora" style="margin-top:70px"><div class="kicker">Day 5 · fine-tuning</div><h2>LoRA budget calculator</h2>
+      <p>How small can the trainable part of an LLM be? Compare LoRA and QLoRA memory with full fine-tuning.</p>
+      <div data-widget="lora"></div></div>
+  </div>
+</section>

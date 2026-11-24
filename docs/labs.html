@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All Labs · Gradient Hive</title>
+<meta name="description" content="Sixteen hands-on notebook labs, from gradient boosting to sparse autoencoders. One click to Colab; runs on CPU.">
+<meta property="og:title" content="All Labs · Gradient Hive">
+<meta property="og:description" content="Sixteen hands-on notebook labs, from gradient boosting to sparse autoencoders. One click to Colab; runs on CPU.">
+<meta property="og:image" content="assets/img/og-image.png">
+<meta name="theme-color" content="#F5B700">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2064%2064%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22bbi%22%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpolygon%20points%3D%2232%2C2%2058%2C17%2058%2C47%2032%2C62%206%2C47%206%2C17%22%20fill%3D%22%23F5B700%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%3Cellipse%20cx%3D%2228%22%20cy%3D%2222%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%28-20%2028%2022%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2239%22%20cy%3D%2221%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%2818%2039%2021%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22%23FFE680%22/%3E%3Cg%20clip-path%3D%22url%28%23bbi%29%22%20fill%3D%22%231F1B16%22%3E%3Crect%20x%3D%2229%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2224%22%20width%3D%226%22%20height%3D%2226%22/%3E%3C/g%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%231F1B16%22/%3E%3Ccircle%20cx%3D%2215.5%22%20cy%3D%2233%22%20r%3D%222.4%22%20fill%3D%22%23FFFDF4%22/%3E%3Cpath%20d%3D%22M14%2028%20Q10%2020%207%2021%20M20%2027%20Q20%2019%2016%2017%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M50%2037%20l6%200%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="assets/css/style.css?v=6acdf6d1">
+<script>try{var t=localStorage.getItem("hive-theme");if(t)document.documentElement.setAttribute("data-theme",JSON.parse(t))}catch(e){}</script>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="brand" href="index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbn"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbn)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg><span>Gradient Hive<small>Advanced ML Week · 2026</small></span></a>
+  <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+  <nav class="nav-links">
+    <div class="nav-days"><a title="Day 1: Classical, Sharpened" class="" href="days/day-1.html">1</a><a title="Day 2: The Deep Learning Engine Room" class="" href="days/day-2.html">2</a><a title="Day 3: Transformers & Beyond" class="" href="days/day-3.html">3</a><a title="Day 4: Generative Worlds" class="" href="days/day-4.html">4</a><a title="Day 5: LLMs, Reasoning & Agents" class="" href="days/day-5.html">5</a></div>
+    <a class=" active" href="labs.html">Labs</a>
+    <a class="" href="playground.html">Playground</a>
+    <a class="" href="capstone.html">Capstone</a>
+    <a class="" href="cheatsheet.html">Cheat sheet</a>
+    <a class="" href="resources.html">Resources</a>
+    <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">🌙</button>
+  </nav>
+</div></header>
+<main>
+
+<section class="page-hero">
+  <div class="wrap">
+    <div class="kicker">The honeycomb</div>
+    <h1>16 labs. Zero setup.</h1>
+    <p class="lede">Each lab is a guided Jupyter notebook: intuition first, then the math, then code you write yourself, with checkpoints that confirm you got it right. Open any of them in Colab with one click.</p>
+    <div class="grid-2" style="margin-top:28px;align-items:stretch">
+      <div class="card"><div class="honeycomb" data-honeycomb="[[&quot;lab01&quot;, &quot;1.1&quot;, &quot;Gradient Boosting From Scratch&quot;, 1], [&quot;lab02&quot;, &quot;1.2&quot;, &quot;Trust Issues: Calibration & Conformal Prediction&quot;, 1], [&quot;lab03&quot;, &quot;1.3&quot;, &quot;Explain & Dethrone: SHAP vs Tabular Foundation Models&quot;, 1], [&quot;lab04&quot;, &quot;2.1&quot;, &quot;Build Your Own Autograd Engine&quot;, 2], [&quot;lab05&quot;, &quot;2.2&quot;, &quot;Optimizer Arena: SGD \u2192 AdamW \u2192 Muon&quot;, 2], [&quot;lab06&quot;, &quot;2.3&quot;, &quot;Grokking: Watching a Network Suddenly Understand&quot;, 2], [&quot;lab07&quot;, &quot;3.1&quot;, &quot;A Modern GPT From Scratch&quot;, 3], [&quot;lab08&quot;, &quot;3.2&quot;, &quot;Inference Engineering: KV Cache, Sampling, Speculation & Quantization&quot;, 3], [&quot;lab09&quot;, &quot;3.3&quot;, &quot;Beyond Dense Attention: Mixture-of-Experts & State-Space Models&quot;, 3], [&quot;lab10&quot;, &quot;4.1&quot;, &quot;Flow Matching From Scratch (Noise \u2192 Art in 2D)&quot;, 4], [&quot;lab11&quot;, &quot;4.2&quot;, &quot;Class-Conditional Generation with Classifier-Free Guidance&quot;, 4], [&quot;lab12&quot;, &quot;4.3&quot;, &quot;Multimodal Magic: Contrastive Learning & CLIP&quot;, 4], [&quot;lab13&quot;, &quot;5.1&quot;, &quot;LoRA & Friends: Fine-Tuning a Small LLM&quot;, 5], [&quot;lab14&quot;, &quot;5.2&quot;, &quot;Teaching Models to Reason with RL (GRPO)&quot;, 5], [&quot;lab15&quot;, &quot;5.3&quot;, &quot;Build an Agent: Tools, RAG & MCP&quot;, 5], [&quot;lab16&quot;, &quot;5.4&quot;, &quot;Peeking Inside: Sparse Autoencoders & Steering&quot;, 5]]"></div><div class="progress" data-progress="lab01,lab02,lab03,lab04,lab05,lab06,lab07,lab08,lab09,lab10,lab11,lab12,lab13,lab14,lab15,lab16"><b>Lab progress</b> <span class="count muted mono"></span><div class="bar"><i></i></div></div><p class="muted" style="margin:10px 0 0;font-size:.9rem">Tick "Mark complete" on each lab to fill its cell. Progress is saved in this browser.</p></div>
+      <div class="card"><b>Anatomy of a lab</b>
+        <div class="chips" style="margin-top:10px"><span class="chip honey">🗺️ roadmap</span><span class="chip">🎯 objectives</span><span class="chip">🔮 predict-then-run</span><span class="chip teal">🧪 your turn</span><span class="chip">✅ solutions</span><span class="chip indigo">✔️ checkpoints</span><span class="chip honey">🍯 key takeaways</span><span class="chip coral">🏆 boss level</span><span class="chip plum">💼 interview corner</span><span class="chip">🐝 fun fact</span></div>
+        <ol style="margin:16px 0 0;padding-left:1.2em;color:var(--ink-2);font-size:.93rem">
+          <li><b>Predict</b> the outcome before you run each key experiment.</li>
+          <li><b>Build</b> it from scratch in the 🧪 cells. Hints are right there, and solutions follow if you're stuck.</li>
+          <li><b>Verify</b>: the ✔️ checkpoints compare your code with a reference implementation.</li>
+          <li><b>Compare</b> with the production library you'll use at work.</li>
+          <li><b>Consolidate</b> with key takeaways, interview questions and a 🏆 stretch challenge.</li>
+        </ol></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:10px">
+  <div class="wrap">
+    <div class="filters">
+      <button class="on" data-filter="all">All days</button>
+      <button data-filter="1">Day 1 · Classical</button>
+      <button data-filter="2">Day 2 · Engine room</button>
+      <button data-filter="3">Day 3 · Transformers</button>
+      <button data-filter="4">Day 4 · Generative</button>
+      <button data-filter="5">Day 5 · Reasoning &amp; agents</button>
+    </div>
+    <div class="labs"><article class="lab-card reveal" data-lab="lab01" data-day="1" id="lab01">
+  <div class="hexnum"><div><small>LAB</small>1.1</div></div>
+  <div>
+    <h3>Gradient Boosting From Scratch</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span><span class="chip teal">boosting</span><span class="chip plum">from scratch</span></div>
+    <p>Build gradient boosting with nothing but decision trees and calculus, watch each tree fit the previous residuals, then race your version against HistGradientBoosting and LightGBM on real data.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab01.png" alt="Boosting stage by stage: each tree fits the shrinking residuals." loading="lazy"><figcaption><b>What you'll build:</b> Boosting stage by stage: each tree fits the shrinking residuals.</figcaption></figure>
+    <ul class="obj"><li>See bias vs. variance by bootstrapping many models</li><li>Reproduce double descent with random features</li><li>Implement boosting for squared loss and log loss</li><li>Use shrinkage, subsampling and early stopping well</li><li>Benchmark against production GBDT libraries</li><li>Spot misleading feature importances</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab01_boosting_from_scratch.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab01_boosting_from_scratch.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab02" data-day="1" id="lab02">
+  <div class="hexnum"><div><small>LAB</small>1.2</div></div>
+  <div>
+    <h3>Trust Issues: Calibration &amp; Conformal Prediction</h3>
+    <div class="meta"><span class="chip honey">⏱ 1.5 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span><span class="chip indigo">uncertainty</span><span class="chip teal">guarantees</span></div>
+    <p>Your model says 90%. Is it right 90% of the time? Diagnose overconfidence, fix it, then wrap any model in distribution-free prediction intervals and sets with guaranteed coverage.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab02.png" alt="Split conformal vs CQR bands: adaptive intervals that widen where noise grows." loading="lazy"><figcaption><b>What you'll build:</b> Split conformal vs CQR bands: adaptive intervals that widen where noise grows.</figcaption></figure>
+    <ul class="obj"><li>Plot reliability diagrams and compute ECE</li><li>Fix calibration with Platt, isotonic, and temperature scaling</li><li>Implement split conformal regression intervals</li><li>Build conformalized quantile regression (CQR)</li><li>Create classification prediction sets</li><li>Check empirical coverage against the target</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab02_calibration_conformal.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab02_calibration_conformal.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab03" data-day="1" id="lab03">
+  <div class="hexnum"><div><small>LAB</small>1.3</div></div>
+  <div>
+    <h3>Explain &amp; Dethrone: SHAP vs Tabular Foundation Models</h3>
+    <div class="meta"><span class="chip honey">⏱ 1.5 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span><span class="chip plum">XAI</span><span class="chip indigo">2025 frontier</span></div>
+    <p>Compute exact Shapley values by brute force and check them against TreeSHAP. Then meet TabPFN, a transformer that does in-context learning on tables, and see when it beats tuned GBDTs.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab03.png" alt="Boxes vs a learned prior: GBDT and TabPFN decision surfaces as the data grows." loading="lazy"><figcaption><b>What you'll build:</b> Boxes vs a learned prior: GBDT and TabPFN decision surfaces as the data grows.</figcaption></figure>
+    <ul class="obj"><li>Derive Shapley values by enumerating coalitions</li><li>Read beeswarm, waterfall and dependence plots</li><li>Know the correlated-feature pitfalls of SHAP</li><li>Run TabPFN in-context learning</li><li>Hold a fair GBDT vs. foundation-model showdown</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab03_shap_tabpfn.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab03_shap_tabpfn.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab04" data-day="2" id="lab04">
+  <div class="hexnum"><div><small>LAB</small>2.1</div></div>
+  <div>
+    <h3>Build Your Own Autograd Engine</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span><span class="chip plum">from scratch</span><span class="chip teal">backprop</span></div>
+    <p>Backprop stops being magic: write a reverse-mode autodiff engine, check it against finite differences and PyTorch, then train a neural net on it and watch the decision boundary bend.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab04.png" alt="Two-moons decision boundaries learned with your own scalar and tensor autograd engines." loading="lazy"><figcaption><b>What you'll build:</b> Two-moons decision boundaries learned with your own scalar and tensor autograd engines.</figcaption></figure>
+    <ul class="obj"><li>Implement a scalar Value graph with backward()</li><li>Use topological sort to order the chain rule</li><li>Run gradient checks against finite differences</li><li>Extend the engine to numpy tensors with broadcasting</li><li>Train an MLP and match PyTorch&#x27;s gradients exactly</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab04_autograd_from_scratch.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab04_autograd_from_scratch.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab05" data-day="2" id="lab05">
+  <div class="hexnum"><div><small>LAB</small>2.2</div></div>
+  <div>
+    <h3>Optimizer Arena: SGD → AdamW → Muon</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝🐝 spicy</span><span class="chip teal">💻 runs on CPU</span><span class="chip teal">optimization</span><span class="chip indigo">2024–25 frontier</span></div>
+    <p>Implement seven optimizers as real torch.optim classes, including Muon with Newton–Schulz orthogonalization, and race them on test functions and FashionMNIST under modern LR schedules.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab05.png" alt="Seven optimizers race across Rosenbrock and Beale landscapes, with loss curves." loading="lazy"><figcaption><b>What you'll build:</b> Seven optimizers race across Rosenbrock and Beale landscapes, with loss curves.</figcaption></figure>
+    <ul class="obj"><li>Write SGD, momentum, Nesterov, Adam, AdamW, Lion and Muon</li><li>See why decoupled weight decay matters</li><li>Run warmup + cosine and WSD schedules</li><li>Run an LR range test</li><li>Match torch.optim.AdamW to tolerance</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab05_optimizer_arena.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab05_optimizer_arena.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab06" data-day="2" id="lab06">
+  <div class="hexnum"><div><small>LAB</small>2.3</div></div>
+  <div>
+    <h3>Grokking: Watching a Network Suddenly Understand</h3>
+    <div class="meta"><span class="chip honey">⏱ 1.5 h</span><span class="chip">🐝🐝🐝 spicy</span><span class="chip teal">💻 runs on CPU</span><span class="chip plum">science of DL</span><span class="chip indigo">interpretability</span></div>
+    <p>Train on modular arithmetic long after the model memorizes, then watch test accuracy jump. Find the Fourier features it discovered, and fit your own scaling law.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab06.png" alt="Train accuracy hits 100% instantly; test accuracy jumps thousands of steps later." loading="lazy"><figcaption><b>What you'll build:</b> Train accuracy hits 100% instantly; test accuracy jumps thousands of steps later.</figcaption></figure>
+    <ul class="obj"><li>Reproduce delayed generalization (grokking)</li><li>Ablate weight decay and data fraction</li><li>Find the sparse Fourier structure in embeddings</li><li>Fit a power-law scaling curve</li><li>Reason about compute-optimal training</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab06_grokking.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab06_grokking.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab07" data-day="3" id="lab07">
+  <div class="hexnum"><div><small>LAB</small>3.1</div></div>
+  <div>
+    <h3>A Modern GPT From Scratch</h3>
+    <div class="meta"><span class="chip honey">⏱ 2.5 h</span><span class="chip">🐝🐝🐝 spicy</span><span class="chip teal">💻 runs on CPU</span><span class="chip teal">transformers</span><span class="chip plum">from scratch</span></div>
+    <p>Build a Llama-style language model piece by piece (RoPE, RMSNorm, SwiGLU, pre-norm residuals, weight tying), train it on Shakespeare, and look inside its attention heads.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab07.png" alt="Trained attention heads: a previous-token head and a word-start head on Shakespeare." loading="lazy"><figcaption><b>What you'll build:</b> Trained attention heads: a previous-token head and a word-start head on Shakespeare.</figcaption></figure>
+    <ul class="obj"><li>Implement causal multi-head attention and verify it against SDPA</li><li>Implement and visualize rotary position embeddings</li><li>Assemble RMSNorm + SwiGLU pre-norm blocks</li><li>Train with AdamW, warmup/cosine and clipping</li><li>Visualize attention and generate text</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab07_gpt_from_scratch.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab07_gpt_from_scratch.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab08" data-day="3" id="lab08">
+  <div class="hexnum"><div><small>LAB</small>3.2</div></div>
+  <div>
+    <h3>Inference Engineering: KV Cache, Sampling, Speculation &amp; Quantization</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝🐝 spicy</span><span class="chip teal">💻 runs on CPU</span><span class="chip coral">systems</span><span class="chip indigo">LLM serving</span></div>
+    <p>Make generation fast and good: build a KV cache and benchmark it, write every popular sampler, prove speculative decoding is exact, and quantize weights to int8 and int4.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab08.png" alt="How top-k, top-p and min-p truncate real next-character distributions." loading="lazy"><figcaption><b>What you'll build:</b> How top-k, top-p and min-p truncate real next-character distributions.</figcaption></figure>
+    <ul class="obj"><li>Implement and benchmark a KV cache</li><li>Write greedy, temperature, top-k, top-p and min-p sampling</li><li>Show that speculative decoding preserves the target distribution</li><li>Apply absmax and group-wise int8/int4 quantization</li><li>Explain the ideas behind FlashAttention and PagedAttention</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab08_inference_engineering.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab08_inference_engineering.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab09" data-day="3" id="lab09">
+  <div class="hexnum"><div><small>LAB</small>3.3</div></div>
+  <div>
+    <h3>Beyond Dense Attention: Mixture-of-Experts &amp; State-Space Models</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝🐝 spicy</span><span class="chip teal">💻 runs on CPU</span><span class="chip teal">architectures</span><span class="chip indigo">2024–25 frontier</span></div>
+    <p>Route tokens to experts with a load-balancing loss, then build a Mamba-style selective SSM with sequential and parallel scans and test it against attention on long-range recall.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab09.png" alt="Expert utilisation: routing collapse without balancing vs aux-loss and bias balancing." loading="lazy"><figcaption><b>What you'll build:</b> Expert utilisation: routing collapse without balancing vs aux-loss and bias balancing.</figcaption></figure>
+    <ul class="obj"><li>Implement top-k routing with capacity limits</li><li>Add a load-balancing auxiliary loss</li><li>Build a selective SSM recurrence</li><li>Implement a parallel associative scan and check it</li><li>Compare attention vs. SSM on accuracy and scaling</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab09_moe_and_ssm.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab09_moe_and_ssm.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab10" data-day="4" id="lab10">
+  <div class="hexnum"><div><small>LAB</small>4.1</div></div>
+  <div>
+    <h3>Flow Matching From Scratch (Noise → Art in 2D)</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span><span class="chip coral">generative</span><span class="chip plum">from scratch</span></div>
+    <p>The core idea behind modern image and video generators, in 2D where you can see everything. Train a velocity field, integrate an ODE from noise to data, then straighten the paths with reflow.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab10.png" alt="Noise particles flowing along learned trajectories into Buzz the Backprop Bee." loading="lazy"><figcaption><b>What you'll build:</b> Noise particles flowing along learned trajectories into Buzz the Backprop Bee.</figcaption></figure>
+    <ul class="obj"><li>Trace the path from VAE to diffusion to flow matching</li><li>Train conditional flow matching with linear paths</li><li>Write Euler and Heun ODE samplers</li><li>Use reflow to get good few-step sampling</li><li>Compare against DDPM noise prediction</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab10_flow_matching_2d.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab10_flow_matching_2d.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab11" data-day="4" id="lab11">
+  <div class="hexnum"><div><small>LAB</small>4.2</div></div>
+  <div>
+    <h3>Class-Conditional Generation with Classifier-Free Guidance</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝🐝 spicy</span><span class="chip coral">⚡ GPU optional</span><span class="chip coral">diffusion</span><span class="chip teal">images</span></div>
+    <p>Train a small conditional UNet on MNIST, add label dropout, and turn the classifier-free guidance knob to see the quality vs. diversity trade-off appear in front of you.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab11.png" alt="Same noise, guidance w = 0, 1, 2: scribbles become crisp, class-correct digits." loading="lazy"><figcaption><b>What you'll build:</b> Same noise, guidance w = 0, 1, 2: scribbles become crisp, class-correct digits.</figcaption></figure>
+    <ul class="obj"><li>Build a time- and class-conditioned UNet</li><li>Train with label dropout for CFG</li><li>Sweep guidance scales and compare sample grids</li><li>Make denoising filmstrips</li><li>Understand latent diffusion and DiT at a conceptual level</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab11_diffusion_mnist_cfg.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab11_diffusion_mnist_cfg.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab12" data-day="4" id="lab12">
+  <div class="hexnum"><div><small>LAB</small>4.3</div></div>
+  <div>
+    <h3>Multimodal Magic: Contrastive Learning &amp; CLIP</h3>
+    <div class="meta"><span class="chip honey">⏱ 1.5 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span><span class="chip indigo">multimodal</span><span class="chip teal">contrastive</span></div>
+    <p>Implement the InfoNCE loss and watch a tiny two-tower model align images with text, then use a pretrained CLIP for zero-shot classification, prompt ensembling and retrieval.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab12.png" alt="CLIP text-to-image search: &quot;a red car&quot;, &quot;antlers&quot;, &quot;a ship on the water&quot;." loading="lazy"><figcaption><b>What you'll build:</b> CLIP text-to-image search: &quot;a red car&quot;, &quot;antlers&quot;, &quot;a ship on the water&quot;.</figcaption></figure>
+    <ul class="obj"><li>Implement symmetric InfoNCE (the CLIP loss)</li><li>Train a toy two-tower model</li><li>Classify zero-shot with prompt engineering</li><li>Retrieve images and text from a shared embedding space</li><li>Implement the SigLIP sigmoid loss</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab12_clip_multimodal.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab12_clip_multimodal.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab13" data-day="5" id="lab13">
+  <div class="hexnum"><div><small>LAB</small>5.1</div></div>
+  <div>
+    <h3>LoRA &amp; Friends: Fine-Tuning a Small LLM</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip coral">⚡ GPU optional</span><span class="chip teal">fine-tuning</span><span class="chip plum">PEFT</span></div>
+    <p>Write LoRA from scratch, prove merge and unmerge are exact, then fine-tune SmolLM2 on your own instruction set with chat templates and prompt-token loss masking.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab13.png" alt="A true rank-4 update vs LoRA r=1 (fails) and r=4 (matches it)." loading="lazy"><figcaption><b>What you'll build:</b> A true rank-4 update vs LoRA r=1 (fails) and r=4 (matches it).</figcaption></figure>
+    <ul class="obj"><li>Implement a LoRA linear layer (A, B, α/r)</li><li>Verify merged weights are equivalent</li><li>Format data with chat templates and loss masks</li><li>Compare generations before and after fine-tuning</li><li>Know where QLoRA, DoRA and preference tuning fit</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab13_lora_finetune.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab13_lora_finetune.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab14" data-day="5" id="lab14">
+  <div class="hexnum"><div><small>LAB</small>5.2</div></div>
+  <div>
+    <h3>Teaching Models to Reason with RL (GRPO)</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝🐝 spicy</span><span class="chip coral">⚡ GPU optional</span><span class="chip coral">RL</span><span class="chip indigo">2025 frontier</span></div>
+    <p>The 2025 reasoning recipe, hands-on: verifiable rewards, group-relative advantages, a clipped policy loss with KL. Watch the reward climb, then compare it with DPO and test-time voting.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab14.png" alt="Test-time scaling: pass@N and majority vote, SFT policy vs GRPO policy." loading="lazy"><figcaption><b>What you'll build:</b> Test-time scaling: pass@N and majority vote, SFT policy vs GRPO policy.</figcaption></figure>
+    <ul class="obj"><li>Write reward functions for format and correctness</li><li>Implement GRPO advantages and the clipped loss</li><li>Train a policy and watch the reward rise</li><li>Implement the DPO loss</li><li>Measure best-of-N and self-consistency</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab14_grpo_reasoning.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab14_grpo_reasoning.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab15" data-day="5" id="lab15">
+  <div class="hexnum"><div><small>LAB</small>5.3</div></div>
+  <div>
+    <h3>Build an Agent: Tools, RAG &amp; MCP</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span><span class="chip indigo">🔑 API key optional</span><span class="chip teal">agents</span><span class="chip indigo">MCP</span></div>
+    <p>Build retrieval from scratch, write a tool-using agent loop with the Claude API (a mock LLM runs it offline), serve your tools over the Model Context Protocol, and evaluate it all.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab15.png" alt="Agent trace swimlane: question → retrieve → calculate → answer." loading="lazy"><figcaption><b>What you'll build:</b> Agent trace swimlane: question → retrieve → calculate → answer.</figcaption></figure>
+    <ul class="obj"><li>Build and evaluate chunking, embedding and retrieval (recall@k)</li><li>Write a tool-use agent loop with traces</li><li>Write an MCP server and connect a client to it</li><li>Build a mini eval harness</li><li>Defend against prompt injection in retrieved docs</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab15_agents_rag_mcp.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab15_agents_rag_mcp.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article>
+<article class="lab-card reveal" data-lab="lab16" data-day="5" id="lab16">
+  <div class="hexnum"><div><small>LAB</small>5.4</div></div>
+  <div>
+    <h3>Peeking Inside: Sparse Autoencoders &amp; Steering</h3>
+    <div class="meta"><span class="chip honey">⏱ 2 h</span><span class="chip">🐝🐝🐝 spicy</span><span class="chip teal">💻 runs on CPU</span><span class="chip plum">interpretability</span><span class="chip indigo">2024–25 frontier</span></div>
+    <p>Collect GPT-2's residual-stream activations, train a sparse autoencoder to pull out interpretable features, inspect what makes them fire, and steer generation by adding feature directions.</p>
+    <figure class="lab-preview"><img src="assets/img/labs/lab16.png" alt="Logit lens: GPT-2&#x27;s guess drifts England → Rome → London → Paris through the layers." loading="lazy"><figcaption><b>What you'll build:</b> Logit lens: GPT-2&#x27;s guess drifts England → Rome → London → Paris through the layers.</figcaption></figure>
+    <ul class="obj"><li>Use the logit lens to watch predictions form</li><li>Train a ReLU or TopK sparse autoencoder</li><li>Track L0, explained variance and dead latents</li><li>Find the top-activating tokens for each feature</li><li>Steer generation with forward hooks</li></ul>
+    <div class="actions">
+      <a class="btn sm honey" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab16_sae_interpretability.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <a class="btn sm secondary" href="https://github.com/varoonsahgal/advancedml/blob/main/notebooks/lab16_sae_interpretability.ipynb" target="_blank" rel="noopener">View notebook</a>
+      <label class="check"><input type="checkbox"> Mark complete</label>
+    </div>
+  </div>
+</article></div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:0">
+  <div class="wrap grid-2">
+    <div class="card">
+      <h3>☁️ Running in Colab (recommended)</h3>
+      <ol>
+        <li>Click <b>▶ Open in Colab</b> on any lab.</li>
+        <li><b>File → Save a copy in Drive</b> so your work persists.</li>
+        <li>Optional: <b>Runtime → Change runtime type → T4 GPU</b> for labs marked ⚡.</li>
+        <li>Run the setup cell first; it installs anything Colab is missing.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>💻 Running locally</h3>
+<pre><code class="language-bash">git clone https://github.com/varoonsahgal/advancedml.git
+cd advancedml
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+jupyter lab notebooks/</code></pre>
+      <p class="muted" style="font-size:.9rem;margin:0">Python 3.10+. Set <code>LAB_FAST=1</code> for a quick smoke-test run of any notebook.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="site"><div class="wrap">
+  <div><div class="brand" style="color:#F6EFD9"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg><span>Gradient Hive<small style="color:#cdbf9c">Advanced ML Week · 2026</small></span></div>
+  <p style="margin-top:14px">A five-day, lab-first journey from gradient boosting to reasoning agents. Built for curious practitioners who learn by building. 🐝</p></div>
+  <div><h4>The week</h4><a href="days/day-1.html">Day 1 · Classical, Sharpened</a><a href="days/day-2.html">Day 2 · The Deep Learning Engine Room</a><a href="days/day-3.html">Day 3 · Transformers & Beyond</a><a href="days/day-4.html">Day 4 · Generative Worlds</a><a href="days/day-5.html">Day 5 · LLMs, Reasoning & Agents</a></div>
+  <div><h4>Hands-on</h4><a href="labs.html">All 16 labs</a><a href="playground.html">Interactive playground</a><a href="capstone.html">Capstone: Hive Demo Day</a><a href="https://github.com/varoonsahgal/advancedml" target="_blank" rel="noopener">GitHub repo</a></div>
+  <div><h4>Support</h4><a href="resources.html#setup">Setup guide</a><a href="resources.html#reading">Reading list</a><a href="resources.html#glossary">Glossary</a><a href="resources.html#instructors">Instructor notes</a><a href="cheatsheet.html">Printable cheat sheet</a></div>
+</div></footer>
+<button class="flybee" aria-label="Ask Buzz for a tip"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbb"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbb)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="assets/js/main.js?v=f2753687"></script>
+<script src="assets/js/widgets.js?v=dd92d7f4"></script>
+</body>
+</html>

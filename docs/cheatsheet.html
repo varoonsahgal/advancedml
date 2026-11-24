@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cheat Sheet · Gradient Hive</title>
+<meta name="description" content="The whole Advanced ML Week on one printable page — every key equation and takeaway from classical ML to agents.">
+<meta property="og:title" content="Cheat Sheet · Gradient Hive">
+<meta property="og:description" content="The whole Advanced ML Week on one printable page — every key equation and takeaway from classical ML to agents.">
+<meta property="og:image" content="assets/img/og-image.png">
+<meta name="theme-color" content="#F5B700">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2064%2064%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22bbi%22%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpolygon%20points%3D%2232%2C2%2058%2C17%2058%2C47%2032%2C62%206%2C47%206%2C17%22%20fill%3D%22%23F5B700%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%3Cellipse%20cx%3D%2228%22%20cy%3D%2222%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%28-20%2028%2022%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2239%22%20cy%3D%2221%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%2818%2039%2021%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22%23FFE680%22/%3E%3Cg%20clip-path%3D%22url%28%23bbi%29%22%20fill%3D%22%231F1B16%22%3E%3Crect%20x%3D%2229%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2224%22%20width%3D%226%22%20height%3D%2226%22/%3E%3C/g%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%231F1B16%22/%3E%3Ccircle%20cx%3D%2215.5%22%20cy%3D%2233%22%20r%3D%222.4%22%20fill%3D%22%23FFFDF4%22/%3E%3Cpath%20d%3D%22M14%2028%20Q10%2020%207%2021%20M20%2027%20Q20%2019%2016%2017%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M50%2037%20l6%200%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="assets/css/style.css?v=6acdf6d1">
+<script>try{var t=localStorage.getItem("hive-theme");if(t)document.documentElement.setAttribute("data-theme",JSON.parse(t))}catch(e){}</script>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="brand" href="index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbn"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbn)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg><span>Gradient Hive<small>Advanced ML Week · 2026</small></span></a>
+  <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+  <nav class="nav-links">
+    <div class="nav-days"><a title="Day 1: Classical, Sharpened" class="" href="days/day-1.html">1</a><a title="Day 2: The Deep Learning Engine Room" class="" href="days/day-2.html">2</a><a title="Day 3: Transformers & Beyond" class="" href="days/day-3.html">3</a><a title="Day 4: Generative Worlds" class="" href="days/day-4.html">4</a><a title="Day 5: LLMs, Reasoning & Agents" class="" href="days/day-5.html">5</a></div>
+    <a class="" href="labs.html">Labs</a>
+    <a class="" href="playground.html">Playground</a>
+    <a class="" href="capstone.html">Capstone</a>
+    <a class=" active" href="cheatsheet.html">Cheat sheet</a>
+    <a class="" href="resources.html">Resources</a>
+    <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">🌙</button>
+  </nav>
+</div></header>
+<main>
+
+<section class="page-hero">
+  <div class="wrap">
+    <div class="kicker">The cheat sheet</div>
+    <h1>The week on one page.</h1>
+    <p class="lede">Every key equation and takeaway from all five days. Print it, pin it above your desk, and bring it to your next interview (to read <i>before</i> the interview, please).</p>
+    <div class="cta" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px"><button class="btn honey" onclick="window.print()">🖨️ Print / save as PDF</button><a class="btn secondary" href="labs.html">Back to the labs</a></div>
+  </div>
+</section>
+<div class="wrap cheatsheet">
+<section class="cs-day">
+  <div class="cs-title"><span class="cs-hex">1</span><div><small>Day 1 · Mon</small><h2>Classical, Sharpened</h2></div></div>
+  <div class="cs-grid"><div><h4>Key equations</h4><div class="cs-eq"><b>Bias–variance</b><span>$$\mathbb{E}[(y-\hat f)^2] = \text{bias}^2 + \text{var} + \sigma^2$$</span></div><div class="cs-eq"><b>Boosting step</b><span>$$F_m = F_{m-1} + \nu\, h_m,\quad h_m \approx -\nabla_F L$$</span></div><div class="cs-eq"><b>XGBoost leaf weight</b><span>$$w^* = -G/(H+\lambda)$$</span></div><div class="cs-eq"><b>ECE</b><span>$$\sum_b \tfrac{|S_b|}{n}\,|\mathrm{acc}(b) - \mathrm{conf}(b)|$$</span></div><div class="cs-eq"><b>Split conformal</b><span>$$\hat q = Q_{\lceil (n+1)(1-\alpha)\rceil / n}(|y-\hat\mu(x)|)$$</span></div><div class="cs-eq"><b>Shapley value</b><span>$$\phi_i = \sum_{S} \tfrac{|S|!(|F|-|S|-1)!}{|F|!}[v(S\cup i) - v(S)]$$</span></div></div><div><h4>Key takeaways</h4><ul><li>Expected test error = <b>bias² + variance + noise</b>. Capacity trades the first two; nothing beats the third.</li><li>Past the interpolation threshold, adding parameters can <b>reduce</b> test error (double descent). Implicit regularization decides which solution you get.</li><li>Boosting is <b>gradient descent in function space</b>: each tree fits the negative gradient of the loss.</li><li>Small learning rate + many trees + early stopping on validation data beats big steps. Your baseline for any table is a GBDT.</li><li><b>Accuracy ≠ calibration.</b> Fit Platt, isotonic or temperature scaling on held-out data to make confidences honest.</li><li>Split conformal: take a quantile of held-out residuals and get ≥ 1−α coverage for <i>any</i> model. The guarantee is marginal, so check your subgroups.</li><li>SHAP explains the <b>model</b>, not the world. Correlated features split credit unpredictably.</li><li>Tabular foundation models (TabPFN) do in-context learning on small tables in one forward pass, and often beat tuned GBDTs there.</li></ul></div></div>
+</section>
+<section class="cs-day">
+  <div class="cs-title"><span class="cs-hex">2</span><div><small>Day 2 · Tue</small><h2>The Deep Learning Engine Room</h2></div></div>
+  <div class="cs-grid"><div><h4>Key equations</h4><div class="cs-eq"><b>Adjoint recursion</b><span>$$\bar v_i = \sum_{j\in\text{ch}(i)} \bar v_j\, \partial v_j/\partial v_i$$</span></div><div class="cs-eq"><b>He init</b><span>$$\mathrm{Var}(w) = 2/\text{fan}_{\text{in}}$$</span></div><div class="cs-eq"><b>RMSNorm</b><span>$$x / \sqrt{\overline{x^2}+\epsilon}\odot g$$</span></div><div class="cs-eq"><b>AdamW</b><span>$$\theta \leftarrow \theta - \eta\big(\hat m/(\sqrt{\hat v}+\epsilon) + \lambda\theta\big)$$</span></div><div class="cs-eq"><b>Muon</b><span>$$\Delta W \propto \mathrm{NS}(M) \approx UV^\top$$</span></div><div class="cs-eq"><b>Chinchilla</b><span>$$L(N,D) = E + A/N^{\alpha} + B/D^{\beta},\ C\approx 6ND$$</span></div></div><div><h4>Key takeaways</h4><ul><li>Reverse-mode autodiff gives every gradient of a scalar loss for roughly the cost of a forward pass, at the price of storing activations.</li><li>Trainability comes from variance-preserving init, (pre-)normalization, and residual streams that carry gradients straight through.</li><li><b>AdamW</b> (Adam + decoupled weight decay) is the default for transformers. L2 inside Adam is not the same thing.</li><li><b>Muon</b> orthogonalizes the momentum of 2-D weight matrices. It's a strong 2025-era alternative for hidden layers.</li><li>The learning rate is hyperparameter #1. Use warmup, then cosine or WSD decay, and clip gradients.</li><li><b>Grokking</b>: generalization can arrive long after memorization, and weight decay is what pushes the model there.</li><li>Compute-optimal training scales N and D together (~20 tokens/param), but production models over-train small models because inference is what costs money.</li></ul></div></div>
+</section>
+<section class="cs-day">
+  <div class="cs-title"><span class="cs-hex">3</span><div><small>Day 3 · Wed</small><h2>Transformers & Beyond</h2></div></div>
+  <div class="cs-grid"><div><h4>Key equations</h4><div class="cs-eq"><b>Attention</b><span>$$\mathrm{softmax}(QK^\top/\sqrt{d_k} + M)\,V$$</span></div><div class="cs-eq"><b>RoPE identity</b><span>$$\langle R_m q, R_n k\rangle = \langle q, R_{n-m} k\rangle$$</span></div><div class="cs-eq"><b>SwiGLU</b><span>$$W_2(\mathrm{SiLU}(W_1x)\odot W_3x)$$</span></div><div class="cs-eq"><b>KV cache</b><span>$$\text{bytes} = 2\,L\,H_{kv}\,d_h\,b\cdot T$$</span></div><div class="cs-eq"><b>Speculative accept</b><span>$$\min\big(1,\ p(x)/q(x)\big)$$</span></div><div class="cs-eq"><b>Selective SSM</b><span>$$h_t = \bar A_t h_{t-1} + \bar B_t x_t,\ y_t = C_t h_t$$</span></div></div><div><h4>Key takeaways</h4><ul><li>Attention lets every token read from every earlier token, weighted by query–key match. The causal mask stops it from reading the future.</li><li>Scale logits by 1/√d<sub>k</sub> so the softmax doesn't saturate and gradients keep flowing.</li><li><b>RoPE</b> rotates q and k by position, so scores depend only on relative offset.</li><li>The <b>KV cache</b> trades memory for compute. At long context it dominates serving cost, which is why GQA and latent attention exist.</li><li>Decoding settings (temperature, top-p, min-p) shape the output's character as much as fine-tuning does.</li><li><b>Speculative decoding is exact</b>: the target model's distribution is preserved; only the speed depends on the draft model.</li><li><b>MoE</b> separates parameters (memory) from FLOPs per token, and needs load balancing so experts don't collapse.</li><li><b>SSMs</b> give linear-time, constant-memory sequence modeling. Input-dependent selectivity is what makes them work, and hybrids with attention are common.</li></ul></div></div>
+</section>
+<section class="cs-day">
+  <div class="cs-title"><span class="cs-hex">4</span><div><small>Day 4 · Thu</small><h2>Generative Worlds</h2></div></div>
+  <div class="cs-grid"><div><h4>Key equations</h4><div class="cs-eq"><b>ELBO</b><span>$$\log p(x) \ge \mathbb{E}_q[\log p(x|z)] - \mathrm{KL}(q(z|x)\|p(z))$$</span></div><div class="cs-eq"><b>DDPM loss</b><span>$$\|\epsilon - \epsilon_\theta(\sqrt{\bar\alpha_t}x_0 + \sqrt{1-\bar\alpha_t}\epsilon, t)\|^2$$</span></div><div class="cs-eq"><b>Flow matching</b><span>$$\|v_\theta(x_t,t) - (x_1 - x_0)\|^2,\ x_t=(1-t)x_0+tx_1$$</span></div><div class="cs-eq"><b>Sampling ODE</b><span>$$dx/dt = v_\theta(x,t),\ t: 0\to 1$$</span></div><div class="cs-eq"><b>CFG</b><span>$$(1+w)\,\epsilon_\theta(x,c) - w\,\epsilon_\theta(x,\varnothing)$$</span></div><div class="cs-eq"><b>InfoNCE</b><span>$$-\log \frac{e^{s_{ii}/\tau}}{\sum_j e^{s_{ij}/\tau}}$$</span></div></div><div><h4>Key takeaways</h4><ul><li>Diffusion, score models and flow matching are one family: a time-dependent field that carries a simple distribution to the data distribution.</li><li>Flow-matching loss: regress v<sub>θ</sub>(x<sub>t</sub>, t) onto x₁ − x₀. Training needs no simulation and is about as simple as it gets.</li><li>Sampling is ODE solving. Fewer steps are faster but blurrier; reflow and distillation fix that.</li><li><b>Classifier-free guidance</b> trades diversity for fidelity: (1+w)·conditional − w·unconditional.</li><li>Latent diffusion + diffusion transformers (DiT) are the scalable recipe for images and video.</li><li>CLIP's contrastive loss builds a shared image–text space, which gives you zero-shot classification and retrieval.</li><li>Vision-language models feed vision-encoder tokens into an LLM through a small projector.</li></ul></div></div>
+</section>
+<section class="cs-day">
+  <div class="cs-title"><span class="cs-hex">5</span><div><small>Day 5 · Fri</small><h2>LLMs, Reasoning & Agents</h2></div></div>
+  <div class="cs-grid"><div><h4>Key equations</h4><div class="cs-eq"><b>LoRA</b><span>$$h = W_0x + \tfrac{\alpha}{r}BAx$$</span></div><div class="cs-eq"><b>DPO</b><span>$$-\log\sigma\big(\beta\log\tfrac{\pi_\theta(y_w)}{\pi_{ref}(y_w)} - \beta\log\tfrac{\pi_\theta(y_l)}{\pi_{ref}(y_l)}\big)$$</span></div><div class="cs-eq"><b>GRPO advantage</b><span>$$\hat A_i = (r_i - \bar r)/\sigma_r$$</span></div><div class="cs-eq"><b>PPO clip</b><span>$$\min(\rho \hat A,\ \mathrm{clip}(\rho,1\pm\epsilon)\hat A)$$</span></div><div class="cs-eq"><b>pass@N</b><span>$$1-(1-p)^N$$</span></div><div class="cs-eq"><b>SAE</b><span>$$\|x-\hat x\|^2 + \lambda\|f\|_1,\ f=\mathrm{ReLU}(W_e(x-b_d)+b_e)$$</span></div></div><div><h4>Key takeaways</h4><ul><li>Knowledge mostly comes from pretraining. Post-training shapes <b>behaviour</b>: format, helpfulness, judgment, reasoning.</li><li><b>LoRA</b> learns a low-rank update ΔW = (α/r)·BA. Merge it for zero latency; QLoRA keeps the frozen base in 4-bit.</li><li><b>DPO</b> optimizes preference pairs directly, with no reward model and no RL loop, anchored to a reference model.</li><li><b>GRPO</b>: sample a group, normalize rewards within it, and push up the better-than-average answers. No critic needed.</li><li>Test-time compute (longer thinking, voting, verifiers) buys accuracy, especially where answers can be checked.</li><li>An agent is a <code>while</code> loop: think → call tool → observe. MCP lets any client use any tool server.</li><li>Treat everything an agent reads as <b>data, not instructions</b>. Prompt injection is the top agent risk.</li><li>Write evals <b>before</b> you optimize, and read your failures every week.</li><li>Sparse autoencoders pull interpretable features out of superposition, and adding a feature's direction can steer the model.</li></ul></div></div>
+</section>
+<p class="muted center" style="margin:30px 0 0;font-size:.9rem">🐝 Gradient Hive · Advanced ML Week 2026 · varoonsahgal.github.io/advancedml</p>
+</div>
+
+</main>
+<footer class="site"><div class="wrap">
+  <div><div class="brand" style="color:#F6EFD9"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg><span>Gradient Hive<small style="color:#cdbf9c">Advanced ML Week · 2026</small></span></div>
+  <p style="margin-top:14px">A five-day, lab-first journey from gradient boosting to reasoning agents. Built for curious practitioners who learn by building. 🐝</p></div>
+  <div><h4>The week</h4><a href="days/day-1.html">Day 1 · Classical, Sharpened</a><a href="days/day-2.html">Day 2 · The Deep Learning Engine Room</a><a href="days/day-3.html">Day 3 · Transformers & Beyond</a><a href="days/day-4.html">Day 4 · Generative Worlds</a><a href="days/day-5.html">Day 5 · LLMs, Reasoning & Agents</a></div>
+  <div><h4>Hands-on</h4><a href="labs.html">All 16 labs</a><a href="playground.html">Interactive playground</a><a href="capstone.html">Capstone: Hive Demo Day</a><a href="https://github.com/varoonsahgal/advancedml" target="_blank" rel="noopener">GitHub repo</a></div>
+  <div><h4>Support</h4><a href="resources.html#setup">Setup guide</a><a href="resources.html#reading">Reading list</a><a href="resources.html#glossary">Glossary</a><a href="resources.html#instructors">Instructor notes</a><a href="cheatsheet.html">Printable cheat sheet</a></div>
+</div></footer>
+<button class="flybee" aria-label="Ask Buzz for a tip"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbb"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbb)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="assets/js/main.js?v=f2753687"></script>
+<script src="assets/js/widgets.js?v=dd92d7f4"></script>
+</body>
+</html>
