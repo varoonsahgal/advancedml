@@ -353,8 +353,9 @@ def d1_conformal():
         ax.set_title(name); ax.set_xlabel("x")
     cov1 = np.mean(np.abs(y[te] - mu.predict(X[te])) <= qh)
     cov2 = np.mean((y[te] >= lo.predict(X[te]) - qc) & (y[te] <= hi.predict(X[te]) + qc))
-    axs[0].text(0.3, 5.5, f"coverage {cov1:.1%} (target 90%)", color=INK)
-    axs[1].text(0.3, 5.5, f"coverage {cov2:.1%} (target 90%)", color=INK)
+    for ax, cov in zip(axs, (cov1, cov2)):
+        ax.text(0.02, 0.97, f"test coverage {cov:.1%} (target 90%)", transform=ax.transAxes, va="top", color=INK,
+                fontsize=12, bbox=dict(boxstyle="round,pad=0.35", fc=CARD, ec="#e0ce92"))
     fig.tight_layout(); save(fig, "d1-conformal.png")
 
 

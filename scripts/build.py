@@ -152,6 +152,7 @@ def expand(body, meta=None):
     body = body.replace("<!--CHEATSHEET-->", cheatsheet()).replace("<!--HONEYCOMB-->", honeycomb())
     body = re.sub(r"<!--LABS:(\w+)-->", lambda m: '<div class="labs">' + "\n".join(lab_card(l) for l in labs_for(m.group(1))) + "</div>", body)
     body = re.sub(r"<!--PROGRESS:(\w+)-->", lambda m: progress_box(m.group(1)), body)
+    body = body.replace("<!--DECKS-->", deck_cards())
     return body
 
 
@@ -177,6 +178,7 @@ def nav(root, active):
   <nav class="nav-links">
     <div class="nav-days">{days}</div>
     {a('labs.html', 'Labs', 'labs')}
+    {a('slides.html', 'Slides', 'slides')}
     {a('playground.html', 'Playground', 'playground')}
     {a('capstone.html', 'Capstone', 'capstone')}
     {a('cheatsheet.html', 'Cheat sheet', 'cheatsheet')}
@@ -207,6 +209,7 @@ def day_hero(meta, root):
     <h1>{meta['headline']}</h1>
     <p class="lede">{meta['lede']}</p>
     <div class="meta"><span class="chip honey">{len(labs_for(d))} labs</span>{chips}</div>
+    <div class="hero-actions"><a class="btn sm honey" href="{root}slides/day-{d}.html">🎞️ Open today's slides</a></div>
   </div>
 </header>"""
 
@@ -273,7 +276,177 @@ def page(meta, body, rel):
 """
 
 
+# ============================================================== slide decks
+SLIDES_SRC = ROOT / "site" / "slides"
+DECK_INFO = {}   # name -> dict(title, label, count, cover, blurb, order, kicker)
+
+
+def h(x):
+    return html.escape(x, quote=True)
+
+
+def lab_slide(lab):
+    obj = "".join(f"<li>{h(o)}</li>" for o in lab["objectives"][:5])
+    gpu = '<span class="chip coral">⚡ GPU optional</span>' if lab.get("gpu") else '<span class="chip teal">💻 runs on CPU</span>'
+    key = '<span class="chip indigo">🔑 API key optional</span>' if lab.get("key") else ""
+    img = OUT / "assets" / "img" / "labs" / f"{lab['id']}.png"
+    fig = (f'<figure class="media"><img src="{{{{img}}}}labs/{lab["id"]}.png" alt="{h(lab.get("preview", ""))}">'
+           f'<figcaption><b>What you\'ll build:</b> {h(lab.get("preview", ""))}</figcaption></figure>') if img.exists() else ""
+    return f"""<section class="slide lab">
+  <div class="text">
+    <div class="labhead"><div class="hexnum"><div><small>LAB</small>{lab['num']}</div></div>
+      <div><div class="kicker">Hands-on · ⏱ {h(lab['time'])}</div><h2>{h(lab['title'])}</h2></div></div>
+    <p class="blurb">{lab['blurb']}</p>
+    <ul class="tight">{obj}</ul>
+    <div class="go"><a class="btnlike" href="{colab(lab['file'])}" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <div class="chips"><span class="chip">{DIFF[lab['difficulty']]}</span>{gpu}{key}</div></div>
+  </div>
+  {fig}
+  <aside class="notes">Lab {lab['num']} ({h(lab['time'])}). Have everyone open the notebook in Colab and run the setup cell while you introduce it. Objectives: {h('; '.join(lab['objectives']))}.</aside>
+</section>"""
+
+
+def chunks(items, size):
+    k = -(-len(items) // size)
+    per = -(-len(items) // k)
+    return [items[i:i + per] for i in range(0, len(items), per)]
+
+
+def recap_slides(d):
+    parts = chunks(DAYDATA[d]["takeaways"], 6)
+    out, start = [], 1
+    for j, part in enumerate(parts):
+        tag = f" · {j + 1}/{len(parts)}" if len(parts) > 1 else ""
+        items = "".join(f"<li><div>{t}</div></li>" for t in part)
+        out.append(f"""<section class="slide recap">
+  <div class="kicker">Day {d} · the honey jar{tag}</div>
+  <h2>🍯 What to <em>remember</em></h2>
+  <ol class="jar" style="counter-reset: j {start - 1}">{items}</ol>
+</section>""")
+        start += len(part)
+    return "\n".join(out)
+
+
+def myth_slides(d):
+    ms = DAYDATA[d]["myths"]
+    return "\n".join(f"""<section class="slide myth">
+  <div class="kicker">Myth buster · {i + 1}/{len(ms)}</div>
+  <div class="mvr"><div class="m"><span>✗ MYTH</span><p>{m}</p></div><div class="r"><span>✓ REALITY</span><p>{r}</p></div></div>
+</section>""" for i, (m, r) in enumerate(ms))
+
+
+def interview_slides(d):
+    parts = chunks(DAYDATA[d]["cards"], 3)
+    out, n = [], 0
+    for j, part in enumerate(parts):
+        qa = ""
+        for q, a in part:
+            n += 1
+            qa += f'<div class="q"><i>Q{n}</i><div><h3>{q}</h3><div class="a f">{a}</div></div></div>'
+        out.append(f"""<section class="slide">
+  <div class="kicker">💼 Interview corner · {j + 1}/{len(parts)}</div>
+  <h2>Could you answer these <em>out loud?</em></h2>
+  <div class="qa">{qa}</div>
+  <aside class="notes">Cold-call or pair-share. Each click reveals the next answer.</aside>
+</section>""")
+    return "\n".join(out)
+
+
+def equation_slide(d):
+    eqs = "".join(f'<div class="card"><h4>{h(n)}</h4><div class="eqsm">$${e}$$</div></div>' for n, e in DAYDATA[d]["equations"])
+    return f"""<section class="slide">
+  <div class="kicker">Day {d} · formula sheet</div>
+  <h2>Six equations worth <em>memorizing</em></h2>
+  <div class="cards eqcards">{eqs}</div>
+</section>"""
+
+
+def deck_expand(body, meta):
+    d = meta.get("day")
+    labmap = {l["id"]: l for l in LABS}
+    body = re.sub(r"<!--LAB:(\w+)-->", lambda m: lab_slide(labmap[m.group(1)]), body)
+    if d:
+        body = body.replace("<!--RECAP-->", recap_slides(d)).replace("<!--MYTHS-->", myth_slides(d))
+        body = body.replace("<!--INTERVIEW-->", interview_slides(d)).replace("<!--EQUATIONS-->", equation_slide(d))
+    return body
+
+
+SLIDE_RE = re.compile(r'(<section class="slide\b[^>]*>)(.*?)(</section>)', re.S)
+
+
+def build_deck(src):
+    name = src.stem
+    meta, body = parse(src)
+    body = deck_expand(body, meta).replace("{{img}}", "../assets/img/").replace("{{root}}", "../")
+    cnt = iter(range(10_000))
+    body = re.sub(r"\{\{bee\}\}", lambda m: bee(f"d{next(cnt)}"), body)
+    slides = SLIDE_RE.findall(body)
+    n = len(slides)
+    label = h(meta.get("label", meta.get("title", "")))
+    frames = []
+    for i, (open_, inner, close) in enumerate(slides):
+        foot = (f'<footer class="sf"><span class="brand">{bee(f"f{i}")}Gradient Hive · {label}</span>'
+                f'<span>{i + 1} / {n}</span><span class="bar" style="--p:{(i + 1) / n:.4f}"><i></i></span></footer>')
+        frames.append(f'<div class="frame">{open_}{inner}{foot}{close}</div>')
+    title = f"{meta.get('title', name)} · Slides · {SITE_NAME}"
+    out = OUT / "slides" / f"{name}.html"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{h(title)}</title>
+<meta name="description" content="{h(meta.get('blurb', ''))}">
+<meta property="og:image" content="../assets/img/og-image.png">
+<meta name="theme-color" content="#16130E">
+<link rel="icon" href="data:image/svg+xml,{quote(bee('i').replace(chr(10), ''))}">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="../assets/css/deck.css?v={ver("assets/css/deck.css")}">
+</head>
+<body data-home="../slides.html">
+<div class="stage">
+{chr(10).join(frames)}
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script defer src="../assets/js/deck.js?v={ver("assets/js/deck.js")}"></script>
+</body>
+</html>
+""")
+    DECK_INFO[name] = dict(title=meta.get("title", name), label=meta.get("label", ""), count=n,
+                           cover=meta.get("cover", "og-image.png"), blurb=meta.get("blurb", ""),
+                           order=int(meta.get("order", 99)), kicker=meta.get("kicker", ""))
+    print(f"built slides/{name}.html ({n} slides)")
+
+
+def deck_cards():
+    if not DECK_INFO:
+        return ""
+    total = sum(v["count"] for v in DECK_INFO.values())
+    cards = []
+    for name, v in sorted(DECK_INFO.items(), key=lambda kv: kv[1]["order"]):
+        cards.append(f"""<article class="deck-card reveal">
+  <a class="thumb" href="{{{{root}}}}slides/{name}.html"><img src="{{{{root}}}}assets/img/{v['cover']}" alt="" loading="lazy"><span class="count">{v['count']} slides</span></a>
+  <div class="txt"><small>{h(v['kicker'])}</small><h3><a href="{{{{root}}}}slides/{name}.html">{h(v['title'])}</a></h3><p>{v['blurb']}</p>
+  <div class="actions"><a class="btn sm honey" href="{{{{root}}}}slides/{name}.html">▶ Present</a><a class="btn sm secondary" href="{{{{root}}}}slides/{name}.html?print" target="_blank" rel="noopener">🖨️ Print / PDF</a></div></div>
+</article>""")
+    return (f'<p class="deck-total"><b>{len(DECK_INFO)} decks · {total} slides</b> · press <kbd>?</kbd> inside a deck for keyboard shortcuts</p>'
+            f'<div class="decks">' + "".join(cards) + "</div>")
+
+
 def main():
+    import sys
+    if "--deck" in sys.argv:   # build just one deck: python scripts/build.py --deck day-3
+        build_deck(SLIDES_SRC / f"{sys.argv[sys.argv.index('--deck') + 1]}.html")
+        return
+    for src in sorted(SLIDES_SRC.glob("*.html")):
+        if not src.name.startswith("_"):
+            build_deck(src)
     n = 0
     for src in sorted(SRC.rglob("*.html")):
         rel = src.relative_to(SRC).as_posix()

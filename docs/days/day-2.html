@@ -14,7 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-<link rel="stylesheet" href="../assets/css/style.css?v=6acdf6d1">
+<link rel="stylesheet" href="../assets/css/style.css?v=f19606e9">
 <script>try{var t=localStorage.getItem("hive-theme");if(t)document.documentElement.setAttribute("data-theme",JSON.parse(t))}catch(e){}</script>
 </head>
 <body>
@@ -33,6 +33,7 @@
   <nav class="nav-links">
     <div class="nav-days"><a title="Day 1: Classical, Sharpened" class="" href="../days/day-1.html">1</a><a title="Day 2: The Deep Learning Engine Room" class=" active" href="../days/day-2.html">2</a><a title="Day 3: Transformers & Beyond" class="" href="../days/day-3.html">3</a><a title="Day 4: Generative Worlds" class="" href="../days/day-4.html">4</a><a title="Day 5: LLMs, Reasoning & Agents" class="" href="../days/day-5.html">5</a></div>
     <a class="" href="../labs.html">Labs</a>
+    <a class="" href="../slides.html">Slides</a>
     <a class="" href="../playground.html">Playground</a>
     <a class="" href="../capstone.html">Capstone</a>
     <a class="" href="../cheatsheet.html">Cheat sheet</a>
@@ -48,6 +49,7 @@
     <h1>The deep learning <em>engine room.</em></h1>
     <p class="lede">Today we open the hood. You'll write backprop yourself, learn why some networks train and others explode, race optimizers from 1951 against ones from 2024, and meet the scaling laws that decide how frontier models are built.</p>
     <div class="meta"><span class="chip honey">3 labs</span><span class="chip">⏱ ~7 hours</span><span class="chip">⛓️ autodiff</span><span class="chip">🧱 init & norms</span><span class="chip">🏎️ AdamW → Muon</span><span class="chip">📅 schedules</span><span class="chip">💡 grokking</span><span class="chip">📈 scaling laws</span></div>
+    <div class="hero-actions"><a class="btn sm honey" href="../slides/day-2.html">🎞️ Open today's slides</a></div>
   </div>
 </header>
 <div class="wrap layout">
@@ -172,7 +174,8 @@
   <p>Across many orders of magnitude, language-model loss falls as a <strong>smooth power law</strong> in parameters $N$, data $D$ and compute $C \approx 6ND$ (Kaplan et al., 2020). Hoffmann et al. (2022, "Chinchilla") fitted a parametric form and showed that earlier models were <em>under-trained</em>: for a fixed compute budget you should scale parameters and tokens <strong>together</strong>, roughly 20 tokens per parameter.</p>
   <div class="eq"><div class="label">Chinchilla parametric loss</div>
     $$L(N, D) = E + \frac{A}{N^{\alpha}} + \frac{B}{D^{\beta}}, \qquad E\!\approx\!1.69,\ A\!\approx\!406.4,\ B\!\approx\!410.7,\ \alpha\!\approx\!0.34,\ \beta\!\approx\!0.28$$
-    <p class="explain">Minimize $L$ subject to $6ND = C$ to get the compute-optimal $N^*(C)$ and $D^*(C)$. Both grow roughly as $\sqrt{C}$.</p></div>
+    <p class="explain">Minimize $L$ subject to $6ND = C$ to get the compute-optimal $N^*(C)$ and $D^*(C)$. Both grow roughly as $\sqrt{C}$.</p>
+    <p class="explain"><b>Fine print:</b> these are the paper's "Approach 3" constants. Minimized exactly, they suggest noticeably more than 20 tokens per parameter; the famous ~20 comes from the paper's other two approaches. A 2024 replication (Besiroglu et al.) refit Approach 3 and recovered ~20 tokens/param, which you'll explore in Lab 2.3.</p></div>
   <figure class="fig"><img src="../assets/img/d2-scaling.png" alt="Loss versus compute for model sizes from 30M to 300B parameters, with the compute-optimal frontier" loading="lazy"><figcaption>Each thin curve is one model size trained on more and more tokens. The black envelope is the best you can do at each compute budget.</figcaption></figure>
   <p>Plan your own training run. How big should the model be for your budget, and how long will it take?</p>
   <div data-widget="chinchilla"></div>

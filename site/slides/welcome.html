@@ -1,0 +1,191 @@
+<!--
+title: Welcome to the Hive
+label: Welcome
+kicker: Day 0 · Monday 09:00
+order: 0
+cover: og-image.png
+blurb: The first 30 minutes: what the week covers, how the labs work, the one idea behind everything, and how to get set up.
+-->
+
+<section class="slide cover nofoot">
+  <img class="bg" src="{{img}}og-image.png" alt="">
+  <div class="badge"><div><small>2026</small>ML</div></div>
+  <div class="kicker">Advanced ML Week · 2026 edition</div>
+  <h1>Welcome to the <em>Gradient Hive.</em></h1>
+  <p class="lede">Five days from gradient boosting to reasoning agents. You'll build all of it yourself, from scratch.</p>
+  <div class="chips"><span class="chip honey">5 days</span><span class="chip">16 labs</span><span class="chip">9 live demos</span><span class="chip">~70% hands-on</span></div>
+  <aside class="notes">Welcome everyone. While people settle in: open the course site and Lab 1.1 in Colab. Keys: → next, O overview, N notes, F fullscreen.</aside>
+</section>
+
+<section class="slide statement">
+  <div class="kicker">The promise</div>
+  <p class="big">By Friday you will have <em>written</em> a GPT, a diffusion model, an autograd engine and a reasoning-RL loop.</p>
+  <p class="by">Not called an API. Written it, line by line, then compared it with the production library.</p>
+  <aside class="notes">Set expectations: this is a building week. Everything they use is opened up first.</aside>
+</section>
+
+<section class="slide">
+  <div class="kicker">The week at a glance</div>
+  <h2>Five days, one <em>continuous story</em></h2>
+  <div class="cards c5">
+    <div class="card"><div class="ico">🌲</div><h3>Classical, sharpened</h3><p>Boosting, calibration, conformal prediction, SHAP, TabPFN.</p></div>
+    <div class="card teal"><div class="ico">⚙️</div><h3>The engine room</h3><p>Autograd, AdamW → Muon, schedules, grokking, scaling laws.</p></div>
+    <div class="card coral"><div class="ico">🔭</div><h3>Transformers &amp; beyond</h3><p>A modern GPT, KV cache, speculation, quantization, MoE, SSMs.</p></div>
+    <div class="card indigo"><div class="ico">🌊</div><h3>Generative worlds</h3><p>VAE → diffusion → flow matching, CFG, DiT, CLIP.</p></div>
+    <div class="card plum"><div class="ico">🤖</div><h3>Reasoning &amp; agents</h3><p>LoRA, DPO, GRPO, test-time compute, MCP, SAEs.</p></div>
+  </div>
+  <p class="small mt">Every day builds on the one before. Day 5's agents need Day 3's transformer, Day 2's optimizer, and Day 1's evaluation habits.</p>
+</section>
+
+<section class="slide split media-wide">
+  <div class="text">
+    <div class="kicker">Each day's art</div>
+    <h2>Every day has its own <em>picture</em></h2>
+    <ul>
+      <li><b>Mon:</b> a decision surface, calibrated</li>
+      <li><b>Tue:</b> optimizers racing down a loss landscape</li>
+      <li><b>Wed:</b> attention patterns</li>
+      <li><b>Thu:</b> noise flowing into data</li>
+      <li><b>Fri:</b> a model thinking in steps</li>
+    </ul>
+    <p class="small">Every image this week is computed from real code, and the scripts are in the repo.</p>
+  </div>
+  <div class="imgrow" style="grid-auto-flow:row;grid-template-columns:1fr 1fr;height:820px">
+    <figure class="media dark" style="padding:10px"><img src="{{img}}cover-day1.png" alt=""></figure>
+    <figure class="media dark" style="padding:10px"><img src="{{img}}cover-day2.png" alt=""></figure>
+    <figure class="media dark" style="padding:10px"><img src="{{img}}cover-day3.png" alt=""></figure>
+    <figure class="media dark" style="padding:10px"><img src="{{img}}cover-day4.png" alt=""></figure>
+  </div>
+</section>
+
+<section class="slide section">
+  <div>
+    <div class="num">01</div>
+    <h2>The one idea behind <em>everything</em></h2>
+    <p>Define "good", measure its gradient, take a step. Repeat.</p>
+  </div>
+  <div class="hexart"><img src="{{img}}cover-day2.png" alt=""></div>
+</section>
+
+<section class="slide eq">
+  <div class="kicker">The through-line</div>
+  <h2>One update rule, <em>five disguises</em></h2>
+  <div class="equation">$$\theta \;\leftarrow\; \theta \;-\; \eta\,\nabla_\theta\, \mathcal{L}(\theta)$$</div>
+  <div class="terms">
+    <div class="term honey"><b>Mon</b>θ is a <i>function</i>: each boosting tree is one step.</div>
+    <div class="term teal"><b>Tue</b>θ is millions of weights; ∇ comes from autograd.</div>
+    <div class="term coral"><b>Wed</b>𝓛 is next-token cross-entropy.</div>
+    <div class="term indigo"><b>Thu</b>𝓛 regresses a velocity field.</div>
+    <div class="term plum"><b>Fri</b>𝓛 is a reward you can verify.</div>
+  </div>
+  <aside class="notes">Come back to this slide every morning. Ask: what are θ, 𝓛 and ∇ today?</aside>
+</section>
+
+<section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Every model this week is <b>a loss, a gradient and a step</b>. Only the disguise changes.</p>
+  <p class="sub">When something new looks scary, ask: what is being optimized, what is the gradient of, and what does one step change?</p>
+</section>
+
+<section class="slide timeline-slide">
+  <div class="kicker">How we got here</div>
+  <h2>Sixty years in <em>one line</em></h2>
+  <div class="timeline">
+    <div class="ev"><b>1958</b><span><strong>Perceptron</strong>One neuron, one update rule.</span></div>
+    <div class="ev"><b>1986</b><span><strong>Backprop</strong>Gradients through layers.</span></div>
+    <div class="ev"><b>2001</b><span><strong>GBDT</strong>Friedman's boosting still rules tables.</span></div>
+    <div class="ev"><b>2012</b><span><strong>AlexNet</strong>GPUs + data + depth.</span></div>
+    <div class="ev"><b>2017</b><span><strong>Transformer</strong>Attention is all you need.</span></div>
+    <div class="ev"><b>2020</b><span><strong>Scale</strong>GPT-3, DDPM diffusion.</span></div>
+    <div class="ev hi"><b>2025</b><span><strong>Reasoning</strong>RL with verifiable rewards, agents, MCP.</span></div>
+  </div>
+</section>
+
+<section class="slide split">
+  <div class="text">
+    <div class="kicker">How the labs work</div>
+    <h2>From scratch, <em>then</em> production</h2>
+    <ol>
+      <li><b>Predict</b> before you run (🔮).</li>
+      <li><b>Build</b> it yourself in the 🧪 cells.</li>
+      <li><b>Verify</b> with ✔️ checkpoint asserts.</li>
+      <li><b>Compare</b> with the real library.</li>
+      <li><b>Consolidate</b>: 🍯 takeaways, 💼 interview questions, 🏆 boss level.</li>
+    </ol>
+  </div>
+  <figure class="media"><img src="{{img}}labs/lab01.png" alt=""><figcaption><b>Lab 1.1:</b> your own boosting, one tree at a time, then racing LightGBM.</figcaption></figure>
+</section>
+
+<section class="slide">
+  <div class="kicker">By the numbers</div>
+  <h2>What's in the <em>hive</em></h2>
+  <div class="stats">
+    <div class="stat hi"><b>16</b><span>notebook labs, each opening in Colab with one click</span></div>
+    <div class="stat"><b>9</b><span>live in-browser demos: no install</span></div>
+    <div class="stat"><b>~70<small>%</small></b><span>of the week is hands-on building</span></div>
+    <div class="stat"><b>0</b><span>GPUs required (a T4 just makes it faster)</span></div>
+  </div>
+  <div class="callout mt">Every lab runs on a free CPU runtime. Set <code>LAB_FAST=1</code> for a 2-minute smoke test of any notebook.</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">The daily rhythm</div>
+  <h2>A day in the hive</h2>
+  <div class="agenda">
+    <div class="slot"><span class="t">09:00</span><div><b>Warm-up</b><span class="d">Quiz rematch, speed rounds, myth busting</span></div><span class="chip">warm-up</span></div>
+    <div class="slot"><span class="t">09:15</span><div><b>Lecture 1</b><span class="d">Short and visual: these slides</span></div><span class="chip">lecture</span></div>
+    <div class="slot lab"><span class="t">10:15</span><div><b>Lab · morning build</b><span class="d">The big from-scratch lab of the day</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">13:15</span><div><b>Lecture 2</b><span class="d">The frontier of the day's topic</span></div><span class="chip">lecture</span></div>
+    <div class="slot lab"><span class="t">14:00</span><div><b>Labs · afternoon builds</b><span class="d">Two shorter labs</span></div><span class="chip teal">lab</span></div>
+    <div class="slot fun"><span class="t">16:45</span><div><b>Challenge</b><span class="d">Leaderboards, brackets, gallery walks</span></div><span class="chip plum">fun</span></div>
+  </div>
+</section>
+
+<section class="slide myth">
+  <div class="kicker">Myth buster · warm-up</div>
+  <div class="mvr"><div class="m"><span>✗ MYTH</span><p>Classical ML is obsolete. It's all LLMs now.</p></div><div class="r"><span>✓ REALITY</span><p>Most production ML still runs on tables, and gradient-boosted trees still often win there. You'll prove it on Monday.</p></div></div>
+</section>
+
+<section class="slide quiz">
+  <div class="kicker">Icebreaker quiz</div>
+  <h2>Which of these did <em>not</em> exist in 2022?</h2>
+  <div class="opts">
+    <div class="opt" data-l="A">Stable Diffusion</div>
+    <div class="opt" data-l="B">LoRA fine-tuning</div>
+    <div class="opt" data-l="C" data-correct>The Model Context Protocol (MCP)</div>
+    <div class="opt" data-l="D">ChatGPT</div>
+  </div>
+  <p class="explain f" data-slide-class="answered"><b>C.</b> Anthropic introduced MCP in late 2024. The others all date from 2021–2022. A lot of this week is less than two years old.</p>
+  <aside class="notes">Show of hands first, then press → to reveal the answer.</aside>
+</section>
+
+<section class="slide split media-left">
+  <figure class="media"><img src="{{img}}labs/lab10.png" alt=""><figcaption><b>Lab 4.1:</b> flow matching turns Gaussian noise into honeycomb art.</figcaption></figure>
+  <div class="text">
+    <div class="kicker">The finale</div>
+    <h2>Friday: <em>Hive Demo Day</em></h2>
+    <p>Teams of 2–3 build a capstone on top of any lab: a new dataset, a twist, a frontier idea.</p>
+    <ul class="tight">
+      <li>5-minute demo, 2 minutes of questions</li>
+      <li>Judged on insight, not polish</li>
+      <li>Weirdest result wins honey 🍯</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Setup check · do this now</div>
+  <h2>Three steps, <em>two minutes</em></h2>
+  <div class="cards">
+    <div class="card"><div class="ico">🌐</div><h3>1 · Open the site</h3><p><code>varoonsahgal.github.io/advancedml</code>. Bookmark it: everything lives there.</p></div>
+    <div class="card teal"><div class="ico">☁️</div><h3>2 · Open Lab 1.1</h3><p>Click <b>▶ Open in Colab</b>, then <b>File → Save a copy in Drive</b>.</p></div>
+    <div class="card coral"><div class="ico">▶️</div><h3>3 · Run the setup cell</h3><p>It installs anything missing. When you see ✅, you're ready.</p></div>
+  </div>
+  <p class="small mt">Running locally instead? <code>pip install -r requirements.txt</code>. On macOS, LightGBM also needs <code>brew install libomp</code>.</p>
+</section>
+
+<section class="slide statement night nofoot">
+  <div class="quote-mark">“</div>
+  <p class="big md">What I cannot create, I do not understand.</p>
+  <p class="by">Richard Feynman, written on his blackboard. This week's motto. 🐝 Let's build.</p>
+</section>

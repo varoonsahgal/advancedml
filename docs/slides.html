@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slides · Gradient Hive</title>
+<meta name="description" content="The lecture slide decks for Advanced ML Week: one per day plus a welcome deck. Present in the browser or print to PDF.">
+<meta property="og:title" content="Slides · Gradient Hive">
+<meta property="og:description" content="The lecture slide decks for Advanced ML Week: one per day plus a welcome deck. Present in the browser or print to PDF.">
+<meta property="og:image" content="assets/img/og-image.png">
+<meta name="theme-color" content="#F5B700">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2064%2064%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22bbi%22%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpolygon%20points%3D%2232%2C2%2058%2C17%2058%2C47%2032%2C62%206%2C47%206%2C17%22%20fill%3D%22%23F5B700%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%3Cellipse%20cx%3D%2228%22%20cy%3D%2222%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%28-20%2028%2022%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2239%22%20cy%3D%2221%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%2818%2039%2021%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22%23FFE680%22/%3E%3Cg%20clip-path%3D%22url%28%23bbi%29%22%20fill%3D%22%231F1B16%22%3E%3Crect%20x%3D%2229%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2224%22%20width%3D%226%22%20height%3D%2226%22/%3E%3C/g%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%231F1B16%22/%3E%3Ccircle%20cx%3D%2215.5%22%20cy%3D%2233%22%20r%3D%222.4%22%20fill%3D%22%23FFFDF4%22/%3E%3Cpath%20d%3D%22M14%2028%20Q10%2020%207%2021%20M20%2027%20Q20%2019%2016%2017%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M50%2037%20l6%200%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="assets/css/style.css?v=f19606e9">
+<script>try{var t=localStorage.getItem("hive-theme");if(t)document.documentElement.setAttribute("data-theme",JSON.parse(t))}catch(e){}</script>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="brand" href="index.html"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbn"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbn)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg><span>Gradient Hive<small>Advanced ML Week · 2026</small></span></a>
+  <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+  <nav class="nav-links">
+    <div class="nav-days"><a title="Day 1: Classical, Sharpened" class="" href="days/day-1.html">1</a><a title="Day 2: The Deep Learning Engine Room" class="" href="days/day-2.html">2</a><a title="Day 3: Transformers & Beyond" class="" href="days/day-3.html">3</a><a title="Day 4: Generative Worlds" class="" href="days/day-4.html">4</a><a title="Day 5: LLMs, Reasoning & Agents" class="" href="days/day-5.html">5</a></div>
+    <a class="" href="labs.html">Labs</a>
+    <a class=" active" href="slides.html">Slides</a>
+    <a class="" href="playground.html">Playground</a>
+    <a class="" href="capstone.html">Capstone</a>
+    <a class="" href="cheatsheet.html">Cheat sheet</a>
+    <a class="" href="resources.html">Resources</a>
+    <button class="icon-btn" id="themeBtn" aria-label="Toggle dark mode">🌙</button>
+  </nav>
+</div></header>
+<main>
+
+<section class="page-hero">
+  <div class="wrap">
+    <div class="kicker">The lecture decks</div>
+    <h1>Slides that <em>teach</em>.</h1>
+    <p class="lede">One deck per day, plus a welcome deck for the first morning. Each is built from the same figures, labs and key takeaways as the course pages, and runs right in your browser: full-screen it, project it, or print it to PDF.</p>
+  </div>
+</section>
+
+<section class="block" style="padding-top:10px">
+  <div class="wrap">
+    <p class="deck-total"><b>6 decks · 208 slides</b> · press <kbd>?</kbd> inside a deck for keyboard shortcuts</p><div class="decks"><article class="deck-card reveal">
+  <a class="thumb" href="slides/welcome.html"><img src="assets/img/og-image.png" alt="" loading="lazy"><span class="count">16 slides</span></a>
+  <div class="txt"><small>Day 0 · Monday 09:00</small><h3><a href="slides/welcome.html">Welcome to the Hive</a></h3><p>The first 30 minutes: what the week covers, how the labs work, the one idea behind everything, and how to get set up.</p>
+  <div class="actions"><a class="btn sm honey" href="slides/welcome.html">▶ Present</a><a class="btn sm secondary" href="slides/welcome.html?print" target="_blank" rel="noopener">🖨️ Print / PDF</a></div></div>
+</article><article class="deck-card reveal">
+  <a class="thumb" href="slides/day-1.html"><img src="assets/img/cover-day1.png" alt="" loading="lazy"><span class="count">38 slides</span></a>
+  <div class="txt"><small>Day 1 · Monday</small><h3><a href="slides/day-1.html">Day 1 · Classical, Sharpened</a></h3><p>Bias–variance and double descent, gradient boosting as gradient descent in function space, calibration, conformal guarantees, exact Shapley values, and the tabular foundation model coming for them all.</p>
+  <div class="actions"><a class="btn sm honey" href="slides/day-1.html">▶ Present</a><a class="btn sm secondary" href="slides/day-1.html?print" target="_blank" rel="noopener">🖨️ Print / PDF</a></div></div>
+</article><article class="deck-card reveal">
+  <a class="thumb" href="slides/day-2.html"><img src="assets/img/cover-day2.png" alt="" loading="lazy"><span class="count">38 slides</span></a>
+  <div class="txt"><small>Day 2 · Tuesday</small><h3><a href="slides/day-2.html">Day 2 · The Deep Learning Engine Room</a></h3><p>Open the hood: write backprop yourself, see why deep nets train at all, race SGD against AdamW and Muon, tame the learning rate, watch a network grok, and size a model with scaling laws.</p>
+  <div class="actions"><a class="btn sm honey" href="slides/day-2.html">▶ Present</a><a class="btn sm secondary" href="slides/day-2.html?print" target="_blank" rel="noopener">🖨️ Print / PDF</a></div></div>
+</article><article class="deck-card reveal">
+  <a class="thumb" href="slides/day-3.html"><img src="assets/img/cover-day3.png" alt="" loading="lazy"><span class="count">38 slides</span></a>
+  <div class="txt"><small>Day 3 · Wednesday</small><h3><a href="slides/day-3.html">Day 3 · Transformers &amp; Beyond</a></h3><p>Attention from first principles, the modern Llama-style block, then the engineering that makes it fast (KV cache, speculation, sampling) and the architectures challenging dense attention (MoE, Mamba).</p>
+  <div class="actions"><a class="btn sm honey" href="slides/day-3.html">▶ Present</a><a class="btn sm secondary" href="slides/day-3.html?print" target="_blank" rel="noopener">🖨️ Print / PDF</a></div></div>
+</article><article class="deck-card reveal">
+  <a class="thumb" href="slides/day-4.html"><img src="assets/img/cover-day4.png" alt="" loading="lazy"><span class="count">38 slides</span></a>
+  <div class="txt"><small>Day 4 · Thursday</small><h3><a href="slides/day-4.html">Day 4 · Generative Worlds</a></h3><p>From VAEs to diffusion to flow matching: learn a field that carries noise to data, steer it with guidance, scale it with latents and DiTs, and connect it to language with CLIP.</p>
+  <div class="actions"><a class="btn sm honey" href="slides/day-4.html">▶ Present</a><a class="btn sm secondary" href="slides/day-4.html?print" target="_blank" rel="noopener">🖨️ Print / PDF</a></div></div>
+</article><article class="deck-card reveal">
+  <a class="thumb" href="slides/day-5.html"><img src="assets/img/cover-day5.png" alt="" loading="lazy"><span class="count">40 slides</span></a>
+  <div class="txt"><small>Day 5 · Friday</small><h3><a href="slides/day-5.html">Day 5 · LLMs, Reasoning &amp; Agents</a></h3><p>Fine-tune an LLM with LoRA, teach it to reason with GRPO, give it tools through MCP, look inside it with sparse autoencoders, then take the stage at Hive Demo Day.</p>
+  <div class="actions"><a class="btn sm honey" href="slides/day-5.html">▶ Present</a><a class="btn sm secondary" href="slides/day-5.html?print" target="_blank" rel="noopener">🖨️ Print / PDF</a></div></div>
+</article></div>
+  </div>
+</section>
+
+<section class="block" style="padding-top:0">
+  <div class="wrap grid-2">
+    <div class="card">
+      <h3>🎤 Presenting</h3>
+      <ul>
+        <li><b>→ / Space</b> next, <b>←</b> back. Some slides reveal step by step.</li>
+        <li><b>F</b> full screen · <b>O</b> overview of every slide · <b>B</b> blackout.</li>
+        <li><b>N</b> opens speaker notes, with timing and talking points.</li>
+        <li>Type a number and press <b>Enter</b> to jump; links like <code>day-3.html#12</code> open a specific slide.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>🖨️ Handouts &amp; PDF</h3>
+      <p>Click <b>Print / PDF</b> on any deck (or press <b>P</b> inside it). In the print dialog, choose <b>Save as PDF</b> and turn on <b>Background graphics</b>. Every slide becomes one 16:9 page, with all steps revealed.</p>
+      <p class="muted" style="margin:0">The decks are plain HTML in <code>site/slides/</code>. Edit them and run <code>python scripts/build.py</code>.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="site"><div class="wrap">
+  <div><div class="brand" style="color:#F6EFD9"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg><span>Gradient Hive<small style="color:#cdbf9c">Advanced ML Week · 2026</small></span></div>
+  <p style="margin-top:14px">A five-day, lab-first journey from gradient boosting to reasoning agents. Built for curious practitioners who learn by building. 🐝</p></div>
+  <div><h4>The week</h4><a href="days/day-1.html">Day 1 · Classical, Sharpened</a><a href="days/day-2.html">Day 2 · The Deep Learning Engine Room</a><a href="days/day-3.html">Day 3 · Transformers & Beyond</a><a href="days/day-4.html">Day 4 · Generative Worlds</a><a href="days/day-5.html">Day 5 · LLMs, Reasoning & Agents</a></div>
+  <div><h4>Hands-on</h4><a href="labs.html">All 16 labs</a><a href="playground.html">Interactive playground</a><a href="capstone.html">Capstone: Hive Demo Day</a><a href="https://github.com/varoonsahgal/advancedml" target="_blank" rel="noopener">GitHub repo</a></div>
+  <div><h4>Support</h4><a href="resources.html#setup">Setup guide</a><a href="resources.html#reading">Reading list</a><a href="resources.html#glossary">Glossary</a><a href="resources.html#instructors">Instructor notes</a><a href="cheatsheet.html">Printable cheat sheet</a></div>
+</div></footer>
+<button class="flybee" aria-label="Ask Buzz for a tip"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbb"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbb)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="assets/js/main.js?v=f2753687"></script>
+<script src="assets/js/widgets.js?v=dd92d7f4"></script>
+</body>
+</html>

@@ -12,7 +12,7 @@ A five-day, lab-first Advanced Machine Learning course that runs from classical 
 | 4 · Thu | **Generative Worlds**: VAE → diffusion → flow matching, CFG, latent diffusion & DiT, CLIP, VLMs | 4.1 Flow matching in 2D · 4.2 Diffusion + CFG · 4.3 CLIP |
 | 5 · Fri | **LLMs, Reasoning & Agents**: LoRA, DPO, GRPO/RLVR, test-time compute, agents, RAG, MCP, evals, SAEs | 5.1 LoRA · 5.2 GRPO · 5.3 Agents + MCP · 5.4 Sparse autoencoders |
 
-Each day page has a one-minute TL;DR, the lecture with figures and live demos, the labs, a **🍯 honey jar** of key takeaways, myth-busters, interview flashcards, a quiz and a daily challenge. There's also a printable **cheat sheet** of the whole week, a capstone guide, and a honeycomb progress tracker.
+Each day page has a one-minute TL;DR, the lecture with figures and live demos, the labs, a **🍯 honey jar** of key takeaways, myth-busters, interview flashcards, a quiz and a daily challenge. There are **208 lecture slides** across six decks (a welcome deck plus one per day) that run in the browser and print to PDF, a printable **cheat sheet** of the whole week, a capstone guide, and a honeycomb progress tracker.
 
 Every lab opens in Google Colab with one click and runs on a free CPU runtime (a GPU makes the generative and LLM labs faster).
 
@@ -23,12 +23,15 @@ docs/                 ← the built website (GitHub Pages serves this folder)
   assets/css, js, img ← styles, interactive widgets, generated figures
 site/
   pages/              ← page sources (edit these)
+  slides/             ← slide-deck sources; see site/slides/README.md for the authoring guide
   labs.json           ← lab catalog that drives every lab card (+ preview captions)
   days.json           ← per-day TL;DRs, key takeaways, myths, flashcards, cheat-sheet equations
 notebooks/            ← the 16 lab notebooks
 scripts/
   build.py            ← static-site builder: site/ → docs/
   make_figures.py     ← regenerates every figure in docs/assets/img
+  slides/figs_dayN.py ← regenerates the slide figures in docs/assets/img/slides
+  slides_check.py     ← audits the decks for overflow/KaTeX errors and renders contact sheets (needs Google Chrome)
 requirements.txt      ← for running the notebooks locally
 ```
 
@@ -36,7 +39,8 @@ requirements.txt      ← for running the notebooks locally
 
 ```bash
 python scripts/make_figures.py      # only if you change figures (needs numpy, matplotlib, scikit-learn)
-python scripts/build.py             # rebuild docs/ from site/
+python scripts/build.py             # rebuild docs/ from site/ (pages + slide decks)
+python scripts/slides_check.py      # optional: audit every slide deck
 python -m http.server -d docs 8000  # preview at http://localhost:8000
 ```
 

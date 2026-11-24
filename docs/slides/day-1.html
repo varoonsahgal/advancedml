@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 1 · Classical, Sharpened · Slides · Gradient Hive</title>
+<meta name="description" content="Bias–variance and double descent, gradient boosting as gradient descent in function space, calibration, conformal guarantees, exact Shapley values, and the tabular foundation model coming for them all.">
+<meta property="og:image" content="../assets/img/og-image.png">
+<meta name="theme-color" content="#16130E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2064%2064%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22bbi%22%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpolygon%20points%3D%2232%2C2%2058%2C17%2058%2C47%2032%2C62%206%2C47%206%2C17%22%20fill%3D%22%23F5B700%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%3Cellipse%20cx%3D%2228%22%20cy%3D%2222%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%28-20%2028%2022%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2239%22%20cy%3D%2221%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%2818%2039%2021%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22%23FFE680%22/%3E%3Cg%20clip-path%3D%22url%28%23bbi%29%22%20fill%3D%22%231F1B16%22%3E%3Crect%20x%3D%2229%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2224%22%20width%3D%226%22%20height%3D%2226%22/%3E%3C/g%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%231F1B16%22/%3E%3Ccircle%20cx%3D%2215.5%22%20cy%3D%2233%22%20r%3D%222.4%22%20fill%3D%22%23FFFDF4%22/%3E%3Cpath%20d%3D%22M14%2028%20Q10%2020%207%2021%20M20%2027%20Q20%2019%2016%2017%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M50%2037%20l6%200%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="../assets/css/deck.css?v=f748804a">
+</head>
+<body data-home="../slides.html">
+<div class="stage">
+<div class="frame"><section class="slide cover nofoot">
+  <img class="bg" src="../assets/img/cover-day1.png" alt="">
+  <div class="badge"><div><small>DAY</small>1</div></div>
+  <div class="kicker">Day 1 · Monday · Classical, sharpened</div>
+  <h1>Classical, <em>sharpened.</em></h1>
+  <p class="lede">Boosted trees, honest probabilities, guaranteed uncertainty and explanations you can defend. Then the transformer that's coming for all of them.</p>
+  <div class="chips"><span class="chip honey">3 labs</span><span class="chip">📈 bias–variance</span><span class="chip">🌳 boosting</span><span class="chip">🎯 calibration</span><span class="chip">🛡️ conformal</span><span class="chip">🔍 SHAP</span><span class="chip">🧠 TabPFN</span></div>
+  <aside class="notes">Good morning, and welcome to Day 1. The art behind me is a real classifier's probability field on two interleaved spirals. Today is about the models that still run most of production ML, and the habits (uncertainty, explanation) that separate a good ML engineer from a great one. Ask: who has shipped a gradient-boosted model to production? Keep a mental count; it's usually most of the room.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf0"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf0)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>1 / 38</span><span class="bar" style="--p:0.0263"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Today's flight plan</div>
+  <h2>Monday in the <em>hive</em></h2>
+  <div class="agenda">
+    <div class="slot"><span class="t">09:15</span><div><b>Bias, variance &amp; double descent</b><span class="d">Why the classic U-curve is only half the story</span></div><span class="chip">lecture</span></div>
+    <div class="slot lab"><span class="t">10:15</span><div><b>Lab 1.1 · Gradient boosting from scratch</b><span class="d">Residuals, shrinkage, early stopping, LightGBM showdown</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">13:15</span><div><b>Uncertainty you can trust</b><span class="d">Calibration, then conformal prediction</span></div><span class="chip">lecture</span></div>
+    <div class="slot lab"><span class="t">14:00</span><div><b>Lab 1.2 · Calibration &amp; conformal</b><span class="d">ECE, temperature scaling, CQR, prediction sets</span></div><span class="chip teal">lab</span></div>
+    <div class="slot lab"><span class="t">15:30</span><div><b>Lab 1.3 · SHAP vs TabPFN</b><span class="d">Exact Shapley values; in-context learning on tables</span></div><span class="chip teal">lab</span></div>
+    <div class="slot fun"><span class="t">16:45</span><div><b>🏆 Kaggle-in-an-hour</b><span class="d">An honest leaderboard: intervals or bust</span></div><span class="chip plum">fun</span></div>
+  </div>
+  <aside class="notes">Two lecture blocks, three labs, one challenge. The morning lab is the long one (2 h). Point out that every lab opens in Colab with one click and runs on CPU.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf1"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf1)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>2 / 38</span><span class="bar" style="--p:0.0526"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide statement">
+  <div class="kicker">The hook</div>
+  <p class="big">On tables, a <em>25-year-old</em> idea still beats most deep nets.</p>
+  <p class="by">Friedman's gradient boosting (2001) vs. modern deep learning on typical tabular benchmarks: Grinsztajn et al., NeurIPS 2022. Today we make it sharp, honest and explainable.</p>
+  <aside class="notes">Most data in most companies lives in tables. Tree ensembles handle irregular target functions and uninformative features gracefully; deep nets have a smoothness bias that hurts here. Ask the room: why might trees beat a transformer on a spreadsheet? Collect two or three answers, then move on. We'll revisit this at the end with TabPFN, which is the first real challenger.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf2"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf2)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>3 / 38</span><span class="bar" style="--p:0.0789"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">01</div>
+    <h2>Bias, variance &amp; <em>double descent</em></h2>
+    <p>Why the classic U-curve is only half the story.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d1-art-refits.png" alt="Four hundred bootstrap refits of a degree-9 polynomial around a sine curve"></div>
+  <aside class="notes">The art: 400 degree-9 polynomials, each fit to a fresh sample of 30 noisy points from a sine. The bright line is the truth. The spread you see is variance, made visible. (≈ 25 minutes for this section.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf3"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf3)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>4 / 38</span><span class="bar" style="--p:0.1053"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide eq">
+  <div class="kicker">The decomposition</div>
+  <h2>Three sources of error, <em>exactly</em></h2>
+  <div class="equation sm">$$\mathbb{E}\big[(y-\hat f(x))^2\big] = \underbrace{\big(\mathbb{E}[\hat f(x)]-f(x)\big)^2}_{\text{bias}^2} + \underbrace{\operatorname{Var}\big[\hat f(x)\big]}_{\text{variance}} + \underbrace{\sigma^2}_{\text{noise}}$$</div>
+  <figure class="media bare" style="margin-top:34px"><img src="../assets/img/d1-bias-variance.png" alt="Polynomial fits of degree 1, 4 and 12 across resampled training sets, and bias, variance and total error versus degree"></figure>
+  <aside class="notes">The expectation is over training sets: imagine retraining on fresh data over and over. Bias = how far the average fit is from the truth. Variance = how much the refits wobble. σ² is the floor; no model beats it. Below: 200 resampled training sets of 25 points from sin(2πx) + noise. Degree 1 is consistently wrong (bias). Degree 12 is right on average but wild individually (variance). Question: which term does bagging attack? (Variance.) Which does boosting attack? (Mostly bias, at first.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf4"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf4)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>5 / 38</span><span class="bar" style="--p:0.1316"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split">
+  <div class="text">
+    <div class="kicker">…then deep learning broke the U</div>
+    <h2>Double <em>descent</em></h2>
+    <ul>
+      <li>Error <b>peaks</b> where the model can just interpolate: p = n</li>
+      <li>Then it <b>falls again</b>: of all the perfect fits, min-norm picks the smoothest</li>
+      <li>A pinch of ridge <b>erases the spike</b></li>
+    </ul>
+    <p class="small">Belkin et al., PNAS 2019 · Nakkiran et al., 2019. You'll reproduce this curve in Lab 1.1.</p>
+  </div>
+  <figure class="media"><img src="../assets/img/slides/d1-double-descent-ridge.png" alt="Test error versus number of random ReLU features: min-norm spikes at 60 features, ridge curves do not"><figcaption><b>Computed:</b> least squares on random ReLU features, n = 60, median over 25 feature draws.</figcaption></figure>
+  <aside class="notes">At p = n the system is square and badly conditioned: the only interpolating solution has a huge norm, so it amplifies noise. Past the threshold there are infinitely many interpolators; the pseudo-inverse picks the minimum-norm one, which gets smoother as p grows. That's implicit regularization. The ridge curves show explicit regularization flattens the spike entirely. Ask: where does early stopping in a neural net put you on this curve?</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf5"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf5)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>6 / 38</span><span class="bar" style="--p:0.1579"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">"More parameters, more overfitting" is a rule for the <b>classical regime</b> only.</p>
+  <p class="sub">Past the interpolation threshold, <b>implicit regularization</b> from the optimizer, early stopping and the architecture decides which of the many perfect fits you get.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf6"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf6)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>7 / 38</span><span class="bar" style="--p:0.1842"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">02</div>
+    <h2>Gradient boosting, <em>demystified</em></h2>
+    <p>Gradient descent, where every step is a tree.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d1-art-boosting.png" alt="Four hundred boosting stages drawn on top of each other, sweeping from the mean toward the data"></div>
+  <aside class="notes">The art: all 400 stages of a from-scratch boosting run, drawn on top of each other. Purple is early (close to the constant mean), cream is late. You can watch the ensemble sweep from the mean toward the data, one small tree at a time.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf7"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf7)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>8 / 38</span><span class="bar" style="--p:0.2105"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split">
+  <div class="text">
+    <div class="kicker">The big idea</div>
+    <h2>Descend in <em>function space</em></h2>
+    <ul>
+      <li>Treat the predictions F(x₁), …, F(xₙ) as the parameters</li>
+      <li>The loss's negative gradient is the <b>pseudo-residual</b> r</li>
+      <li>A small tree approximates r; take a damped step ν</li>
+    </ul>
+    <p class="small">Friedman, <i>Annals of Statistics</i> 2001.</p>
+  </div>
+  <div class="diagram">
+    <svg viewBox="0 0 800 780" role="img" aria-label="Boosting as gradient steps in function space" style="font-family:var(--font-body)">
+      <defs>
+        <marker id="fs-h" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B98500"/></marker>
+        <marker id="fs-c" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#FF6B5B"/></marker>
+        <marker id="fs-k" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#463E33"/></marker>
+      </defs>
+      <rect x="0" y="0" width="800" height="780" rx="30" fill="#FFFDF4" stroke="#EBDDAE" stroke-width="2"/>
+      <path d="M90 690 L760 690" stroke="#463E33" stroke-width="3" marker-end="url(#fs-k)"/>
+      <path d="M90 690 L90 60" stroke="#463E33" stroke-width="3" marker-end="url(#fs-k)"/>
+      <text x="750" y="730" text-anchor="end" font-size="28" font-weight="700" fill="#1F1B16">F(x₁)</text>
+      <text x="108" y="72" font-size="28" font-weight="700" fill="#1F1B16">F(x₂)</text>
+      <path d="M90 690 L690 90" stroke="#C9BFA6" stroke-width="2.5" stroke-dasharray="10 9"/>
+      <text x="140" y="618" font-size="22" fill="#7A6E5A" transform="rotate(-45 140 618)">constant predictions</text>
+      <path d="M450 330 L668 548" stroke="#FF6B5B" stroke-width="3.5" stroke-dasharray="12 9" marker-end="url(#fs-c)"/>
+      <text x="432" y="478" font-size="26" font-weight="700" fill="#FF6B5B">r₀ = −∇L</text>
+      <text x="432" y="510" font-size="22" fill="#FF6B5B">= y − F₀</text>
+      <g stroke="#B98500" stroke-width="5" fill="none" marker-end="url(#fs-h)">
+        <path d="M450 330 L553 381"/><path d="M560 385 L592 453"/><path d="M595 460 L634 482"/><path d="M640 485 L652 513"/><path d="M655 520 L667 531"/>
+      </g>
+      <g fill="#F5B700" stroke="#1F1B16" stroke-width="2.5">
+        <circle cx="450" cy="330" r="13"/><circle cx="560" cy="385" r="10"/><circle cx="595" cy="460" r="9"/><circle cx="640" cy="485" r="8"/><circle cx="655" cy="520" r="7"/>
+      </g>
+      <text x="425" y="318" text-anchor="end" font-size="28" font-weight="800" fill="#1F1B16">F₀ = ȳ</text>
+      <text x="582" y="350" font-size="25" font-weight="700" fill="#B98500">F₁ = F₀ + ν·h₁</text>
+      <text x="582" y="318" font-size="22" fill="#7A6E5A">h₁ = a tree fit to r₀</text>
+      <polygon points="690,536 698,559 722,559 703,574 710,598 690,584 670,598 677,574 658,559 682,559" fill="#1FA39A" stroke="#1F1B16" stroke-width="2"/>
+      <text x="690" y="640" text-anchor="middle" font-size="26" font-weight="800" fill="#1FA39A">y (targets)</text>
+      <text x="400" y="764" text-anchor="middle" font-size="22" fill="#7A6E5A">Schematic: predictions on two training points</text>
+    </svg>
+  </div>
+  <aside class="notes">With n training points, the vector of predictions lives in Rⁿ; draw it for n = 2. The loss is a bowl centred on the targets y. The negative gradient at F₀ points at y (for squared loss it IS the residual). A tree can't represent that vector exactly (it's restricted to piecewise-constant functions), so we fit the closest tree and take a small step along it. Repeat. Ask: why not just step all the way to y? (That's memorizing the training set. The tree restriction plus shrinkage is what generalizes.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf8"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf8)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>9 / 38</span><span class="bar" style="--p:0.2368"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide eq">
+  <div class="kicker">The update</div>
+  <h2>One tree per <em>gradient step</em></h2>
+  <div class="equation sm">$$r_i = -\frac{\partial L\big(y_i, F(x_i)\big)}{\partial F(x_i)}\bigg|_{F=F_{m-1}} \qquad h_m = \arg\min_{h \in \text{trees}} \sum_i \big(r_i - h(x_i)\big)^2 \qquad F_m = F_{m-1} + \nu\, h_m$$</div>
+  <div class="terms">
+    <div class="term honey"><b>Squared loss</b>$r_i = y_i - F(x_i)$: the literal residual.</div>
+    <div class="term coral"><b>Log loss</b>$r_i = y_i - p_i$: label minus predicted probability.</div>
+    <div class="term teal"><b>Shrinkage ν</b>≈ 0.05–0.1. More trees, better generalization.</div>
+    <div class="term indigo"><b>XGBoost</b>A Newton step: leaf weight $w^* = -G/(H+\lambda)$.</div>
+  </div>
+  <aside class="notes">Walk through left to right: gradient, fit, step. For log loss, F is the logit and the gradient of −log-likelihood w.r.t. the logit is p − y, so the pseudo-residual is y − p. XGBoost (2016) uses first and second derivatives (G and H summed over the leaf) for a Newton step and a regularized split gain. LightGBM (2017) added histogram binning and leaf-wise growth (watch num_leaves). CatBoost (2018) added ordered target statistics for categoricals and symmetric trees. scikit-learn's HistGradientBoosting is a great first baseline with native missing-value support.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf9"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf9)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>10 / 38</span><span class="bar" style="--p:0.2632"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split">
+  <div class="text">
+    <div class="kicker">Small steps win</div>
+    <h2>Shrink every step, then <em>stop early</em></h2>
+    <div class="codewin"><pre class="sm"><code class="language-python">F = np.full(len(y), y.mean())
+for m in range(M):
+    r = y - F                 # -dL/dF
+    h = Tree(max_depth=3).fit(X, r)
+    F += lr * h.predict(X)    # small step</code></pre></div>
+    <p class="mt">ν = 0.1 needs <b>30× more trees</b> than ν = 1, and <b>halves</b> the validation error.</p>
+  </div>
+  <figure class="media"><img src="../assets/img/slides/d1-shrinkage.png" alt="Validation MSE versus number of trees for learning rates 1, 0.3, 0.1 and 0.03"><figcaption><b>Computed:</b> Friedman #1 data, depth-3 trees. ● marks the best validation score, which is where early stopping stops.</figcaption></figure>
+  <aside class="notes">This loop is the whole algorithm (Lab 1.1 extends it to log loss, row subsampling and early stopping). Numbers from the figure: ν = 1 bottoms out at MSE 7.2 after 14 trees; ν = 0.1 reaches 3.6 after ~450 trees. Smaller steps keep each tree from over-committing to noise, so the ensemble averages more. In practice: set a small learning rate, set n_estimators high, and let early stopping on a validation set pick the number of trees. Ask: why does ν = 1 get worse after its minimum? (Each later tree fits noise in the residuals.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf10"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf10)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>11 / 38</span><span class="bar" style="--p:0.2895"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Boosting is gradient descent where <b>every step is a tree</b>.</p>
+  <p class="sub">Small learning rate, many trees, early stopping on held-out data. For any new table, a GBDT is the <b>baseline to beat</b>, and default feature importances are not to be trusted (use permutation importance or SHAP).</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf11"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf11)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>12 / 38</span><span class="bar" style="--p:0.3158"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide lab">
+  <div class="text">
+    <div class="labhead"><div class="hexnum"><div><small>LAB</small>1.1</div></div>
+      <div><div class="kicker">Hands-on · ⏱ 2 h</div><h2>Gradient Boosting From Scratch</h2></div></div>
+    <p class="blurb">Build gradient boosting with nothing but decision trees and calculus, watch each tree fit the previous residuals, then race your version against HistGradientBoosting and LightGBM on real data.</p>
+    <ul class="tight"><li>See bias vs. variance by bootstrapping many models</li><li>Reproduce double descent with random features</li><li>Implement boosting for squared loss and log loss</li><li>Use shrinkage, subsampling and early stopping well</li><li>Benchmark against production GBDT libraries</li></ul>
+    <div class="go"><a class="btnlike" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab01_boosting_from_scratch.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <div class="chips"><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span></div></div>
+  </div>
+  <figure class="media"><img src="../assets/img/labs/lab01.png" alt="Boosting stage by stage: each tree fits the shrinking residuals."><figcaption><b>What you'll build:</b> Boosting stage by stage: each tree fits the shrinking residuals.</figcaption></figure>
+  <aside class="notes">Lab 1.1 (2 h). Have everyone open the notebook in Colab and run the setup cell while you introduce it. Objectives: See bias vs. variance by bootstrapping many models; Reproduce double descent with random features; Implement boosting for squared loss and log loss; Use shrinkage, subsampling and early stopping well; Benchmark against production GBDT libraries; Spot misleading feature importances.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf12"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf12)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>13 / 38</span><span class="bar" style="--p:0.3421"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">03</div>
+    <h2>Uncertainty you can <em>trust</em></h2>
+    <p>Honest probabilities first, then guaranteed intervals.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d1-art-conformal.png" alt="Nested conformalized quantile regression bands at six coverage levels"></div>
+  <aside class="notes">Welcome back. The art: conformalized quantile regression bands at six coverage levels (40% to 98%) on data whose noise grows from left to right. Notice the bands widen where the data gets noisy. By the end of this block you'll know exactly why each band is guaranteed to cover what it claims.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf13"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf13)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>14 / 38</span><span class="bar" style="--p:0.3684"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split">
+  <div class="text">
+    <div class="kicker">Calibration</div>
+    <h2>Is your 90% really <em>90%</em>?</h2>
+    <ul>
+      <li>Accuracy can't see it. A <b>reliability diagram</b> can</li>
+      <li>Over-fit models (and many modern nets) are <b>over-confident</b></li>
+      <li>Fix it on held-out data: <b>Platt</b> σ(a·s + b), <b>isotonic</b>, or <b>temperature</b> z / T</li>
+    </ul>
+  </div>
+  <figure class="media"><img src="../assets/img/slides/d1-temperature.png" alt="Reliability diagram: an over-fit model far from the diagonal, after temperature scaling close to it"><figcaption><b>Computed:</b> over-fit logistic regression (100 features, 400 rows). One scalar T, fit by NLL on validation data, cuts ECE from 0.19 to 0.02.</figcaption></figure>
+  <aside class="notes">Calibrated means: among all the times the model says 70%, the event happens about 70% of the time. ECE bins predictions by confidence and averages |accuracy − confidence| weighted by bin size; it depends on the binning, so always look at the diagram too. Platt: 2 parameters, assumes a sigmoid-shaped distortion. Isotonic: any monotone map, flexible but needs more data. Temperature: 1 parameter, the default for neural nets (Guo et al., ICML 2017). Ask: where do you use a probability directly? Pricing, triage, thresholds, an LLM deciding whether to answer.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf14"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf14)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>15 / 38</span><span class="bar" style="--p:0.3947"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide quiz">
+  <div class="kicker">Quick check</div>
+  <h2>Temperature scaling a network's logits changes…</h2>
+  <div class="opts">
+    <div class="opt" data-l="A">its accuracy</div>
+    <div class="opt" data-l="B">its argmax predictions</div>
+    <div class="opt" data-l="C">its ranking of the classes</div>
+    <div class="opt" data-l="D" data-correct>only its confidence, not its predictions</div>
+  </div>
+  <p class="explain f" data-slide-class="answered"><b>D.</b> Dividing every logit by the same T &gt; 0 preserves their order, so argmax, ranking and accuracy are untouched. Only the sharpness of the softmax changes.</p>
+  <aside class="notes">Hands up for each option first, then reveal. Follow-up: so why can't temperature scaling fix a model whose ranking is wrong? (It can only stretch or squeeze confidence, not reorder.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf15"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf15)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>16 / 38</span><span class="bar" style="--p:0.4211"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">A probability is a <b>promise</b>. Calibration is keeping it.</p>
+  <p class="sub">If a decision uses the number itself, check a reliability diagram, then fit Platt, isotonic or temperature scaling on <b>held-out</b> data, never on the training set.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf16"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf16)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>17 / 38</span><span class="bar" style="--p:0.4474"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split">
+  <div class="text">
+    <div class="kicker">Conformal prediction</div>
+    <h2>A guarantee for <em>any</em> model</h2>
+    <p>Wrap a GBM, a neural net, even an LLM. Assume only that calibration and test points are exchangeable.</p>
+    <div class="equation" style="font-size:40px;padding:22px 26px">$$\mathbb{P}\big(Y_{\text{new}} \in C(X_{\text{new}})\big) \ge 1-\alpha$$</div>
+    <p class="small mt">Finite-sample, distribution-free. The +1 in ⌈(n+1)(1−α)⌉ is the test point itself.</p>
+  </div>
+  <div class="diagram">
+    <svg viewBox="0 0 800 880" role="img" aria-label="The split conformal recipe in three steps" style="font-family:var(--font-body)">
+      <rect x="0" y="0" width="800" height="880" rx="30" fill="#FFFDF4" stroke="#EBDDAE" stroke-width="2"/>
+      <text x="40" y="58" font-size="26" font-weight="800" fill="#1F1B16">① Split the labelled data</text>
+      <rect x="40" y="80" width="440" height="70" rx="14" fill="#E3E6FA" stroke="#3D4DB7" stroke-width="2.5"/>
+      <text x="260" y="125" text-anchor="middle" font-size="26" font-weight="700" fill="#27328A">train: fit μ̂</text>
+      <rect x="494" y="80" width="266" height="70" rx="14" fill="#DDF3EF" stroke="#1FA39A" stroke-width="2.5"/>
+      <text x="627" y="125" text-anchor="middle" font-size="26" font-weight="700" fill="#0E5F59">calibrate</text>
+      <text x="40" y="212" font-size="26" font-weight="800" fill="#1F1B16">② Score it: sᵢ = |yᵢ − μ̂(xᵢ)|, sort</text>
+      <g transform="translate(0,6)">
+        <rect x="70" y="467" width="30" height="3" rx="2" fill="#1FA39A"/><rect x="104" y="460" width="30" height="10" rx="3" fill="#1FA39A"/><rect x="138" y="454" width="30" height="16" rx="3" fill="#1FA39A"/><rect x="172" y="447" width="30" height="23" rx="3" fill="#1FA39A"/><rect x="206" y="441" width="30" height="29" rx="3" fill="#1FA39A"/><rect x="240" y="434" width="30" height="36" rx="3" fill="#1FA39A"/><rect x="274" y="427" width="30" height="43" rx="3" fill="#1FA39A"/><rect x="308" y="420" width="30" height="50" rx="3" fill="#1FA39A"/><rect x="342" y="412" width="30" height="58" rx="3" fill="#1FA39A"/><rect x="376" y="405" width="30" height="65" rx="3" fill="#1FA39A"/><rect x="410" y="397" width="30" height="73" rx="3" fill="#1FA39A"/><rect x="444" y="388" width="30" height="82" rx="3" fill="#1FA39A"/><rect x="478" y="379" width="30" height="91" rx="3" fill="#1FA39A"/><rect x="512" y="369" width="30" height="101" rx="3" fill="#1FA39A"/><rect x="546" y="358" width="30" height="112" rx="3" fill="#1FA39A"/><rect x="580" y="345" width="30" height="125" rx="3" fill="#1FA39A"/><rect x="614" y="331" width="30" height="139" rx="3" fill="#1FA39A"/><rect x="648" y="313" width="30" height="157" rx="3" fill="#1FA39A"/>
+        <rect x="682" y="287" width="30" height="183" rx="3" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5"/>
+        <rect x="716" y="240" width="30" height="230" rx="3" fill="#C9BFA6"/>
+        <path d="M60 287 L760 287" stroke="#B98500" stroke-width="3" stroke-dasharray="10 8"/>
+        <text x="70" y="272" font-size="26" font-weight="800" fill="#B98500">q̂ = 19th smallest of 20</text>
+        <path d="M60 472 L760 472" stroke="#463E33" stroke-width="2"/>
+        <text x="70" y="510" font-size="22" fill="#7A6E5A">n = 20, α = 0.1 → k = ⌈21 × 0.9⌉ = 19</text>
+      </g>
+      <text x="40" y="590" font-size="26" font-weight="800" fill="#1F1B16">③ Predict: C(x) = μ̂(x) ± q̂</text>
+      <polygon points="40,688 59,676 77,664 96,654 115,644 134,635 152,629 171,624 190,621 208,620 227,621 246,624 265,629 283,636 302,644 321,653 339,662 358,673 377,683 396,692 414,701 433,709 452,716 471,720 489,723 508,724 527,723 545,720 564,715 583,708 602,700 620,690 639,679 658,667 676,655 695,643 714,632 733,621 751,611 770,603 770,707 751,715 733,725 714,736 695,747 676,759 658,771 639,783 620,794 602,804 583,812 564,819 545,824 527,827 508,828 489,827 471,824 452,820 433,813 414,805 396,796 377,787 358,777 339,766 321,757 302,748 283,740 265,733 246,728 227,725 208,724 190,725 171,728 152,733 134,739 115,748 96,758 77,768 59,780 40,792" fill="#F5B700" fill-opacity="0.35" stroke="#F5B700" stroke-width="2.5"/>
+      <polyline points="40,740 59,728 77,716 96,706 115,696 134,687 152,681 171,676 190,673 208,672 227,673 246,676 265,681 283,688 302,696 321,705 339,714 358,725 377,735 396,744 414,753 433,761 452,768 471,772 489,775 508,776 527,775 545,772 564,767 583,760 602,752 620,742 639,731 658,719 676,707 695,695 714,684 733,673 751,663 770,655" fill="none" stroke="#1F1B16" stroke-width="3.5"/>
+      <g fill="#463E33"><circle cx="413" cy="739" r="6"/><circle cx="716" cy="699" r="6"/><circle cx="159" cy="680" r="6"/><circle cx="715" cy="675" r="6"/><circle cx="275" cy="663" r="6"/><circle cx="352" cy="714" r="6"/><circle cx="631" cy="736" r="6"/><circle cx="342" cy="708" r="6"/><circle cx="439" cy="800" r="6"/><circle cx="79" cy="744" r="6"/><circle cx="580" cy="685" r="6"/><circle cx="288" cy="685" r="6"/></g>
+      <text x="250" y="860" text-anchor="middle" font-size="22" fill="#7A6E5A">same width q̂ everywhere (CQR adapts it)</text>
+    </svg>
+  </div>
+  <aside class="notes">The recipe: (1) hold out a calibration set the model never trained on; (2) compute nonconformity scores, here absolute residuals, and take the k-th smallest with k = ⌈(n+1)(1−α)⌉; (3) add ±q̂ around every prediction. Why it works: the new point's score is exchangeable with the n calibration scores, so its rank among all n+1 is uniform. The chance it lands above the k-th smallest is at most α. Five lines of numpy (the lab has them). The production library is MAPIE. 2026 frontier: conformal sets over LLM answers to decide when to abstain, conformal risk control, adaptive conformal for time series under shift.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf17"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf17)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>18 / 38</span><span class="bar" style="--p:0.4737"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split">
+  <div class="text">
+    <div class="kicker">Read the fine print</div>
+    <h2>Guaranteed <em>on average</em></h2>
+    <ul>
+      <li>One interval's coverage is random: exactly <b>Beta(k, n+1−k)</b></li>
+      <li>Its mean, k/(n+1), is ≥ 1 − α for every n</li>
+      <li>With n = 20, about <b>1 run in 6</b> lands below 85%. With n = 500, almost never</li>
+    </ul>
+  </div>
+  <figure class="media"><img src="../assets/img/slides/d1-coverage.png" alt="Histogram of split conformal coverage over 5,000 calibration draws for n = 20 and n = 500, with Beta densities overlaid"><figcaption><b>Computed:</b> 5,000 random calibration sets per n. The histograms match the Beta law exactly.</figcaption></figure>
+  <aside class="notes">This is the part people skip. The guarantee P(Y ∈ C) ≥ 1−α averages over the calibration draw AND the test point. Conditional on your particular calibration set, coverage follows Beta(k, n+1−k) (assuming continuous scores, no ties). Mean for n = 20 is 19/21 = 0.905; for n = 500, 451/501 = 0.900. Practical rule: use at least a few hundred calibration points if you care about the coverage of the one interval you deploy. Ask: what goes wrong if the calibration data comes from last year and the test data from today? (Exchangeability breaks.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf18"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf18)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>19 / 38</span><span class="bar" style="--p:0.5000"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-left">
+  <figure class="media"><img src="../assets/img/slides/d1-mondrian.png" alt="Bar chart: split conformal covers 98% of group A and 46% of group B; Mondrian conformal covers about 90% of each"><figcaption><b>Computed:</b> 300 runs. Group B is 15% of the data with 4× the noise.</figcaption></figure>
+  <div class="text">
+    <div class="kicker">Pitfall</div>
+    <h2>90% overall, <em>46%</em> for the minority</h2>
+    <ul>
+      <li>The guarantee is <b>marginal</b>: averaged over all inputs</li>
+      <li>A noisy subgroup can be badly under-covered</li>
+      <li><b>Mondrian conformal</b> calibrates per group: 90% each</li>
+    </ul>
+    <p class="small">CQR goes further and adapts the width to x (Lab 1.2).</p>
+  </div>
+  <aside class="notes">Same model, same data. Marginal split conformal hits 90% overall by over-covering the quiet majority (98%) and under-covering the noisy minority (46%). Mondrian conformal just runs the recipe separately inside each group: group B's interval becomes ~4× wider, which is honest. Conditional coverage for every single x is impossible in general without assumptions, but group-conditional coverage is cheap. This is a fairness issue as much as a statistics one. Ask: what subgroups would you check in your own data?</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf19"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf19)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>20 / 38</span><span class="bar" style="--p:0.5263"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">One quantile of held-out errors buys <b>any model</b> a coverage guarantee.</p>
+  <p class="sub">It assumes only exchangeability, and it holds <b>on average</b>. Calibrate on enough data, check coverage per subgroup, and watch for distribution shift.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf20"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf20)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>21 / 38</span><span class="bar" style="--p:0.5526"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide lab">
+  <div class="text">
+    <div class="labhead"><div class="hexnum"><div><small>LAB</small>1.2</div></div>
+      <div><div class="kicker">Hands-on · ⏱ 1.5 h</div><h2>Trust Issues: Calibration &amp; Conformal Prediction</h2></div></div>
+    <p class="blurb">Your model says 90%. Is it right 90% of the time? Diagnose overconfidence, fix it, then wrap any model in distribution-free prediction intervals and sets with guaranteed coverage.</p>
+    <ul class="tight"><li>Plot reliability diagrams and compute ECE</li><li>Fix calibration with Platt, isotonic, and temperature scaling</li><li>Implement split conformal regression intervals</li><li>Build conformalized quantile regression (CQR)</li><li>Create classification prediction sets</li></ul>
+    <div class="go"><a class="btnlike" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab02_calibration_conformal.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <div class="chips"><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span></div></div>
+  </div>
+  <figure class="media"><img src="../assets/img/labs/lab02.png" alt="Split conformal vs CQR bands: adaptive intervals that widen where noise grows."><figcaption><b>What you'll build:</b> Split conformal vs CQR bands: adaptive intervals that widen where noise grows.</figcaption></figure>
+  <aside class="notes">Lab 1.2 (1.5 h). Have everyone open the notebook in Colab and run the setup cell while you introduce it. Objectives: Plot reliability diagrams and compute ECE; Fix calibration with Platt, isotonic, and temperature scaling; Implement split conformal regression intervals; Build conformalized quantile regression (CQR); Create classification prediction sets; Check empirical coverage against the target.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf21"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf21)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>22 / 38</span><span class="bar" style="--p:0.5789"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">04</div>
+    <h2>Explain &amp; <em>dethrone</em></h2>
+    <p>Shapley values, and the transformer coming for your GBDT.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d1-art-shap.png" alt="Beeswarm of exact Shapley values for a gradient-boosted model on the diabetes data"></div>
+  <aside class="notes">The art: a SHAP beeswarm. Every dot is one patient's exact Shapley value for one feature (six features, all 64 coalitions enumerated), coloured by the feature's value. Rows are features, ordered by importance.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf22"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf22)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>23 / 38</span><span class="bar" style="--p:0.6053"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide eq">
+  <div class="kicker">Explaining one prediction</div>
+  <h2>Shapley values: fair credit, <em>exactly</em></h2>
+  <div class="equation sm">$$\phi_i = \sum_{S \subseteq F \setminus \{i\}} \frac{|S|!\,(|F|-|S|-1)!}{|F|!}\,\Big[v(S \cup \{i\}) - v(S)\Big]$$</div>
+  <div class="terms">
+    <div class="term honey"><b>v(S)</b>The model's output when only the features in S are "known".</div>
+    <div class="term teal"><b>The weights</b>Average over every order in which features could join.</div>
+    <div class="term coral"><b>Efficiency</b>$\sum_i \phi_i = f(x) - \mathbb{E}[f(X)]$, exactly.</div>
+    <div class="term indigo"><b>The cost</b>$2^{|F|}$ coalitions. TreeSHAP: polynomial, for trees.</div>
+  </div>
+  <aside class="notes">From cooperative game theory (Shapley, 1953): the unique attribution satisfying efficiency, symmetry, dummy and additivity. SHAP (Lundberg &amp; Lee, NeurIPS 2017) applies it to model predictions. The crucial, often-hidden choice is v(S): "interventional" fills the missing features from a background dataset; "observational" conditions on the known features. They can disagree sharply with correlated features. In Lab 1.3 you brute-force it for 4 features and check TreeSHAP (Lundberg et al., 2020) matches.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf23"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf23)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>24 / 38</span><span class="bar" style="--p:0.6316"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split">
+  <div class="text">
+    <div class="kicker">Computed by brute force</div>
+    <h2>Why <em>this</em> patient scores 253</h2>
+    <ul>
+      <li>6 features → all 64 coalitions, no approximation</li>
+      <li>The bars sum <b>exactly</b> to f(x) − E[f(X)]</li>
+      <li>Absent features are filled from 120 background patients</li>
+    </ul>
+  </div>
+  <figure class="media"><img src="../assets/img/slides/d1-shap-waterfall.png" alt="Waterfall chart of exact Shapley values for one patient, from the average prediction of 149 to this patient's 253"><figcaption><b>Computed:</b> a GBDT on scikit-learn's diabetes data. Red pushes the prediction up, teal pushes it down.</figcaption></figure>
+  <aside class="notes">Read it bottom to top: start at the average prediction (149), add each feature's contribution, land on this patient's prediction (253). High triglycerides and blood pressure explain most of the gap; being 36 pulls it down a little. The script asserts that the contributions sum to f(x) − E[f(X)] to 1e-6. Ask: does this tell us lowering triglycerides would lower this patient's progression? (No: it describes the model, not the body. That's the next slide.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf24"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf24)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>25 / 38</span><span class="bar" style="--p:0.6579"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-left">
+  <figure class="media"><img src="../assets/img/slides/d1-shap-corr.png" alt="Stacked bars: with a duplicated feature, the SHAP credit for x1 splits between x1 and its copy differently for each random seed"><figcaption><b>Computed:</b> y = 2x₁ + x₂ + noise. Exact SHAP, GBDT with feature subsampling, five seeds.</figcaption></figure>
+  <div class="text">
+    <div class="kicker">Pitfall</div>
+    <h2>Duplicate a feature, the credit <em>splits</em></h2>
+    <ul>
+      <li>Add a near-copy of x₁ (ρ ≈ 0.999)</li>
+      <li>Total credit for the pair stays put</li>
+      <li>The split depends on the <b>random seed</b></li>
+    </ul>
+    <p class="small">SHAP explains the <b>model</b>, not the world. Always say which value function you used.</p>
+  </div>
+  <aside class="notes">Same data-generating process every time; only the random seed of the GBDT changes. The trees happen to split on x₁ or on its copy, and SHAP faithfully reports what this particular model used, anywhere from about 70/30 to 85/15. So "feature A matters more than feature B" is fragile whenever A and B are correlated. The same problem hits default gain importances, which also favour high-cardinality features. Remedies: group correlated features and attribute to the group, or use permutation importance on held-out data with care.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf25"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf25)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>26 / 38</span><span class="bar" style="--p:0.6842"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Frontier · Nature 2025</div>
+  <h2>TabPFN: learning <em>in context</em></h2>
+  <div class="diagram" style="margin-top:-6px">
+    <svg viewBox="0 0 1660 480" role="img" aria-label="TabPFN pipeline: pretrain on synthetic tables, then predict in one forward pass" style="font-family:var(--font-body);width:100%">
+      <defs><marker id="tp-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#463E33"/></marker></defs>
+      <rect x="2" y="60" width="400" height="360" rx="26" fill="#E3E6FA" stroke="#3D4DB7" stroke-width="3"/>
+      <text x="202" y="118" text-anchor="middle" font-size="32" font-weight="800" fill="#27328A">Offline, once</text>
+      <text x="202" y="178" text-anchor="middle" font-size="26" fill="#1F1B16">sample a random</text>
+      <text x="202" y="212" text-anchor="middle" font-size="26" fill="#1F1B16">causal graph</text>
+      <text x="202" y="262" text-anchor="middle" font-size="26" fill="#1F1B16">→ a synthetic table</text>
+      <text x="202" y="312" text-anchor="middle" font-size="26" fill="#1F1B16">→ predict held-out rows</text>
+      <text x="202" y="378" text-anchor="middle" font-size="26" font-weight="700" fill="#27328A">× millions of tables</text>
+      <path d="M410 240 L486 240" stroke="#463E33" stroke-width="4" marker-end="url(#tp-a)"/>
+      <rect x="496" y="110" width="440" height="260" rx="26" fill="#F5B700" stroke="#1F1B16" stroke-width="3"/>
+      <text x="716" y="196" text-anchor="middle" font-size="34" font-weight="800" fill="#1F1B16">Pretrained</text>
+      <text x="716" y="238" text-anchor="middle" font-size="34" font-weight="800" fill="#1F1B16">transformer</text>
+      <text x="716" y="290" text-anchor="middle" font-size="24" fill="#3B2E10">attends across rows &amp; features</text>
+      <text x="716" y="326" text-anchor="middle" font-size="24" fill="#3B2E10">≈ amortized Bayesian inference</text>
+      <rect x="1040" y="20" width="300" height="130" rx="22" fill="#FFFDF4" stroke="#E0CE92" stroke-width="3"/>
+      <text x="1190" y="76" text-anchor="middle" font-size="28" font-weight="700" fill="#1F1B16">X_train, y_train</text>
+      <text x="1190" y="116" text-anchor="middle" font-size="24" fill="#7A6E5A">the "prompt"</text>
+      <rect x="1040" y="330" width="300" height="130" rx="22" fill="#FFFDF4" stroke="#E0CE92" stroke-width="3"/>
+      <text x="1190" y="386" text-anchor="middle" font-size="28" font-weight="700" fill="#1F1B16">X_test</text>
+      <text x="1190" y="426" text-anchor="middle" font-size="24" fill="#7A6E5A">the "question"</text>
+      <path d="M1034 100 L950 170" stroke="#463E33" stroke-width="4" marker-end="url(#tp-a)"/>
+      <path d="M1034 380 L950 310" stroke="#463E33" stroke-width="4" marker-end="url(#tp-a)"/>
+      <path d="M940 240 L1414 240" stroke="#1FA39A" stroke-width="5" stroke-dasharray="14 10" marker-end="url(#tp-a)"/>
+      <text x="1190" y="226" text-anchor="middle" font-size="22" font-weight="700" fill="#0E7F77">one forward pass</text>
+      <rect x="1424" y="175" width="234" height="130" rx="22" fill="#DDF3EF" stroke="#1FA39A" stroke-width="3"/>
+      <text x="1541" y="232" text-anchor="middle" font-size="30" font-weight="800" fill="#0E5F59">p(y_test)</text>
+      <text x="1541" y="272" text-anchor="middle" font-size="22" fill="#0E5F59">no gradient steps</text>
+    </svg>
+  </div>
+  <div class="grid2 mt" style="gap:34px">
+    <div class="callout teal" style="font-size:28px"><b>🧠 Shines:</b> ≲ 10k rows, no tuning time, calibrated probabilities out of the box.</div>
+    <div class="callout" style="font-size:28px"><b>🌳 GBDTs still rule:</b> millions of rows, tight CPU latency, heavy feature engineering.</div>
+  </div>
+  <aside class="notes">TabPFN (Hollmann et al., Nature 2025) is pretrained on millions of synthetic datasets drawn from a prior over structural causal models. At inference it reads your whole labelled training set plus the test rows as one input and predicts the test labels in context, exactly like an LLM learning from examples in its prompt. Because it's trained to predict held-out labels across a huge family of problems, it approximates Bayesian posterior prediction under that prior, which is why its probabilities tend to be well calibrated. In Lab 1.3 you run a fair head-to-head and decide for yourself. Ask: what's the "training" cost of TabPFN on your data? (Zero gradient steps, but the forward pass scales with the size of the context.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf26"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf26)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>27 / 38</span><span class="bar" style="--p:0.7105"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">SHAP explains <b>the model</b>, not the world. And the model may soon be <b>pretrained</b>.</p>
+  <p class="sub">State your value function and beware correlated features. On small tables, give an in-context learner like <b>TabPFN</b> a fair shot against your tuned GBDT.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf27"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf27)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>28 / 38</span><span class="bar" style="--p:0.7368"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide lab">
+  <div class="text">
+    <div class="labhead"><div class="hexnum"><div><small>LAB</small>1.3</div></div>
+      <div><div class="kicker">Hands-on · ⏱ 1.5 h</div><h2>Explain &amp; Dethrone: SHAP vs Tabular Foundation Models</h2></div></div>
+    <p class="blurb">Compute exact Shapley values by brute force and check them against TreeSHAP. Then meet TabPFN, a transformer that does in-context learning on tables, and see when it beats tuned GBDTs.</p>
+    <ul class="tight"><li>Derive Shapley values by enumerating coalitions</li><li>Read beeswarm, waterfall and dependence plots</li><li>Know the correlated-feature pitfalls of SHAP</li><li>Run TabPFN in-context learning</li><li>Hold a fair GBDT vs. foundation-model showdown</li></ul>
+    <div class="go"><a class="btnlike" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab03_shap_tabpfn.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <div class="chips"><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span></div></div>
+  </div>
+  <figure class="media"><img src="../assets/img/labs/lab03.png" alt="Boxes vs a learned prior: GBDT and TabPFN decision surfaces as the data grows."><figcaption><b>What you'll build:</b> Boxes vs a learned prior: GBDT and TabPFN decision surfaces as the data grows.</figcaption></figure>
+  <aside class="notes">Lab 1.3 (1.5 h). Have everyone open the notebook in Colab and run the setup cell while you introduce it. Objectives: Derive Shapley values by enumerating coalitions; Read beeswarm, waterfall and dependence plots; Know the correlated-feature pitfalls of SHAP; Run TabPFN in-context learning; Hold a fair GBDT vs. foundation-model showdown.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf28"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf28)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>29 / 38</span><span class="bar" style="--p:0.7632"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide myth">
+  <div class="kicker">Myth buster · 1/3</div>
+  <div class="mvr"><div class="m"><span>✗ MYTH</span><p>Deep learning beats everything now.</p></div><div class="r"><span>✓ REALITY</span><p>On typical tabular benchmarks, tuned tree ensembles still often win, and they're cheaper to train and serve.</p></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf29"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf29)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>30 / 38</span><span class="bar" style="--p:0.7895"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide myth">
+  <div class="kicker">Myth buster · 2/3</div>
+  <div class="mvr"><div class="m"><span>✗ MYTH</span><p>A predicted 0.9 means a 90% chance.</p></div><div class="r"><span>✓ REALITY</span><p>Only if the model is calibrated. Many models, including modern neural nets, are systematically over-confident.</p></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf30"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf30)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>31 / 38</span><span class="bar" style="--p:0.8158"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide myth">
+  <div class="kicker">Myth buster · 3/3</div>
+  <div class="mvr"><div class="m"><span>✗ MYTH</span><p>High feature importance means the feature causes the outcome.</p></div><div class="r"><span>✓ REALITY</span><p>Importance (and SHAP) describes what the model relies on. Causal claims need causal assumptions or experiments.</p></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf31"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf31)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>32 / 38</span><span class="bar" style="--p:0.8421"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">💼 Interview corner · 1/2</div>
+  <h2>Could you answer these <em>out loud?</em></h2>
+  <div class="qa"><div class="q"><i>Q1</i><div><h3>What does each new tree fit in gradient boosting?</h3><div class="a f">The pseudo-residuals: the negative gradient of the loss with respect to the current predictions (y − p for log loss).</div></div></div><div class="q"><i>Q2</i><div><h3>Why doesn't temperature scaling change accuracy?</h3><div class="a f">Dividing every logit by the same T > 0 preserves their order, so the argmax (and the accuracy) are unchanged.</div></div></div><div class="q"><i>Q3</i><div><h3>What does conformal prediction assume?</h3><div class="a f">Only that calibration and test points are exchangeable (e.g. i.i.d.). Nothing about the model or the distribution.</div></div></div></div>
+  <aside class="notes">Cold-call or pair-share. Each click reveals the next answer.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf32"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf32)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>33 / 38</span><span class="bar" style="--p:0.8684"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">💼 Interview corner · 2/2</div>
+  <h2>Could you answer these <em>out loud?</em></h2>
+  <div class="qa"><div class="q"><i>Q4</i><div><h3>What is the interpolation threshold?</h3><div class="a f">The capacity at which a model can just fit the training data exactly. Test error spikes there under double descent.</div></div></div><div class="q"><i>Q5</i><div><h3>Name two SHAP pitfalls.</h3><div class="a f">Credit split arbitrarily between correlated features, and evaluating the model off the data manifold (interventional SHAP).</div></div></div><div class="q"><i>Q6</i><div><h3>When would you pick TabPFN over a GBDT?</h3><div class="a f">Small datasets (≲10k rows), little tuning time, and when calibrated probabilities matter. Pick the GBDT for huge tables and tight CPU latency.</div></div></div></div>
+  <aside class="notes">Cold-call or pair-share. Each click reveals the next answer.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf33"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf33)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>34 / 38</span><span class="bar" style="--p:0.8947"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Day 1 · formula sheet</div>
+  <h2>Six equations worth <em>memorizing</em></h2>
+  <div class="cards eqcards"><div class="card"><h4>Bias–variance</h4><div class="eqsm">$$\mathbb{E}[(y-\hat f)^2] = \text{bias}^2 + \text{var} + \sigma^2$$</div></div><div class="card"><h4>Boosting step</h4><div class="eqsm">$$F_m = F_{m-1} + \nu\, h_m,\quad h_m \approx -\nabla_F L$$</div></div><div class="card"><h4>XGBoost leaf weight</h4><div class="eqsm">$$w^* = -G/(H+\lambda)$$</div></div><div class="card"><h4>ECE</h4><div class="eqsm">$$\sum_b \tfrac{|S_b|}{n}\,|\mathrm{acc}(b) - \mathrm{conf}(b)|$$</div></div><div class="card"><h4>Split conformal</h4><div class="eqsm">$$\hat q = Q_{\lceil (n+1)(1-\alpha)\rceil / n}(|y-\hat\mu(x)|)$$</div></div><div class="card"><h4>Shapley value</h4><div class="eqsm">$$\phi_i = \sum_{S} \tfrac{|S|!(|F|-|S|-1)!}{|F|!}[v(S\cup i) - v(S)]$$</div></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf34"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf34)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>35 / 38</span><span class="bar" style="--p:0.9211"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide recap">
+  <div class="kicker">Day 1 · the honey jar · 1/2</div>
+  <h2>🍯 What to <em>remember</em></h2>
+  <ol class="jar" style="counter-reset: j 0"><li><div>Expected test error = <b>bias² + variance + noise</b>. Capacity trades the first two; nothing beats the third.</div></li><li><div>Past the interpolation threshold, adding parameters can <b>reduce</b> test error (double descent). Implicit regularization decides which solution you get.</div></li><li><div>Boosting is <b>gradient descent in function space</b>: each tree fits the negative gradient of the loss.</div></li><li><div>Small learning rate + many trees + early stopping on validation data beats big steps. Your baseline for any table is a GBDT.</div></li></ol>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf35"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf35)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>36 / 38</span><span class="bar" style="--p:0.9474"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide recap">
+  <div class="kicker">Day 1 · the honey jar · 2/2</div>
+  <h2>🍯 What to <em>remember</em></h2>
+  <ol class="jar" style="counter-reset: j 4"><li><div><b>Accuracy ≠ calibration.</b> Fit Platt, isotonic or temperature scaling on held-out data to make confidences honest.</div></li><li><div>Split conformal: take a quantile of held-out residuals and get ≥ 1−α coverage for <i>any</i> model. The guarantee is marginal, so check your subgroups.</div></li><li><div>SHAP explains the <b>model</b>, not the world. Correlated features split credit unpredictably.</div></li><li><div>Tabular foundation models (TabPFN) do in-context learning on small tables in one forward pass, and often beat tuned GBDTs there.</div></li></ol>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf36"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf36)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>37 / 38</span><span class="bar" style="--p:0.9737"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split night">
+  <div class="text">
+    <div class="kicker">Up next · Day 2</div>
+    <h2>Into the <em>engine room</em></h2>
+    <p>Tomorrow we open the black box: autograd from scratch, AdamW → Muon, schedules, grokking and scaling laws.</p>
+    <div class="callout" style="font-size:27px">🏆 <b>Before you go: Kaggle-in-an-hour.</b> Score = RMSE × (1 + 5·max(0, 0.9 − coverage)) + 0.1 × width. Under-cover and you pay. 🐝</div>
+  </div>
+  <figure class="media dark"><img src="../assets/img/cover-day2.png" alt="Optimizer trajectories racing down a loss landscape"><figcaption>Day 2's art: optimizers racing down a loss landscape.</figcaption></figure>
+  <aside class="notes">Wrap up: today's thread is that a model is only as useful as your trust in it. Boosting gives you accuracy, calibration and conformal give you honest uncertainty, SHAP gives you a (careful) explanation. Tomorrow's thread: the boosting update rule θ ← θ − η∇L, but with millions of parameters and autograd computing ∇. Challenge rules: California Housing, hidden test split held by the instructor, any model, must submit 90% intervals. Bonus honey for the most surprising SHAP insight.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf37"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf37)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 1 · Classical</span><span>38 / 38</span><span class="bar" style="--p:1.0000"><i></i></span></footer></section></div>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script defer src="../assets/js/deck.js?v=1e9ee455"></script>
+</body>
+</html>

@@ -107,6 +107,7 @@ chips: ⏱ ~6 hours + Demo Day | 🪶 LoRA | ⚖️ DPO | 🧮 GRPO | 🤔 test-
   </div>
 <pre><code class="language-python">def run_agent(llm, tools, user_msg, max_turns=10):
     messages = [{"role": "user", "content": user_msg}]
+    by_name = {t.name: t for t in tools}
     for _ in range(max_turns):
         reply = llm(messages, tools=[t.schema for t in tools])   # model may request tools
         messages.append({"role": "assistant", "content": reply.content})
@@ -114,7 +115,7 @@ chips: ⏱ ~6 hours + Demo Day | 🪶 LoRA | ⚖️ DPO | 🧮 GRPO | 🤔 test-
         if not calls:
             return reply.text                                    # done: final answer
         results = [{"type": "tool_result", "tool_use_id": c.id,
-                    "content": TOOLS[c.name](**c.input)} for c in calls]
+                    "content": by_name[c.name](**c.input)} for c in calls]
         messages.append({"role": "user", "content": results})    # observations go back in
     raise RuntimeError("agent ran out of turns")</code></pre>
   <div class="grid-2">

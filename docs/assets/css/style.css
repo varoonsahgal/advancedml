@@ -600,3 +600,20 @@ figure.fig img { cursor: zoom-in; }
   .cs-grid ul { font-size: 9.5px; } .cs-grid { gap: 12px; }
   .wrap { width: 100%; }
 }
+
+/* ---------- slide decks landing ---------- */
+.hero-actions { margin-top: 22px; display: flex; gap: 12px; flex-wrap: wrap; }
+.deck-total { color: var(--ink-2); margin: 0 0 22px; }
+.deck-total kbd { font: 600 .8rem/1 var(--font-mono); background: var(--honey-soft); border: 1px solid var(--line-2); border-radius: 6px; padding: 2px 6px; }
+.decks { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 26px; }
+.deck-card { background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; min-width: 0; transition: transform .2s, box-shadow .2s; }
+.deck-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.deck-card .thumb { position: relative; display: block; aspect-ratio: 16 / 9; background: var(--night); overflow: hidden; }
+.deck-card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s; }
+.deck-card:hover .thumb img { transform: scale(1.05); }
+.deck-card .count { position: absolute; right: 12px; bottom: 12px; font: 700 .78rem/1 var(--font-mono); background: var(--honey); color: #1F1B16; padding: 7px 10px; border-radius: 999px; }
+.deck-card .txt { padding: 18px 20px 20px; display: flex; flex-direction: column; flex: 1; }
+.deck-card .txt small { font: 700 .72rem/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--honey-deep); }
+.deck-card h3 { margin: 8px 0 6px; } .deck-card h3 a { text-decoration: none; color: inherit; }
+.deck-card p { color: var(--ink-2); font-size: .93rem; flex: 1; }
+.deck-card .actions { display: flex; gap: 10px; flex-wrap: wrap; }

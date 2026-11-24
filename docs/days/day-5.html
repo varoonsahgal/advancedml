@@ -14,7 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-<link rel="stylesheet" href="../assets/css/style.css?v=6acdf6d1">
+<link rel="stylesheet" href="../assets/css/style.css?v=f19606e9">
 <script>try{var t=localStorage.getItem("hive-theme");if(t)document.documentElement.setAttribute("data-theme",JSON.parse(t))}catch(e){}</script>
 </head>
 <body>
@@ -33,6 +33,7 @@
   <nav class="nav-links">
     <div class="nav-days"><a title="Day 1: Classical, Sharpened" class="" href="../days/day-1.html">1</a><a title="Day 2: The Deep Learning Engine Room" class="" href="../days/day-2.html">2</a><a title="Day 3: Transformers & Beyond" class="" href="../days/day-3.html">3</a><a title="Day 4: Generative Worlds" class="" href="../days/day-4.html">4</a><a title="Day 5: LLMs, Reasoning & Agents" class=" active" href="../days/day-5.html">5</a></div>
     <a class="" href="../labs.html">Labs</a>
+    <a class="" href="../slides.html">Slides</a>
     <a class="" href="../playground.html">Playground</a>
     <a class="" href="../capstone.html">Capstone</a>
     <a class="" href="../cheatsheet.html">Cheat sheet</a>
@@ -48,6 +49,7 @@
     <h1>LLMs, reasoning <em>&amp; agents.</em></h1>
     <p class="lede">The final day takes you to the 2026 frontier. You'll fine-tune an LLM, teach one to reason with reinforcement learning, give it tools through MCP, and then look inside it to find the features it uses to think. After that it's Demo Day.</p>
     <div class="meta"><span class="chip honey">4 labs</span><span class="chip">⏱ ~6 hours + Demo Day</span><span class="chip">🪶 LoRA</span><span class="chip">⚖️ DPO</span><span class="chip">🧮 GRPO</span><span class="chip">🤔 test-time compute</span><span class="chip">🛠️ agents & MCP</span><span class="chip">🔬 SAEs</span></div>
+    <div class="hero-actions"><a class="btn sm honey" href="../slides/day-5.html">🎞️ Open today's slides</a></div>
   </div>
 </header>
 <div class="wrap layout">
@@ -152,6 +154,7 @@
   </div>
 <pre><code class="language-python">def run_agent(llm, tools, user_msg, max_turns=10):
     messages = [{"role": "user", "content": user_msg}]
+    by_name = {t.name: t for t in tools}
     for _ in range(max_turns):
         reply = llm(messages, tools=[t.schema for t in tools])   # model may request tools
         messages.append({"role": "assistant", "content": reply.content})
@@ -159,7 +162,7 @@
         if not calls:
             return reply.text                                    # done: final answer
         results = [{"type": "tool_result", "tool_use_id": c.id,
-                    "content": TOOLS[c.name](**c.input)} for c in calls]
+                    "content": by_name[c.name](**c.input)} for c in calls]
         messages.append({"role": "user", "content": results})    # observations go back in
     raise RuntimeError("agent ran out of turns")</code></pre>
   <div class="grid-2">

@@ -1,0 +1,443 @@
+<!--
+title: Day 2 · The Deep Learning Engine Room
+label: Day 2 · Engine Room
+kicker: Day 2 · Tuesday
+order: 2
+cover: cover-day2.png
+day: 2
+blurb: Open the hood: write backprop yourself, see why deep nets train at all, race SGD against AdamW and Muon, tame the learning rate, watch a network grok, and size a model with scaling laws.
+-->
+
+<section class="slide cover nofoot">
+  <img class="bg" src="{{img}}cover-day2.png" alt="">
+  <div class="badge"><div><small>DAY</small>2</div></div>
+  <div class="kicker">Day 2 · Tuesday · Advanced ML Week</div>
+  <h1>The deep learning <em>engine room.</em></h1>
+  <p class="lede">Today we open the hood. Write backprop yourself, learn why some networks train and others explode, and meet the laws that size frontier models.</p>
+  <div class="chips"><span class="chip honey">⛓️ autodiff</span><span class="chip">🧱 init &amp; norms</span><span class="chip">🏎️ AdamW → Muon</span><span class="chip">📅 schedules</span><span class="chip">💡 grokking</span><span class="chip">📈 scaling laws</span></div>
+  <aside class="notes">Good morning! Warm-up: one-minute recap of Monday (boosting = gradient descent in function space). Today θ becomes millions of weights and ∇ comes from autograd. Have Lab 2.1 open in Colab before 10:15.</aside>
+</section>
+
+<section class="slide">
+  <div class="kicker">Today's flight plan</div>
+  <h2>Forward, backward, update: <em>all day</em></h2>
+  <div class="agenda">
+    <div class="slot"><span class="t">09:15</span><div><b>Autodiff, init, normalization &amp; residuals</b><span class="d">Why deep nets are trainable at all</span></div><span class="chip">lecture</span></div>
+    <div class="slot lab"><span class="t">10:15</span><div><b>Lab 2.1 · Build your own autograd engine</b><span class="d">From a scalar Value class to a numpy tensor engine</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">13:15</span><div><b>Optimizers, schedules, grokking &amp; scaling laws</b><span class="d">SGD → Adam → AdamW → Muon; Chinchilla</span></div><span class="chip">lecture</span></div>
+    <div class="slot lab"><span class="t">14:00</span><div><b>Lab 2.2 · Optimizer arena</b><span class="d">Seven optimizers, two arenas, one champion</span></div><span class="chip teal">lab</span></div>
+    <div class="slot lab"><span class="t">15:30</span><div><b>Lab 2.3 · Grokking</b><span class="d">Watch a network suddenly understand</span></div><span class="chip teal">lab</span></div>
+    <div class="slot fun"><span class="t">16:45</span><div><b>🥊 The optimizer bracket</b><span class="d">Single elimination, same CNN, 2 epochs, you pick the optimizer</span></div><span class="chip plum">fun</span></div>
+  </div>
+  <aside class="notes">The goal for tonight: "the loss went NaN" becomes a puzzle you know how to solve, not a mystery. Mention the bracket now so teams start thinking about their optimizer config during Lab 2.2.</aside>
+</section>
+
+<section class="slide full night cover-img">
+  <img class="bg" src="{{img}}slides/d2-flow.png" alt="Streamlines of the negative gradient on a 2-D loss surface, draining into six basins">
+  <div class="overlay"><div class="kicker" style="background:rgba(22,19,14,.85);padding:12px 18px;border-radius:12px">The question of the day</div><h2>Why does a 100-layer network train at all?</h2></div>
+  <div class="caption" style="left:240px;right:240px;background:rgba(22,19,14,.86);padding:22px 34px;border-radius:22px">Gradient flow on a toy 2-D loss: every streamline follows −∇L downhill into a basin. A network does this in a billion dimensions, through 100 layers that each multiply the signal.</div>
+  <aside class="notes">Hook. Ask the room: multiply 100 random numbers near 1. What do you get? Almost never something near 1: it explodes or vanishes. Yet we train 100-layer transformers routinely. Today is about the three or four inventions that make that possible, plus the machinery (autodiff, optimizers, schedules) that drives the descent. The figure is real: streamplot of −∇L for a sum of Gaussian wells.</aside>
+</section>
+
+<section class="slide section">
+  <div>
+    <div class="num">01</div>
+    <h2>Backprop is just <em>bookkeeping</em></h2>
+    <p>Record every operation on the way forward. Walk the graph backwards, applying the chain rule once per edge.</p>
+  </div>
+  <div class="hexart"><img src="{{img}}cover-day2.png" alt=""></div>
+  <aside class="notes">~25 minutes for this part. The key idea: reverse-mode autodiff gives the gradient of one scalar with respect to millions of parameters for about the cost of one extra forward pass.</aside>
+</section>
+
+<section class="slide">
+  <div class="kicker">A computational graph</div>
+  <h2>Values flow forward, <em>gradients</em> flow back</h2>
+  <div class="diagram" style="height:500px">
+    <svg viewBox="0 0 1664 500" width="1664" height="500" role="img" aria-label="Computational graph for L = (tanh(x*w + b) - 1)^2 with forward values and backward gradients">
+      <defs>
+        <marker id="d2ai" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1F1B16"/></marker>
+        <marker id="d2ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#FF6B5B"/></marker>
+      </defs>
+      <g font-family="Inter, system-ui, sans-serif" text-anchor="middle">
+        <!-- edges -->
+        <g stroke="#1F1B16" stroke-width="4" fill="none" marker-end="url(#d2ai)">
+          <path d="M262 92 L414 170"/>
+          <path d="M262 310 L414 232"/>
+          <path d="M530 200 L738 200"/>
+          <path d="M760 352 L788 262"/>
+          <path d="M860 200 L1026 200"/>
+          <path d="M1172 200 L1322 200"/>
+        </g>
+        <!-- forward values on edges -->
+        <g font-size="30" font-weight="700" fill="#1F1B16">
+          <text x="634" y="184">−1.0</text>
+          <text x="943" y="184">−0.5</text>
+          <text x="1247" y="184">−0.46</text>
+        </g>
+        <!-- gradients on edges -->
+        <g font-size="28" font-weight="700" fill="#FF6B5B">
+          <text x="634" y="240">−2.30</text>
+          <text x="943" y="240">−2.30</text>
+          <text x="1247" y="240">−2.92</text>
+        </g>
+        <!-- leaf nodes -->
+        <g stroke="#1F1B16" stroke-width="3">
+          <rect x="22" y="40" width="240" height="112" rx="24" fill="#FFFDF4"/>
+          <rect x="22" y="250" width="240" height="112" rx="24" fill="#FFFDF4"/>
+          <rect x="620" y="352" width="240" height="112" rx="24" fill="#FFFDF4"/>
+          <rect x="1322" y="132" width="320" height="136" rx="24" fill="#FFFDF4"/>
+        </g>
+        <g font-size="32" font-weight="800" fill="#1F1B16">
+          <text x="142" y="88">x = 2.0</text>
+          <text x="142" y="298">w = −0.5</text>
+          <text x="740" y="400">b = 0.5</text>
+          <text x="1482" y="184">L = (y − 1)²</text>
+        </g>
+        <g font-size="26" font-weight="700" fill="#FF6B5B">
+          <text x="142" y="132">∂L/∂x = 1.15</text>
+          <text x="142" y="342">∂L/∂w = −4.60</text>
+          <text x="740" y="444">∂L/∂b = −2.30</text>
+          <text x="1482" y="232">L = 2.14 · L̄ = 1</text>
+        </g>
+        <!-- op nodes -->
+        <g stroke="#1F1B16" stroke-width="3" fill="#F5B700">
+          <circle cx="472" cy="200" r="58"/>
+          <circle cx="800" cy="200" r="58"/>
+          <circle cx="1100" cy="200" r="72"/>
+        </g>
+        <g font-weight="800" fill="#1F1B16">
+          <text x="472" y="218" font-size="52">×</text>
+          <text x="800" y="218" font-size="52">+</text>
+          <text x="1100" y="211" font-size="32">tanh</text>
+        </g>
+        <!-- legend -->
+        <path d="M1000 330 L1200 330" stroke="#1F1B16" stroke-width="4" marker-end="url(#d2ai)"/>
+        <text x="1222" y="340" font-size="26" fill="#1F1B16" text-anchor="start">forward value</text>
+        <path d="M1200 400 L1000 400" stroke="#FF6B5B" stroke-width="4" stroke-dasharray="12 8" marker-end="url(#d2ac)"/>
+        <text x="1222" y="410" font-size="26" fill="#FF6B5B" text-anchor="start" font-weight="700">gradient ∂L/∂(·)</text>
+      </g>
+    </svg>
+  </div>
+  <p class="mt" style="font-size:32px">Adjoint rule: $\bar v_i = \sum_{j\,\in\,\text{children}(i)} \bar v_j\,\dfrac{\partial v_j}{\partial v_i}$. Each node only needs its <b>local</b> derivative.</p>
+  <aside class="notes">Walk it slowly. Forward: x·w = −1.0, + b = −0.5, tanh = −0.46, L = 2.14. Backward starts with L̄ = 1. ∂L/∂y = 2(y−1) = −2.92. tanh' = 1 − y² = 0.79, so −2.30 flows into the + node, which copies it to both parents (b gets −2.30). The × node swaps: ∂L/∂w = −2.30·x = −4.60, ∂L/∂x = −2.30·w = 1.15. Ask: which node would need a += if x were used twice?</aside>
+</section>
+
+<section class="slide quiz">
+  <div class="kicker">Quick check</div>
+  <h2>Why train with <em>reverse</em>-mode autodiff, not forward-mode?</h2>
+  <div class="opts">
+    <div class="opt" data-l="A">It's more numerically stable</div>
+    <div class="opt" data-l="B" data-correct>One scalar loss, millions of inputs: one backward pass gets every gradient</div>
+    <div class="opt" data-l="C">Forward mode can't handle nonlinearities</div>
+    <div class="opt" data-l="D">It uses less memory</div>
+  </div>
+  <p class="explain f" data-slide-class="answered"><b>B.</b> Forward mode costs one pass per <i>input</i>; reverse mode costs one pass per <i>output</i>. With one loss, reverse wins by a factor of millions. The price is memory (D is backwards): it must store the forward activations.</p>
+  <aside class="notes">Show of hands first. D is the trap: reverse mode uses MORE memory, which is why activation checkpointing exists. Forward mode is still useful for Jacobian-vector products (e.g. some second-order tricks).</aside>
+</section>
+
+<section class="slide">
+  <div class="kicker">Lab 2.1 preview · the whole engine</div>
+  <h2>Autograd in <em>17 lines</em></h2>
+  <div class="grid2" style="grid-template-columns:1.32fr .68fr;gap:56px;align-items:center">
+    <div class="codewin"><pre class="sm"><code class="language-python">class Value:
+    def __init__(self, data, parents=()):
+        self.data, self.grad = data, 0.0
+        self._parents, self._backward = parents, lambda: None
+
+    def __mul__(self, other):
+        out = Value(self.data * other.data, (self, other))
+        def _backward():          # local derivative × upstream grad
+            self.grad  += other.data * out.grad
+            other.grad += self.data  * out.grad
+        out._backward = _backward
+        return out
+
+    def backward(self):
+        order, seen = [], set()
+        def topo(v):
+            if v not in seen:
+                seen.add(v); [topo(p) for p in v._parents]; order.append(v)
+        topo(self); self.grad = 1.0
+        for v in reversed(order): v._backward()</code></pre></div>
+    <ul>
+      <li><b>Record</b> parents on every op</li>
+      <li><b>Sort</b> topologically</li>
+      <li><b>Sweep</b> in reverse, calling each local rule</li>
+      <li><b><code>+=</code></b> because a value used twice gets two contributions</li>
+    </ul>
+  </div>
+  <aside class="notes">This is micrograd's core (Karpathy). In the lab they'll add __add__, tanh, exp, pow, then a numpy tensor version with broadcasting, where the subtle part is summing gradients over broadcast dimensions. Ask: what breaks if we used = instead of +=? (A diamond-shaped graph: x used by two children.)</aside>
+</section>
+
+<section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Backprop is the chain rule run backwards: <b>every gradient for about one extra forward pass.</b></p>
+  <p class="sub">The bill arrives as memory: every activation from the forward pass waits around until the backward pass uses it.</p>
+</section>
+
+<section class="slide section">
+  <div>
+    <div class="num">02</div>
+    <h2>Why deep nets <em>train at all</em></h2>
+    <p>Each layer multiplies the signal. Products of many numbers rarely stay near 1.</p>
+  </div>
+  <div class="hexart"><img src="{{img}}slides/d2-hex-depth.png" alt=""></div>
+  <aside class="notes">The art: activation histograms of a real 22-layer tanh MLP whose init is a bit too large (gain 1.6). Top: a narrow input; going down, the activations spread out and pile up at ±1, saturating tanh. Three inventions turned "deep" from impossible into routine: careful init, normalization, residual connections.</aside>
+</section>
+
+<section class="slide split media-wide">
+  <div class="text">
+    <div class="kicker">Init, then highways</div>
+    <h2>Keep the signal <em>near 1</em></h2>
+    <ul>
+      <li><b>He init</b> for ReLU: $\mathrm{Var}(w) = 2/\text{fan}_\text{in}$ keeps activations flat through 50 layers</li>
+      <li>Xavier ($2/(\text{fan}_\text{in}{+}\text{fan}_\text{out})$) suits tanh, but shrinks ReLU nets by $\sqrt 2$ per layer</li>
+      <li>Init only fixes the start. <b>Residuals</b> keep gradients alive all through training</li>
+    </ul>
+  </div>
+  <figure class="media"><img src="{{img}}slides/d2-depth.png" alt="Activation std across 50 ReLU layers for four inits; gradient norm per layer for a plain vs a pre-norm residual network"><figcaption><b>Real forward and backward passes.</b> Top: naive init explodes to 10⁶⁰, tiny init vanishes. Bottom: in a plain 48-layer tanh net, layer 1 gets a 10¹¹× smaller gradient.</figcaption></figure>
+  <aside class="notes">Top panel: width-512 ReLU net, 50 layers. std=1 multiplies the scale by √(512/2) = 16 per layer. Xavier (here Var = 1/fan_in since the layers are square) loses a factor √2 per layer because ReLU zeroes half the inputs; He's factor 2 fixes exactly that. Bottom: PyTorch default init, plain tanh stack vs pre-norm residual blocks. The gradient reaching layer 1 is ~3×10⁻¹¹ of the last layer's in the plain net and about the same in the residual net.</aside>
+</section>
+
+<section class="slide split media-left">
+  <div class="diagram">
+    <svg viewBox="0 0 760 885" width="760" height="885" role="img" aria-label="Pre-norm transformer block: the residual stream passes straight up; each sublayer reads a normalized copy and adds its output back">
+      <defs>
+        <marker id="d2ri" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1F1B16"/></marker>
+        <marker id="d2rh" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#F5B700"/></marker>
+        <marker id="d2rc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#FF6B5B"/></marker>
+      </defs>
+      <g font-family="Inter, system-ui, sans-serif">
+        <!-- the residual stream -->
+        <path d="M190 830 L190 40" stroke="#F5B700" stroke-width="22" marker-end="url(#d2rh)" fill="none"/>
+        <!-- gradient highway -->
+        <path d="M110 70 L110 800" stroke="#FF6B5B" stroke-width="5" stroke-dasharray="14 10" marker-end="url(#d2rc)" fill="none"/>
+        <text x="86" y="440" font-size="26" font-weight="700" fill="#FF6B5B" transform="rotate(-90 86 440)" text-anchor="middle">gradient highway</text>
+        <!-- block 1 (attention) -->
+        <g stroke="#1F1B16" stroke-width="4" fill="none" marker-end="url(#d2ri)">
+          <path d="M201 700 L330 700"/>
+          <path d="M470 670 L470 610"/>
+          <path d="M470 530 L470 480 L224 480"/>
+        </g>
+        <rect x="332" y="672" width="276" height="60" rx="16" fill="#DDF3EF" stroke="#1FA39A" stroke-width="3"/>
+        <text x="470" y="712" font-size="28" font-weight="700" fill="#0E5F59" text-anchor="middle">RMSNorm</text>
+        <rect x="332" y="530" width="276" height="80" rx="18" fill="#E3E6FA" stroke="#3D4DB7" stroke-width="3"/>
+        <text x="470" y="581" font-size="32" font-weight="800" fill="#27328A" text-anchor="middle">Attention</text>
+        <!-- block 2 (MLP) -->
+        <g stroke="#1F1B16" stroke-width="4" fill="none" marker-end="url(#d2ri)">
+          <path d="M201 400 L330 400"/>
+          <path d="M470 370 L470 310"/>
+          <path d="M470 230 L470 180 L224 180"/>
+        </g>
+        <rect x="332" y="372" width="276" height="60" rx="16" fill="#DDF3EF" stroke="#1FA39A" stroke-width="3"/>
+        <text x="470" y="412" font-size="28" font-weight="700" fill="#0E5F59" text-anchor="middle">RMSNorm</text>
+        <rect x="332" y="230" width="276" height="80" rx="18" fill="#EFE3FC" stroke="#9B5DE5" stroke-width="3"/>
+        <text x="470" y="281" font-size="32" font-weight="800" fill="#5E2E9C" text-anchor="middle">MLP</text>
+        <!-- adders -->
+        <g fill="#1F1B16"><circle cx="190" cy="480" r="30"/><circle cx="190" cy="180" r="30"/></g>
+        <g stroke="#F5B700" stroke-width="6"><path d="M174 480 H206 M190 464 V496"/><path d="M174 180 H206 M190 164 V196"/></g>
+        <!-- labels -->
+        <text x="190" y="860" font-size="26" fill="#463E33" text-anchor="middle">token embeddings</text>
+        <text x="240" y="40" font-size="26" fill="#463E33">to the next block</text>
+      </g>
+    </svg>
+  </div>
+  <div class="text">
+    <div class="kicker">Normalization + residuals</div>
+    <h2>The <em>residual stream</em></h2>
+    <p>$x_{l+1} = x_l + F\big(\mathrm{Norm}(x_l)\big)$</p>
+    <ul>
+      <li>The identity path is a <b>gradient highway</b> to layer 1</li>
+      <li><b>Pre-norm</b>: normalize each sublayer's <i>input</i>, so the stream stays an untouched sum</li>
+      <li><b>RMSNorm</b> $= x/\sqrt{\overline{x^2}+\epsilon}\odot g$: LayerNorm minus the centering, and just as good</li>
+    </ul>
+  </div>
+  <aside class="notes">Every layer reads from and writes to a shared memory: the residual stream. ∂x_{l+1}/∂x_l = I + ∂F/∂x_l, so the identity term guarantees gradient flow. Post-norm (the original 2017 transformer) normalized after the add, putting a Norm on the highway itself; that needs careful warmup and gets unstable when very deep. Pre-norm makes warmup less critical. Day 3 builds exactly this block.</aside>
+</section>
+
+<section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Deep nets train when <b>no layer multiplies the signal far from 1.</b></p>
+  <p class="sub">Variance-preserving init sets the start, normalization holds the scale, and the residual stream gives every gradient a highway home.</p>
+</section>
+
+<!--LAB:lab04-->
+
+<section class="slide section">
+  <div>
+    <div class="num">03</div>
+    <h2>Optimizers: SGD to <em>Muon</em></h2>
+    <p>The gradient says which way is downhill. The optimizer decides how far, and what to remember.</p>
+  </div>
+  <div class="hexart"><img src="{{img}}slides/d2-hex-ns.png" alt=""></div>
+  <aside class="notes">Welcome back from lunch. Seventy years in a few equations: Robbins–Monro SGD (1951) → momentum → Adam (2015) → AdamW (2019) → Muon (2024). The art: Muon's Newton–Schulz polynomial applied 0 to 7 times (bottom to top) on a log axis of singular values; each iteration lifts smaller singular values into the band around 1.</aside>
+</section>
+
+<section class="slide eq">
+  <div class="kicker">Momentum → Adam → AdamW</div>
+  <h2>Two running averages and a <em>decoupled</em> decay</h2>
+  <div class="equation">$$\theta_t = \theta_{t-1} - \eta\Big(\frac{\hat m_t}{\sqrt{\hat v_t}+\epsilon} + \lambda\,\theta_{t-1}\Big)$$</div>
+  <div class="terms">
+    <div class="term honey"><b>$m_t$</b>momentum: average of $g_t$ with $\beta_1 \approx 0.9$</div>
+    <div class="term teal"><b>$v_t$</b>average of $g_t^2$: a per-coordinate step size</div>
+    <div class="term indigo"><b>$\hat m, \hat v$</b>bias-corrected for the zero start</div>
+    <div class="term coral"><b>$\lambda\theta$</b>weight decay, <i>outside</i> the $\sqrt{\hat v}$</div>
+  </div>
+  <aside class="notes">m_t = β1 m + (1−β1) g, v_t = β2 v + (1−β2) g², with β2 ≈ 0.95–0.999. Dividing by √v makes the step roughly scale-free per coordinate: about η in size regardless of gradient magnitude. The coral term is the whole point of AdamW (Loshchilov & Hutter 2019): decay applied directly to the weights, not added to the gradient.</aside>
+</section>
+
+<section class="slide split media-wide">
+  <div class="text">
+    <div class="kicker">Why "decoupled" matters</div>
+    <h2>Adam + L2 <em>≠</em> AdamW</h2>
+    <p>Put $\lambda\theta$ in the loss and Adam divides it by $\sqrt{\hat v}$.</p>
+    <ul>
+      <li>Busy weights (big $\sqrt{\hat v}$) <b>barely decay</b></li>
+      <li>Quiet weights decay hard</li>
+      <li>AdamW: <b>one</b> rate, $e^{-\eta\lambda t}$, for all</li>
+    </ul>
+  </div>
+  <figure class="media"><img src="{{img}}slides/d2-adamw-l2.png" alt="Weight magnitude over 20k steps under Adam+L2 and AdamW for four gradient-noise scales"><figcaption><b>A real Adam simulation</b>, 300 weights per curve, gradients that are pure noise. Same η and λ in both panels.</figcaption></figure>
+  <aside class="notes">Top: with L2 in the loss, the decay gradient λθ is rescaled by 1/√v. σ = 10 weights keep 80% of their size after 20k steps; σ = 0.01 weights are crushed in 2k steps. Bottom: AdamW, all four lines sit exactly on e^(−ηλt). This is why "weight_decay" in torch.optim.Adam and torch.optim.AdamW are different knobs. Ask: which weights in a transformer have the biggest gradients? (Often embeddings of frequent tokens, the final layers.)</aside>
+</section>
+
+<section class="slide split" style="gap:56px">
+  <div class="text">
+    <div class="kicker">Muon · Jordan et al., 2024</div>
+    <h2>Muon: <em>orthogonalize</em></h2>
+    <p>$M = U\Sigma V^\top \;\mapsto\; UV^\top$: all singular values → ~1</p>
+    <div class="codewin"><pre class="sm"><code class="language-python">def newton_schulz5(G, steps=5, eps=1e-7):
+    a, b, c = 3.4445, -4.7750, 2.0315   # tuned quintic
+    X = G / (G.norm() + eps)            # σ's into [0, 1]
+    tall = X.size(0) > X.size(1)
+    if tall: X = X.T
+    for _ in range(steps):
+        A = X @ X.T
+        X = a * X + (b * A + c * A @ A) @ X   # σ → ~1
+    return X.T if tall else X
+
+# hidden 2-D weights only (AdamW for the rest):
+buf = mu * buf + grad
+W -= lr * newton_schulz5(buf) * max(1, rows/cols)**0.5</code></pre></div>
+  </div>
+  <figure class="media"><img src="{{img}}slides/d2-ns-spectrum.png" alt="The Newton-Schulz quintic iterated, and the singular values of a real momentum matrix before and after"><figcaption><b>Every direction gets a push.</b> Five bf16-friendly matmul steps, no SVD.</figcaption></figure>
+  <aside class="notes">Muon treats a weight matrix as a matrix, not a bag of numbers. Orthogonalizing the momentum sets all singular values to 1, so rare directions get as much push as dominant ones. Top: the quintic is tuned for speed, not exactness: after 5 steps outputs land in ~[0.7, 1.2], not exactly 1, and that turns out fine. Bottom: a real 256×256 momentum matrix from an MLP on digits. The top directions go to ~1; tiny ones (below ~10⁻³ of the norm) get boosted ~100× but don't reach 1 in five steps. Frontier: Moonshot's "Muon is Scalable for LLM Training" (2025) reported ~2× compute efficiency over AdamW, and a Muon variant trained Kimi K2.</aside>
+</section>
+
+<section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Adam rescales each <b>coordinate</b>. Muon rescales each <b>direction</b>.</p>
+  <p class="sub">Modern stacks run both: <b>AdamW</b> (decay decoupled!) for embeddings, norms and heads; <b>Muon</b> for the big 2-D hidden matrices.</p>
+</section>
+
+<section class="slide section">
+  <div>
+    <div class="num">04</div>
+    <h2>Learning-rate <em>schedules</em></h2>
+    <p>Hyperparameter #1 is the learning rate. #2 is how it changes over time.</p>
+  </div>
+  <div class="hexart"><img src="{{img}}slides/d2-hex-lr.png" alt=""></div>
+  <aside class="notes">The art is the argument of this section. Amber curves: warmup + cosine, one complete curve per training budget; you must pick the budget up front. White: WSD, a single flat trunk, with a short cooldown you can branch off at any checkpoint.</aside>
+</section>
+
+<section class="slide split media-wide">
+  <div class="text">
+    <div class="kicker">Warmup · stable · decay</div>
+    <h2>Cool down <em>when you choose</em></h2>
+    <ul>
+      <li><b>Warmup</b> protects early steps, while Adam's $\hat v$ is still noisy</li>
+      <li><b>Decay</b> lets the iterate settle instead of bouncing</li>
+      <li><b>WSD</b> (MiniCPM, 2024): flat, then a short cooldown, branchable off any checkpoint</li>
+    </ul>
+  </div>
+  <figure class="media"><img src="{{img}}slides/d2-wsd.png" alt="LR schedules and test loss for warmup+cosine and WSD, with cooldown branches"><figcaption><b>Real runs.</b> At a constant LR the loss hovers on a noise floor; each cooldown cashes it in. WSD ends within 3% of cosine.</figcaption></figure>
+  <aside class="notes">Same model, data, seed and batch order; only the schedule differs. During the stable phase WSD's loss sits above cosine (higher LR = more gradient noise), then drops sharply in the cooldown. The dashed branches start from checkpoints at 1600 and 2600 steps: the one at 3000 lands right on the cosine curve. You don't need to know your token budget in advance, which is why labs training many model sizes like it.</aside>
+</section>
+
+<section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">The learning rate is hyperparameter #1, and <b>its schedule is #2.</b></p>
+  <p class="sub">Warm up, hold, cool down. Loss exploded? Halve the LR, check warmup, clip gradients at norm 1.0, and swap fp16 for bf16.</p>
+  <aside class="notes">Full debugging checklist: LR too high, no warmup, no clipping, log(0) or division by zero, fp16 overflow, a bad batch (log per-batch loss), missing normalization, or residual branches initialized too large.</aside>
+</section>
+
+<!--LAB:lab05-->
+
+<section class="slide section">
+  <div>
+    <div class="num">05</div>
+    <h2>Grokking: <em>delayed</em> understanding</h2>
+    <p>Sometimes the interesting learning starts after the model has memorized everything.</p>
+  </div>
+  <div class="hexart"><img src="{{img}}slides/d2-hex-grok.png" alt=""></div>
+  <aside class="notes">The art is computed from the network we're about to show. Each ring is the part of the learned number embedding that varies at one frequency k (the four the network chose: 30, 6, 41, 33), with tokens 0, 1, 2, … joined in order. A pure rotation by 2πk/97 per step draws a star polygon {97/k}. The network learned to represent numbers as angles.</aside>
+</section>
+
+<section class="slide split media-wide">
+  <div class="text">
+    <div class="kicker">Power et al., 2022</div>
+    <h2>Memorize first, <em>understand</em> later</h2>
+    <ul>
+      <li>Learn $(a+b) \bmod 97$ from 30% of the table</li>
+      <li>Train accuracy hits 100% by step ~40; test stays at chance</li>
+      <li>Keep going with weight decay: test <b>jumps to 100%</b></li>
+      <li>The network found a <b>Fourier algorithm</b>: numbers as rotations, adding angles (Nanda et al., 2023)</li>
+    </ul>
+  </div>
+  <figure class="media"><img src="{{img}}slides/d2-grok.png" alt="Train and test accuracy over training for modular addition, and the Fourier spectrum of the learned embedding"><figcaption><b>A real run</b> (the Lab 2.3 model, 30 s on a CPU). Without weight decay, test accuracy never moves.</figcaption></figure>
+  <aside class="notes">Full-batch AdamW, lr 3e-3, weight decay 1.0. Memorized at step ~40, generalized at step ~2000: 49× later. Bottom: the grokked embedding puts ~90% of its power in four frequencies; the λ = 0 memorizer is spread flat. Weight decay slowly favors the compact general circuit over the bulky lookup table. In the lab you'll ablate λ and the data fraction and find these frequencies yourself.</aside>
+</section>
+
+<section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Zero training loss is not the finish line. <b>Regularization picks which solution you get.</b></p>
+  <p class="sub">Many weight settings fit the training set. Weight decay keeps pushing toward the compact one: the algorithm, not the lookup table.</p>
+</section>
+
+<section class="slide section">
+  <div>
+    <div class="num">06</div>
+    <h2>Scaling laws: the <em>physics</em> of LLMs</h2>
+    <p>Loss falls as a smooth power law in parameters, data and compute. So you can plan a budget.</p>
+  </div>
+  <div class="hexart"><img src="{{img}}slides/d2-hex-isoflop.png" alt=""></div>
+  <aside class="notes">Kaplan et al. (2020) showed the power laws; Hoffmann et al. (2022, "Chinchilla") showed many big models were under-trained. The art: isoFLOP curves from the Chinchilla law for 22 budgets from 10¹⁸ to 10²⁵ FLOPs, and the compute-optimal points joined by the white line.</aside>
+</section>
+
+<section class="slide split media-wide">
+  <div class="text">
+    <div class="kicker">Chinchilla · 2022</div>
+    <h2>Grow N and D <em>together</em></h2>
+    <p>$L = E + \dfrac{A}{N^{\alpha}} + \dfrac{B}{D^{\beta}}$</p>
+    <ul>
+      <li>100× compute → ~10× params, ~10× tokens</li>
+      <li>Optimum: <b>~20 tokens per parameter</b></li>
+      <li>Production <b>over-trains</b>: Llama 3 8B saw 15T tokens (~1,900 per param), because inference costs dominate</li>
+    </ul>
+  </div>
+  <figure class="media"><img src="{{img}}slides/d2-isoflop.png" alt="IsoFLOP curves of predicted loss against parameter count for six compute budgets"><figcaption><b>Computed from the law</b> (Besiroglu et al. 2024 refit of the Chinchilla data). Left of each valley: too small. Right: too few tokens.</figcaption></figure>
+  <aside class="notes">Both N* and D* grow roughly as √C, so 100× compute means ~10× each. Note on constants: the originally published fit (E 1.69, A 406.4, B 410.7, α 0.34, β 0.28) puts the optimum at more like 30–100 tokens/param; Epoch AI's 2024 replication found that fit inconsistent with Chinchilla's other two methods and refit it, which recovers ~20 tokens/param and Chinchilla-70B's 1.4T tokens. Beyond Chinchilla: the data wall (synthetic data, repeated epochs) and new scaling axes (RL post-training, test-time compute) on Day 5.</aside>
+</section>
+
+<section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Loss is predictable: <b>spend compute on parameters and tokens together.</b></p>
+  <p class="sub">~20 tokens per parameter minimizes training cost. If millions will query the model, train a smaller one for much longer.</p>
+</section>
+
+<!--LAB:lab06-->
+
+<!--MYTHS-->
+
+<!--INTERVIEW-->
+
+<!--EQUATIONS-->
+
+<!--RECAP-->
+
+<section class="slide full night cover-img nofoot">
+  <img class="bg" src="{{img}}cover-day3.png" alt="">
+  <div class="overlay"><div class="kicker">Tomorrow · Day 3 · Transformers &amp; beyond</div><h2>Today's engine, inside a GPT</h2></div>
+  <div class="caption">Your autograd, AdamW, warmup + cosine and pre-norm residual stream now power attention, a KV cache, speculative decoding and MoE. 🐝 First: the optimizer bracket!</div>
+  <aside class="notes">Close: Day 3 builds a modern GPT from scratch on top of everything today. Now: 🥊 the optimizer bracket. Same CNN, FashionMNIST, 2 epochs. Declare your config before running. Bonus honey jar for the best plain-SGD result.</aside>
+</section>

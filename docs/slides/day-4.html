@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 4 · Generative Worlds · Slides · Gradient Hive</title>
+<meta name="description" content="From VAEs to diffusion to flow matching: learn a field that carries noise to data, steer it with guidance, scale it with latents and DiTs, and connect it to language with CLIP.">
+<meta property="og:image" content="../assets/img/og-image.png">
+<meta name="theme-color" content="#16130E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2064%2064%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22bbi%22%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpolygon%20points%3D%2232%2C2%2058%2C17%2058%2C47%2032%2C62%206%2C47%206%2C17%22%20fill%3D%22%23F5B700%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%3Cellipse%20cx%3D%2228%22%20cy%3D%2222%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%28-20%2028%2022%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2239%22%20cy%3D%2221%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%2818%2039%2021%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22%23FFE680%22/%3E%3Cg%20clip-path%3D%22url%28%23bbi%29%22%20fill%3D%22%231F1B16%22%3E%3Crect%20x%3D%2229%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2224%22%20width%3D%226%22%20height%3D%2226%22/%3E%3C/g%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%231F1B16%22/%3E%3Ccircle%20cx%3D%2215.5%22%20cy%3D%2233%22%20r%3D%222.4%22%20fill%3D%22%23FFFDF4%22/%3E%3Cpath%20d%3D%22M14%2028%20Q10%2020%207%2021%20M20%2027%20Q20%2019%2016%2017%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M50%2037%20l6%200%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="../assets/css/deck.css?v=f748804a">
+</head>
+<body data-home="../slides.html">
+<div class="stage">
+<div class="frame"><section class="slide cover nofoot">
+  <img class="bg" src="../assets/img/cover-day4.png" alt="">
+  <div class="badge"><div><small>DAY</small>4</div></div>
+  <div class="kicker">Day 4 · Thursday · Generative worlds</div>
+  <h1>Noise in, <em>worlds</em> out.</h1>
+  <p class="lede">One idea runs every modern image and video generator: learn a field that carries noise to data. Today you build it from scratch.</p>
+  <div class="chips"><span class="chip honey">🌊 flow matching</span><span class="chip">🌫️ diffusion</span><span class="chip">🎚️ guidance</span><span class="chip">🧱 DiT</span><span class="chip">🖼️ CLIP</span></div>
+  <aside class="notes">Every white dot on this cover started as Gaussian noise and was carried along a learned flow into the spiral. By 17:00 everyone will have made a picture like this. Open Lab 4.1 in Colab while we warm up.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf0"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf0)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>1 / 38</span><span class="bar" style="--p:0.0263"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Today's flight plan</div>
+  <h2>From noise to <em>art</em> in one day</h2>
+  <div class="agenda">
+    <div class="slot"><span class="t">09:15</span><div><b>The generative map: VAE → diffusion → flow matching</b><span class="d">One family tree, one unifying idea</span></div><span class="chip">lecture</span></div>
+    <div class="slot lab"><span class="t">10:15</span><div><b>Lab 4.1 · Flow matching from scratch</b><span class="d">Noise → art in 2-D, plus reflow</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">13:15</span><div><b>Guidance, latents, DiT &amp; multimodality</b><span class="d">How text-to-image actually works</span></div><span class="chip">lecture</span></div>
+    <div class="slot lab"><span class="t">14:00</span><div><b>Lab 4.2 · Diffusion + CFG on MNIST</b><span class="d">Turn the guidance knob</span></div><span class="chip teal">lab</span></div>
+    <div class="slot lab"><span class="t">15:30</span><div><b>Lab 4.3 · CLIP &amp; contrastive learning</b><span class="d">Zero-shot classification, retrieval</span></div><span class="chip teal">lab</span></div>
+    <div class="slot fun"><span class="t">16:45</span><div><b>🖼️ Gallery walk + capstone sprint</b><span class="d">The weirdest digit wins</span></div><span class="chip plum">fun</span></div>
+  </div>
+  <aside class="notes">Morning: the core idea and the big lab. Afternoon: everything that turns a 2-D toy into Stable Diffusion 3: guidance, latents, transformers, text. Two shorter labs after lunch.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf1"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf1)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>2 / 38</span><span class="bar" style="--p:0.0526"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide full night cover-img">
+  <img class="bg" src="../assets/img/slides/d4-filmstrip.png" alt="Gaussian noise particles flowing along a learned field into a honeycomb shape, shown at five times">
+  <div class="overlay"><div class="kicker">The question of the day</div><h2>How do you turn pure noise into a honeycomb?</h2></div>
+  <div class="caption">Every particle starts as Gaussian noise and follows one learned velocity field. <b style="color:var(--honey)">Computed:</b> the exact flow-matching ODE on 700 data points.</div>
+  <aside class="notes">Let this sit for a few seconds. Ask: "At t = 0.8 it still looks like a blob. Why does the shape only appear at the very end?" (Answer later: early on, a point doesn't yet "know" which data point it is heading to.) Swap "honeycomb" for "photograph" and this is Stable Diffusion 3.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf2"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf2)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>3 / 38</span><span class="bar" style="--p:0.0789"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">01</div>
+    <h2>The generative <em>family tree</em></h2>
+    <p>Learn p(x) well enough to sample from it. Five ways to do it. One family now rules images.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d4-sec-density.png" alt="A honeycomb-shaped probability density glowing on a dark background"></div>
+  <aside class="notes">The art is p(x) itself: a kernel density estimate of today's honeycomb dataset. That glowing shape is what every model this morning is trying to learn.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf3"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf3)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>4 / 38</span><span class="bar" style="--p:0.1053"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">The map</div>
+  <h2>Many roads from <em>noise</em> to data</h2>
+  <div class="diagram fill">
+    <svg viewBox="0 0 1664 660" role="img" aria-label="Generative model family tree" style="width:100%;font-family:Inter,system-ui,sans-serif">
+      <defs><marker id="d4a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#463E33"/></marker></defs>
+      <g fill="none" stroke="#B9A877" stroke-width="4">
+        <path d="M832 104 C 832 150, 205 140, 205 186"/><path d="M832 104 C 832 150, 622 140, 622 186"/>
+        <path d="M832 104 C 832 150, 1039 140, 1039 186"/><path d="M832 104 C 832 150, 1459 140, 1459 186"/>
+      </g>
+      <g fill="none" stroke="#463E33" stroke-width="4" marker-end="url(#d4a)">
+        <path d="M1459 316 L1459 384"/><path d="M1459 514 L1459 546"/>
+        <path d="M622 316 C 622 400, 560 400, 560 462"/>
+        <path d="M1274 450 C 1060 450, 900 500, 786 520"/>
+      </g>
+      <rect x="482" y="10" width="700" height="94" rx="24" fill="#1F1B16"/>
+      <text x="832" y="70" text-anchor="middle" font-size="36" font-weight="800" fill="#F5B700">Learn p(x), then sample new data</text>
+
+      <rect x="20" y="186" width="370" height="130" rx="22" fill="#FFFDF4" stroke="#FF6B5B" stroke-width="4"/>
+      <text x="205" y="242" text-anchor="middle" font-size="31" font-weight="800" fill="#1F1B16">📜 Autoregressive</text>
+      <text x="205" y="286" text-anchor="middle" font-size="24" fill="#463E33">one token at a time</text>
+      <rect x="437" y="186" width="370" height="130" rx="22" fill="#FFFDF4" stroke="#1FA39A" stroke-width="4"/>
+      <text x="622" y="242" text-anchor="middle" font-size="31" font-weight="800" fill="#1F1B16">🧬 VAE · 2013</text>
+      <text x="622" y="286" text-anchor="middle" font-size="24" fill="#463E33">encode → z → decode</text>
+      <rect x="854" y="186" width="370" height="130" rx="22" fill="#FFFDF4" stroke="#9B5DE5" stroke-width="4"/>
+      <text x="1039" y="242" text-anchor="middle" font-size="31" font-weight="800" fill="#1F1B16">⚔️ GAN · 2014</text>
+      <text x="1039" y="286" text-anchor="middle" font-size="24" fill="#463E33">generator vs. critic</text>
+      <rect x="1274" y="186" width="370" height="130" rx="22" fill="#FFFDF4" stroke="#3D4DB7" stroke-width="4"/>
+      <text x="1459" y="242" text-anchor="middle" font-size="31" font-weight="800" fill="#1F1B16">🌀 Diffusion · 2020</text>
+      <text x="1459" y="286" text-anchor="middle" font-size="24" fill="#463E33">add noise, learn to undo</text>
+
+      <rect x="1274" y="384" width="370" height="130" rx="22" fill="#F5B700" stroke="#1F1B16" stroke-width="4"/>
+      <text x="1459" y="440" text-anchor="middle" font-size="31" font-weight="800" fill="#1F1B16">🌊 Flow matching</text>
+      <text x="1459" y="484" text-anchor="middle" font-size="24" fill="#1F1B16">2023 · regress a velocity</text>
+      <rect x="1274" y="546" width="370" height="108" rx="22" fill="#FFFDF4" stroke="#1F1B16" stroke-width="4"/>
+      <text x="1459" y="592" text-anchor="middle" font-size="31" font-weight="800" fill="#1F1B16">⚡ Few-step</text>
+      <text x="1459" y="632" text-anchor="middle" font-size="24" fill="#463E33">1–4 steps via distillation</text>
+
+      <rect x="330" y="466" width="456" height="150" rx="24" fill="#1F1B16"/>
+      <text x="558" y="528" text-anchor="middle" font-size="31" font-weight="800" fill="#F6EFD9">🧱 Latent diffusion + DiT</text>
+      <text x="558" y="574" text-anchor="middle" font-size="24" fill="#F5B700">today's image &amp; video models</text>
+      <text x="640" y="412" font-size="23" font-style="italic" fill="#1FA39A">VAE = compressor</text>
+      <text x="1030" y="452" font-size="23" font-style="italic" fill="#B98500" text-anchor="middle">flow = denoiser</text>
+    </svg>
+  </div>
+  <aside class="notes">Walk left to right. Autoregressive: exact likelihood, great for discrete sequences, slow for long outputs (Day 3). VAE: fast but blurry alone; its modern job is compression. GAN: sharp but unstable, prone to mode collapse; survives as a loss for few-step distillation. Diffusion → flow matching is the line we follow today. Question for the room: which branch generated the last AI image you saw? (Almost certainly the black box.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf4"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf4)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>5 / 38</span><span class="bar" style="--p:0.1316"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-left">
+  <figure class="media dark"><img src="../assets/img/slides/d4-vae-latent.png" alt="Grid of digits decoded from a 2-D VAE latent space, morphing smoothly between classes"><figcaption><b>Real:</b> a VAE with a 2-D latent trained on sklearn's 8×8 digits. Each cell decodes one point of the grid.</figcaption></figure>
+  <div class="text">
+    <div class="kicker">VAE · Kingma &amp; Welling 2013</div>
+    <h2>Squeeze through a <em>tiny latent</em></h2>
+    <div class="equation sm" style="padding:20px 16px;margin-bottom:30px">$$\log p(x)\ge\underbrace{\mathbb{E}_q[\log p(x|z)]}_{\text{reconstruct}}-\underbrace{\mathrm{KL}(q(z|x)\,\|\,p(z))}_{\text{stay near the prior}}$$</div>
+    <ul class="tight">
+      <li>Reparameterize: $z=\mu+\sigma\odot\epsilon$, so gradients flow through the sample.</li>
+      <li>Smooth latent: walk through it and 1 → 7 → 9.</li>
+      <li>Alone: blurry. Today's job: <b>the compressor</b>.</li>
+    </ul>
+  </div>
+  <aside class="notes">Point at the grid: moving along z₁ morphs 1 into 7 into 9 into 0. That smoothness is the KL term at work. Then the twist: a 2-D latent is too small to be sharp, and VAE samples are blurry on their own. But a VAE with a modest compression ratio is an excellent compressor, and that's its job inside Stable Diffusion. (Trains in seconds on a CPU: final reconstruction ≈ 20 nats, KL ≈ 3.5 nats.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf5"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf5)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>6 / 38</span><span class="bar" style="--p:0.1579"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Every generator answers one question: <b>how do I turn something simple into the data?</b></p>
+  <p class="sub">Autoregressive: one piece at a time. VAE: decode a latent. GAN: one adversarial leap. Diffusion &amp; flows: <b>many small, learned steps.</b></p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf6"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf6)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>7 / 38</span><span class="bar" style="--p:0.1842"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">02</div>
+    <h2>Learning to <em>undo noise</em></h2>
+    <p>Diffusion, then flow matching: the same picture with a simpler path.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d4-sec-flow.png" alt="Streamlines of a flow-matching velocity field converging on a honeycomb"></div>
+  <aside class="notes">The art: the exact flow-matching velocity field at t = 0.75 for the honeycomb. The white dots are where the data sits at that time. Every streamline is a road that a noise sample can take.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf7"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf7)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>8 / 38</span><span class="bar" style="--p:0.2105"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-wide">
+  <div class="text">
+    <div class="kicker">DDPM · Ho et al. 2020</div>
+    <h2>Destroy slowly, <em>learn to undo</em></h2>
+    <div class="equation sm" style="padding:16px 22px;margin-bottom:30px">$$x_t=\sqrt{\bar\alpha_t}\,x_0+\sqrt{1-\bar\alpha_t}\,\epsilon$$$$\mathcal{L}=\big\|\epsilon-\epsilon_\theta(x_t,t)\big\|^2$$</div>
+    <ul class="tight">
+      <li>Jump to any noise level in <b>one line</b>.</li>
+      <li>Predicting ε ≈ estimating the <b>score</b> $\nabla_x\log p_t$.</li>
+      <li>Heads-up: DDPM counts <b>backwards</b>.</li>
+    </ul>
+  </div>
+  <figure class="media"><img src="../assets/img/slides/d4-alphabar.png" alt="Noise schedules: alpha-bar for linear and cosine schedules, with a spiral dissolving into noise"><figcaption><b>Computed:</b> $\bar\alpha_t=\prod_s(1-\beta_s)$ for both schedules; the spiral uses the linear one.</figcaption></figure>
+  <aside class="notes">ᾱ_t is the fraction of signal variance left at step t. Linear schedule: half the signal is gone by t ≈ 259, and the last ~400 steps are nearly pure noise, which wastes steps; that's why Nichol &amp; Dhariwal proposed the cosine schedule. Predicting the noise is, up to a −1/σ_t scale, estimating the score (Song et al. 2021). Warn them: DDPM numbers time from data (0) to noise (T); flow matching, and the rest of today, goes from noise (0) to data (1).</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf8"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf8)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>9 / 38</span><span class="bar" style="--p:0.2368"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide eq">
+  <div class="kicker">Flow matching · Lipman et al. 2023 · Liu et al. 2023</div>
+  <h2>Draw a straight line, <em>regress its velocity</em></h2>
+  <div class="equation">$$x_t=(1-t)\,x_0+t\,x_1\qquad \mathcal{L}(\theta)=\mathbb{E}_{t,x_0,x_1}\big\|\,v_\theta(x_t,t)-(x_1-x_0)\,\big\|^2$$</div>
+  <div class="terms">
+    <div class="term indigo"><b>x₀ ∼ 𝒩(0, I)</b>noise, at t = 0</div>
+    <div class="term coral"><b>x₁ ∼ p<sub>data</sub></b>a real sample, at t = 1</div>
+    <div class="term honey"><b>x₁ − x₀</b>the target: where you're going minus where you started</div>
+    <div class="term teal"><b>dx/dt = v<sub>θ</sub></b>sampling: integrate from t = 0 to 1</div>
+  </div>
+  <aside class="notes">This is the most important slide of the morning. Differentiate x_t with respect to t and you get x₁ − x₀: that's the whole target. No noise schedule, no simulation during training, plain MSE. Ask: "Why doesn't the network just learn x₁ − x₀ exactly?" Because from x_t alone it can't tell which pair it came from, so it learns the average, E[x₁ − x₀ | x_t]. That average is the marginal velocity, and it's what makes the next slide interesting.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf9"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf9)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>10 / 38</span><span class="bar" style="--p:0.2632"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">The subtle part</div>
+  <h2 style="margin-bottom:24px">Straight in training, <em>curved</em> at sampling</h2>
+  <figure class="media bare fill"><img src="../assets/img/slides/d4-paths.png" alt="Left: random noise-data pairs joined by crossing straight lines. Right: curved, non-crossing ODE trajectories."></figure>
+  <div class="callout indigo" style="margin-top:20px">Training lines <b>cross</b>; an ODE's paths <b>can't</b>. So the learned field averages every pair through a point, and its paths bend. <span class="muted">(Right: the exact marginal field, computed.)</span></div>
+  <aside class="notes">Left: what the loss sees, random (noise, data) pairs connected by straight lines that cross everywhere. Right: what sampling follows, the marginal field. A deterministic ODE can't have two paths through one point, so the paths swerve. Curved paths are why one big Euler step fails, which is the quiz coming up.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf10"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf10)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>11 / 38</span><span class="bar" style="--p:0.2895"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">The whole algorithm</div>
+  <h2>Train and sample in <em>eleven lines</em></h2>
+  <div class="row" style="align-items:stretch;gap:48px">
+    <div class="codewin" style="flex:1.75;min-width:0">
+<pre><code class="language-python">for x1 in loader:                       # data batch
+    x0 = torch.randn_like(x1)           # noise batch
+    t  = torch.rand(len(x1), 1)
+    xt = (1 - t) * x0 + t * x1          # on the line
+    loss = ((model(xt, t) - (x1 - x0))**2).mean()
+    opt.zero_grad(); loss.backward(); opt.step()
+
+x = torch.randn(n, 2)                   # Euler: t 0 → 1
+for i in range(steps):
+    t = torch.full((n, 1), i / steps)
+    x = x + model(x, t) / steps</code></pre>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:24px;justify-content:center">
+      <div class="term teal"><b>No simulation</b>Training never runs the ODE.</div>
+      <div class="term coral"><b>No schedule</b>t ∼ U(0, 1), straight path.</div>
+      <div class="term indigo"><b>Sampling = ODE</b>Euler here; Heun in the lab.</div>
+    </div>
+  </div>
+  <aside class="notes">This is essentially the Lab 4.1 training loop. Point out that a real image model changes only "model" (a DiT) and "x1" (VAE latents). Heun = Euler plus one correction step: roughly twice the cost per step, much better accuracy for curved paths.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf11"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf11)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>12 / 38</span><span class="bar" style="--p:0.3158"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide quiz">
+  <div class="kicker">Quick check</div>
+  <h2>A perfect flow, <em>one</em> Euler step from noise. Where do samples land?</h2>
+  <div class="opts">
+    <div class="opt" data-l="A">Spread over the data, just a bit noisy</div>
+    <div class="opt" data-l="B" data-correct>All on one point: the data mean</div>
+    <div class="opt" data-l="C">Back where they started</div>
+    <div class="opt" data-l="D">Nowhere: one step diverges</div>
+  </div>
+  <p class="explain f" data-slide-class="answered"><b>B.</b> At t = 0, x₀ says nothing about its destination, so the optimal velocity is E[x₁] − x₀. One step: x₀ + (E[x₁] − x₀) = <b>E[x₁]</b>. Every sample, one dot.</p>
+  <aside class="notes">Show of hands for each option, then reveal. The next slide shows it literally: the 1-step panel is a single dot. This is also interview flashcard #2.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf12"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf12)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>13 / 38</span><span class="bar" style="--p:0.3421"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide full">
+  <img class="bg" src="../assets/img/slides/d4-reflow.png" alt="Top row: curved paths and 1, 2, 4-step samples from the exact flow. Bottom row: straight paths after reflow give a crisp honeycomb in one step." style="padding:230px 80px 130px">
+  <div class="overlay"><div class="kicker">Reflow · rectified flow</div><h2>Straighten the paths, then take <em>one</em> step</h2></div>
+  <div class="caption"><b>Real:</b> bottom row is an MLP trained by flow matching on the top row's own (noise → sample) pairs. Bend = mean ‖ẋ − (x₁ − x₀)‖².</div>
+  <aside class="notes">Top: the exact flow (a perfectly trained network). One step collapses to the mean; two steps give a blob; four steps begin to show hexagons. Bottom: reflow. Run the top ODE to pair each noise point with the sample it produces, then train a new flow on those pairs. The new pairs don't cross, so the paths are nearly straight (bend 0.85 → 0.001) and one step gives a crisp honeycomb. Distillation and consistency models push the same idea further for real images. Trains on a laptop CPU.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf13"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf13)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>14 / 38</span><span class="bar" style="--p:0.3684"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide lab">
+  <div class="text">
+    <div class="labhead"><div class="hexnum"><div><small>LAB</small>4.1</div></div>
+      <div><div class="kicker">Hands-on · ⏱ 2 h</div><h2>Flow Matching From Scratch (Noise → Art in 2D)</h2></div></div>
+    <p class="blurb">The core idea behind modern image and video generators, in 2D where you can see everything. Train a velocity field, integrate an ODE from noise to data, then straighten the paths with reflow.</p>
+    <ul class="tight"><li>Trace the path from VAE to diffusion to flow matching</li><li>Train conditional flow matching with linear paths</li><li>Write Euler and Heun ODE samplers</li><li>Use reflow to get good few-step sampling</li><li>Compare against DDPM noise prediction</li></ul>
+    <div class="go"><a class="btnlike" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab10_flow_matching_2d.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <div class="chips"><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span></div></div>
+  </div>
+  <figure class="media"><img src="../assets/img/labs/lab10.png" alt="Noise particles flowing along learned trajectories into Buzz the Backprop Bee."><figcaption><b>What you'll build:</b> Noise particles flowing along learned trajectories into Buzz the Backprop Bee.</figcaption></figure>
+  <aside class="notes">Lab 4.1 (2 h). Have everyone open the notebook in Colab and run the setup cell while you introduce it. Objectives: Trace the path from VAE to diffusion to flow matching; Train conditional flow matching with linear paths; Write Euler and Heun ODE samplers; Use reflow to get good few-step sampling; Compare against DDPM noise prediction.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf14"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf14)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>15 / 38</span><span class="bar" style="--p:0.3947"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Training is <b>regression</b>. Sampling is <b>ODE solving</b>. Straighter paths, fewer steps.</p>
+  <p class="sub">DDPM, score models and flow matching are one family: a time-dependent field carrying noise to data. Flow matching just picks the <b>simplest path</b>.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf15"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf15)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>16 / 38</span><span class="bar" style="--p:0.4211"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">03</div>
+    <h2>Steering with <em>guidance</em></h2>
+    <p>One network, two predictions, and a knob that trades variety for fidelity.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d4-sec-guidance.png" alt="Trajectories from a shared noise cloud guided into three class clusters"></div>
+  <aside class="notes">Art: the same noise cloud, guided (w = 3) toward each of three classes with exact class-conditional flows. Each color is one condition.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf16"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf16)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>17 / 38</span><span class="bar" style="--p:0.4474"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Classifier-free guidance · Ho &amp; Salimans 2022</div>
+  <h2>Push away from <em>“anything”</em>, toward the prompt</h2>
+  <div class="equation sm" style="padding:20px 40px">$$\tilde\epsilon=(1+w)\,\epsilon_\theta(x,t,c)\;-\;w\,\epsilon_\theta(x,t,\varnothing)$$</div>
+  <figure class="media bare" style="margin-top:26px;min-height:0;flex:1"><img src="../assets/img/slides/d4-cfg-sweep.png" alt="Guidance scale sweep from w = -1 to 8 on a 3-class Gaussian mixture: samples move onto class triangle and bunch together"></figure>
+  <p class="small" style="margin:10px 0 0"><b>Exact</b> class-conditional flows of a Gaussian mixture; the same formula applied to velocities. Train with labels dropped ~10% of the time so one net learns both terms.</p>
+  <aside class="notes">Read the formula: w = 0 is the plain conditional model, w = −1 is unconditional. Larger w extrapolates away from the unconditional prediction. Left to right: on-class rate goes 33% → 90% → 100%, spread shrinks 0.99 → 0.34, and at w = 8 samples overshoot past the class mean: that's 2-D over-saturation. Label dropout (~10%) is what lets one network give both ε(x, c) and ε(x, ∅). Note: some papers write the scale as s = 1 + w.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf17"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf17)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>18 / 38</span><span class="bar" style="--p:0.4737"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Guidance is a <b>knob, not a dial</b>: every notch buys fidelity with diversity.</p>
+  <p class="sub">Tune w per model and per prompt. Max it out and samples over-saturate and lose variety. Lab 4.2 lets you feel it.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf18"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf18)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>19 / 38</span><span class="bar" style="--p:0.5000"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">04</div>
+    <h2>Scaling up: <em>latents &amp; DiT</em></h2>
+    <p>Compress the image, patchify the latent, hand it to a transformer.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d4-sec-patches.png" alt="The day's cover art cut into square patches, a few lifted out and outlined in honey"></div>
+  <aside class="notes">Art: this morning's cover cut into patches, a few lifted out as "tokens". That's literally what a DiT sees.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf19"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf19)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>20 / 38</span><span class="bar" style="--p:0.5263"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Latent diffusion · Rombach et al. 2022</div>
+  <h2>Anatomy of a <em>text-to-image</em> model</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 1664 420" role="img" aria-label="Latent diffusion pipeline: prompt to text encoder, noise latent to diffusion transformer, VAE decoder to image" style="width:100%;font-family:Inter,system-ui,sans-serif">
+      <defs><marker id="d4b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#463E33"/></marker></defs>
+      <g fill="none" stroke="#463E33" stroke-width="4" marker-end="url(#d4b)">
+        <path d="M300 95 L366 95"/><path d="M676 95 C 730 95, 730 160, 776 168"/><path d="M300 325 C 560 325, 700 270, 776 262"/>
+        <path d="M1196 215 L1246 215"/><path d="M1476 215 L1512 215"/>
+      </g>
+      <path d="M940 64 C 940 4, 1040 4, 1040 60" fill="none" stroke="#B98500" stroke-width="4" marker-end="url(#d4b)"/>
+      <text x="1060" y="36" font-size="26" font-weight="800" fill="#B98500">× N steps</text>
+      <rect x="0" y="35" width="300" height="120" rx="22" fill="#FFFDF4" stroke="#E0CE92" stroke-width="3"/>
+      <text x="150" y="88" text-anchor="middle" font-size="27" font-weight="700" fill="#1F1B16">“a bee wearing</text>
+      <text x="150" y="124" text-anchor="middle" font-size="27" font-weight="700" fill="#1F1B16">sunglasses”</text>
+      <rect x="370" y="35" width="306" height="120" rx="22" fill="#FFFDF4" stroke="#3D4DB7" stroke-width="4"/>
+      <text x="523" y="88" text-anchor="middle" font-size="29" font-weight="800" fill="#1F1B16">Text encoder</text>
+      <text x="523" y="126" text-anchor="middle" font-size="23" fill="#463E33">CLIP · T5 · an LLM</text>
+      <rect x="0" y="265" width="300" height="120" rx="22" fill="#FFFDF4" stroke="#E0CE92" stroke-width="3"/>
+      <text x="150" y="318" text-anchor="middle" font-size="29" font-weight="800" fill="#1F1B16">Noise latent</text>
+      <text x="150" y="356" text-anchor="middle" font-size="23" fill="#463E33" font-family="JetBrains Mono,monospace">128 × 128 × 16</text>
+      <rect x="780" y="70" width="416" height="290" rx="28" fill="#F5B700" stroke="#1F1B16" stroke-width="4"/>
+      <text x="988" y="168" text-anchor="middle" font-size="36" font-weight="800" fill="#1F1B16">Diffusion</text>
+      <text x="988" y="212" text-anchor="middle" font-size="36" font-weight="800" fill="#1F1B16">Transformer</text>
+      <text x="988" y="262" text-anchor="middle" font-size="24" fill="#3B2E10">patchify → blocks</text>
+      <text x="988" y="296" text-anchor="middle" font-size="24" fill="#3B2E10">predicts the velocity</text>
+      <rect x="1250" y="150" width="226" height="130" rx="22" fill="#FFFDF4" stroke="#1FA39A" stroke-width="4"/>
+      <text x="1363" y="206" text-anchor="middle" font-size="29" font-weight="800" fill="#1F1B16">VAE decoder</text>
+      <text x="1363" y="244" text-anchor="middle" font-size="23" fill="#463E33">latent → pixels</text>
+      <rect x="1516" y="130" width="148" height="170" rx="22" fill="#1F1B16"/>
+      <text x="1590" y="210" text-anchor="middle" font-size="52">🐝</text>
+      <text x="1590" y="262" text-anchor="middle" font-size="24" font-weight="700" fill="#F6EFD9">1024²</text>
+    </svg>
+  </div>
+  <div class="callout teal mt">Encode once, <b>8× smaller per side</b>: 1024² × 3 = 3.1 M numbers become 128² × 16 = 262 k. Every denoising step works on <b>~12× fewer numbers</b>; the decoder adds texture once at the end.</div>
+  <aside class="notes">Walk the pipeline. Prompt → text encoder gives conditioning tokens. Start from a noise latent, run the DiT N times (Euler/Heun on the velocity), decode once. The 16-channel latent matches SD3-style autoencoders; SD 1.x used 4 channels at 8× (64×64×4 for a 512² image). Pixels are mostly redundant high-frequency detail: spend compute on semantics, let the decoder handle texture. Video: same recipe with spacetime patches; add action conditioning and you get interactive world models.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf20"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf20)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>21 / 38</span><span class="bar" style="--p:0.5526"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-left media-wide">
+  <figure class="media dark"><img src="../assets/img/slides/d4-patchify.png" alt="A 32 by 32 latent cut into 2 by 2 patches, one row of which becomes 16 tokens"><figcaption><b>Patchify:</b> a 32×32 latent, p = 2 → 256 tokens (the DiT-XL/2 setup at 256²). A rendered honeycomb stands in for the latent.</figcaption></figure>
+  <div class="text">
+    <div class="kicker">DiT · Peebles &amp; Xie 2023</div>
+    <h2>The UNet becomes a <em>transformer</em></h2>
+    <ul class="tight">
+      <li>Patches → tokens → plain transformer blocks.</li>
+      <li><b>adaLN-Zero:</b> t and c set each block's scale, shift and gate; gates start at 0.</li>
+      <li>Scales like an LLM: more compute, better FID.</li>
+      <li><b>SD3:</b> rectified flow + MM-DiT, text and image tokens in one attention.</li>
+    </ul>
+  </div>
+  <aside class="notes">adaLN-Zero: an MLP maps the timestep (and class or pooled text) embedding to per-block γ, β and a gate α; the gate is initialized to zero, so each residual block starts as the identity, which stabilizes training. Peebles &amp; Xie showed FID improves steadily with Gflops, which is why everyone switched. SD3 (Esser et al. 2024) runs rectified flow with an MM-DiT whose text and image tokens attend to each other. Video models use spacetime patches.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf21"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf21)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>22 / 38</span><span class="bar" style="--p:0.5789"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Compress first, then denoise: <b>spend compute on meaning, not pixels.</b></p>
+  <p class="sub">The VAE handles texture. The DiT handles semantics, and it scales like the GPT you built yesterday.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf22"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf22)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>23 / 38</span><span class="bar" style="--p:0.6053"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide lab">
+  <div class="text">
+    <div class="labhead"><div class="hexnum"><div><small>LAB</small>4.2</div></div>
+      <div><div class="kicker">Hands-on · ⏱ 2 h</div><h2>Class-Conditional Generation with Classifier-Free Guidance</h2></div></div>
+    <p class="blurb">Train a small conditional UNet on MNIST, add label dropout, and turn the classifier-free guidance knob to see the quality vs. diversity trade-off appear in front of you.</p>
+    <ul class="tight"><li>Build a time- and class-conditioned UNet</li><li>Train with label dropout for CFG</li><li>Sweep guidance scales and compare sample grids</li><li>Make denoising filmstrips</li><li>Understand latent diffusion and DiT at a conceptual level</li></ul>
+    <div class="go"><a class="btnlike" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab11_diffusion_mnist_cfg.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <div class="chips"><span class="chip">🐝🐝🐝 spicy</span><span class="chip coral">⚡ GPU optional</span></div></div>
+  </div>
+  <figure class="media"><img src="../assets/img/labs/lab11.png" alt="Same noise, guidance w = 0, 1, 2: scribbles become crisp, class-correct digits."><figcaption><b>What you'll build:</b> Same noise, guidance w = 0, 1, 2: scribbles become crisp, class-correct digits.</figcaption></figure>
+  <aside class="notes">Lab 4.2 (2 h). Have everyone open the notebook in Colab and run the setup cell while you introduce it. Objectives: Build a time- and class-conditioned UNet; Train with label dropout for CFG; Sweep guidance scales and compare sample grids; Make denoising filmstrips; Understand latent diffusion and DiT at a conceptual level.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf23"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf23)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>24 / 38</span><span class="bar" style="--p:0.6316"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">05</div>
+    <h2>Pictures meet <em>words</em></h2>
+    <p>CLIP builds one space for images and text. VLMs read from it.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d4-sec-clip.png" alt="A glowing image-text similarity matrix with a bright diagonal"></div>
+  <aside class="notes">Art: the similarity matrix of 28 held-out image–caption pairs from the toy model on the next slide. The bright diagonal means each image found its own caption.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf24"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf24)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>25 / 38</span><span class="bar" style="--p:0.6579"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-wide" style="grid-template-columns:.66fr 1.34fr;gap:64px">
+  <div class="text">
+    <div class="kicker">CLIP · Radford et al. 2021</div>
+    <h2>Two towers, <em>one space</em></h2>
+    <ul class="tight">
+      <li>Image tower f, text tower g.</li>
+      <li><b>N</b> right pairs, <b>N²−N</b> wrong.</li>
+      <li>Softmax over rows <b>and</b> columns.</li>
+      <li><b>SigLIP:</b> one sigmoid per pair.</li>
+    </ul>
+  </div>
+  <figure class="media"><img src="../assets/img/slides/d4-clip-train.png" alt="Image-caption similarity matrices before and after contrastive training: the diagonal lights up"><figcaption><b>Real:</b> two small MLP towers trained with symmetric InfoNCE on synthetic paired features. Top-1 retrieval among 512 held-out pairs.</figcaption></figure>
+  <aside class="notes">The negatives are free: every other caption in the batch. Bigger batch = more and harder negatives, which is why CLIP used 32k. The temperature τ is learned (ours went from 0.07 to ~0.03). SigLIP (Zhai et al. 2023) scores each pair with an independent sigmoid, so it doesn't need a batch-wide softmax and scales better across devices. Lab 4.3 implements both losses.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf25"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf25)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>26 / 38</span><span class="bar" style="--p:0.6842"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Vision-language models · the LLaVA recipe</div>
+  <h2>How a VLM <em>sees</em></h2>
+  <div class="diagram">
+    <svg viewBox="0 0 1664 440" role="img" aria-label="Image to vision encoder to projector to LLM, with text tokens, producing an answer" style="width:100%;font-family:Inter,system-ui,sans-serif">
+      <defs><marker id="d4c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#463E33"/></marker></defs>
+      <g fill="none" stroke="#463E33" stroke-width="4" marker-end="url(#d4c)">
+        <path d="M200 140 L236 140"/><path d="M546 140 L586 140"/><path d="M766 140 L806 140"/><path d="M1056 140 L1110 140"/>
+        <path d="M1056 350 C 1090 350, 1090 260, 1110 236"/><path d="M1390 262 L1390 300"/>
+      </g>
+      <rect x="0" y="40" width="200" height="200" rx="24" fill="#FFE680" stroke="#1F1B16" stroke-width="4"/>
+      <text x="100" y="160" text-anchor="middle" font-size="84">🐝</text>
+      <text x="100" y="222" text-anchor="middle" font-size="23" font-weight="700" fill="#1F1B16">image</text>
+      <rect x="240" y="70" width="306" height="140" rx="22" fill="#FFFDF4" stroke="#9B5DE5" stroke-width="4"/>
+      <text x="393" y="130" text-anchor="middle" font-size="29" font-weight="800" fill="#1F1B16">Vision encoder</text>
+      <text x="393" y="170" text-anchor="middle" font-size="23" fill="#463E33">CLIP / SigLIP ViT</text>
+      <g fill="#9B5DE5" stroke="#FFFDF4" stroke-width="3">
+        <rect x="592" y="86" width="52" height="52" rx="8"/><rect x="652" y="86" width="52" height="52" rx="8" opacity=".8"/><rect x="712" y="86" width="52" height="52" rx="8" opacity=".6"/>
+        <rect x="592" y="146" width="52" height="52" rx="8" opacity=".7"/><rect x="652" y="146" width="52" height="52" rx="8"/><rect x="712" y="146" width="52" height="52" rx="8" opacity=".85"/>
+      </g>
+      <text x="678" y="236" text-anchor="middle" font-size="23" fill="#463E33">patch embeddings</text>
+      <rect x="810" y="70" width="246" height="140" rx="22" fill="#FFFDF4" stroke="#FF6B5B" stroke-width="4"/>
+      <text x="933" y="130" text-anchor="middle" font-size="29" font-weight="800" fill="#1F1B16">Projector</text>
+      <text x="933" y="170" text-anchor="middle" font-size="23" fill="#463E33">small MLP</text>
+      <rect x="540" y="296" width="516" height="110" rx="22" fill="#FFFDF4" stroke="#E0CE92" stroke-width="3"/>
+      <text x="798" y="340" text-anchor="middle" font-size="23" fill="#7A6E5A">text tokens</text>
+      <text x="798" y="382" text-anchor="middle" font-size="28" font-weight="700" fill="#1F1B16">“What is the bee doing?”</text>
+      <rect x="1114" y="40" width="550" height="222" rx="28" fill="#F5B700" stroke="#1F1B16" stroke-width="4"/>
+      <text x="1390" y="128" text-anchor="middle" font-size="44" font-weight="800" fill="#1F1B16">LLM</text>
+      <text x="1390" y="174" text-anchor="middle" font-size="24" fill="#3B2E10">visual tokens + text tokens,</text>
+      <text x="1390" y="206" text-anchor="middle" font-size="24" fill="#3B2E10">one sequence</text>
+      <rect x="1114" y="304" width="550" height="102" rx="22" fill="#1F1B16"/>
+      <text x="1389" y="366" text-anchor="middle" font-size="28" font-weight="700" fill="#F6EFD9">“Drinking nectar.”</text>
+    </svg>
+  </div>
+  <div class="callout indigo mt"><b>Zero-shot CLIP</b> needs no LLM: embed “a photo of a {class}” for every class and pick the nearest. Newer <b>natively multimodal</b> models train on interleaved image + text from the start.</div>
+  <aside class="notes">LLaVA-style: a pretrained vision encoder turns the image into patch embeddings, a small projector maps them into the LLM's embedding space, and the LLM reads them as "visual tokens" next to the text. Often only the projector (then the LLM) is trained. Zero-shot classification: prompt wording matters; ensembling several templates ("a photo of a…", "a blurry photo of a…") reliably helps. Ask: what would you change to make the VLM generate images too?</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf26"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf26)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>27 / 38</span><span class="bar" style="--p:0.7105"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide lab">
+  <div class="text">
+    <div class="labhead"><div class="hexnum"><div><small>LAB</small>4.3</div></div>
+      <div><div class="kicker">Hands-on · ⏱ 1.5 h</div><h2>Multimodal Magic: Contrastive Learning &amp; CLIP</h2></div></div>
+    <p class="blurb">Implement the InfoNCE loss and watch a tiny two-tower model align images with text, then use a pretrained CLIP for zero-shot classification, prompt ensembling and retrieval.</p>
+    <ul class="tight"><li>Implement symmetric InfoNCE (the CLIP loss)</li><li>Train a toy two-tower model</li><li>Classify zero-shot with prompt engineering</li><li>Retrieve images and text from a shared embedding space</li><li>Implement the SigLIP sigmoid loss</li></ul>
+    <div class="go"><a class="btnlike" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab12_clip_multimodal.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <div class="chips"><span class="chip">🐝🐝 intermediate</span><span class="chip teal">💻 runs on CPU</span></div></div>
+  </div>
+  <figure class="media"><img src="../assets/img/labs/lab12.png" alt="CLIP text-to-image search: &quot;a red car&quot;, &quot;antlers&quot;, &quot;a ship on the water&quot;."><figcaption><b>What you'll build:</b> CLIP text-to-image search: &quot;a red car&quot;, &quot;antlers&quot;, &quot;a ship on the water&quot;.</figcaption></figure>
+  <aside class="notes">Lab 4.3 (1.5 h). Have everyone open the notebook in Colab and run the setup cell while you introduce it. Objectives: Implement symmetric InfoNCE (the CLIP loss); Train a toy two-tower model; Classify zero-shot with prompt engineering; Retrieve images and text from a shared embedding space; Implement the SigLIP sigmoid loss.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf27"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf27)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>28 / 38</span><span class="bar" style="--p:0.7368"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Contrastive learning turns classification into <b>retrieval</b>: name the class in words, pick the nearest.</p>
+  <p class="sub">The negatives are free: every other pair in the batch. That shared space is also how text steers an image generator.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf28"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf28)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>29 / 38</span><span class="bar" style="--p:0.7632"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide myth">
+  <div class="kicker">Myth buster · 1/3</div>
+  <div class="mvr"><div class="m"><span>✗ MYTH</span><p>Diffusion models need hundreds of steps.</p></div><div class="r"><span>✓ REALITY</span><p>Distillation, consistency models and straighter flows bring high-quality sampling down to 1–4 steps.</p></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf29"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf29)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>30 / 38</span><span class="bar" style="--p:0.7895"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide myth">
+  <div class="kicker">Myth buster · 2/3</div>
+  <div class="mvr"><div class="m"><span>✗ MYTH</span><p>Higher guidance is always better.</p></div><div class="r"><span>✓ REALITY</span><p>Large w over-saturates images and collapses diversity. It's a knob to tune, not a dial to max out.</p></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf30"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf30)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>31 / 38</span><span class="bar" style="--p:0.8158"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide myth">
+  <div class="kicker">Myth buster · 3/3</div>
+  <div class="mvr"><div class="m"><span>✗ MYTH</span><p>VAEs are obsolete.</p></div><div class="r"><span>✓ REALITY</span><p>VAEs are the compressor inside most latent diffusion systems. They're still doing important work.</p></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf31"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf31)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>32 / 38</span><span class="bar" style="--p:0.8421"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">💼 Interview corner · 1/2</div>
+  <h2>Could you answer these <em>out loud?</em></h2>
+  <div class="qa"><div class="q"><i>Q1</i><div><h3>What's the conditional flow-matching regression target?</h3><div class="a f">The straight-path velocity x₁ − x₀ (data minus noise) at the point x<sub>t</sub> = (1−t)x₀ + t x₁.</div></div></div><div class="q"><i>Q2</i><div><h3>Why does 1-step sampling land on the data mean?</h3><div class="a f">At t = 0 the noisy point carries no information about its destination, so the optimal velocity points to E[x₁].</div></div></div><div class="q"><i>Q3</i><div><h3>What does label dropout enable?</h3><div class="a f">One network learns both conditional and unconditional predictions, which is what classifier-free guidance needs.</div></div></div></div>
+  <aside class="notes">Cold-call or pair-share. Each click reveals the next answer.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf32"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf32)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>33 / 38</span><span class="bar" style="--p:0.8684"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">💼 Interview corner · 2/2</div>
+  <h2>Could you answer these <em>out loud?</em></h2>
+  <div class="qa"><div class="q"><i>Q4</i><div><h3>Where do CLIP's negatives come from?</h3><div class="a f">The other N−1 pairs in the batch. Bigger batches give more and harder negatives.</div></div></div><div class="q"><i>Q5</i><div><h3>What did DiT replace?</h3><div class="a f">The UNet denoiser, with a plain transformer over patches of the latent. It scales predictably, like LLMs.</div></div></div><div class="q"><i>Q6</i><div><h3>What does reflow do?</h3><div class="a f">It re-pairs noise with the model's own outputs and retrains, which straightens trajectories so few-step sampling works.</div></div></div></div>
+  <aside class="notes">Cold-call or pair-share. Each click reveals the next answer.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf33"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf33)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>34 / 38</span><span class="bar" style="--p:0.8947"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Day 4 · formula sheet</div>
+  <h2>Six equations worth <em>memorizing</em></h2>
+  <div class="cards eqcards"><div class="card"><h4>ELBO</h4><div class="eqsm">$$\log p(x) \ge \mathbb{E}_q[\log p(x|z)] - \mathrm{KL}(q(z|x)\|p(z))$$</div></div><div class="card"><h4>DDPM loss</h4><div class="eqsm">$$\|\epsilon - \epsilon_\theta(\sqrt{\bar\alpha_t}x_0 + \sqrt{1-\bar\alpha_t}\epsilon, t)\|^2$$</div></div><div class="card"><h4>Flow matching</h4><div class="eqsm">$$\|v_\theta(x_t,t) - (x_1 - x_0)\|^2,\ x_t=(1-t)x_0+tx_1$$</div></div><div class="card"><h4>Sampling ODE</h4><div class="eqsm">$$dx/dt = v_\theta(x,t),\ t: 0\to 1$$</div></div><div class="card"><h4>CFG</h4><div class="eqsm">$$(1+w)\,\epsilon_\theta(x,c) - w\,\epsilon_\theta(x,\varnothing)$$</div></div><div class="card"><h4>InfoNCE</h4><div class="eqsm">$$-\log \frac{e^{s_{ii}/\tau}}{\sum_j e^{s_{ij}/\tau}}$$</div></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf34"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf34)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>35 / 38</span><span class="bar" style="--p:0.9211"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide recap">
+  <div class="kicker">Day 4 · the honey jar · 1/2</div>
+  <h2>🍯 What to <em>remember</em></h2>
+  <ol class="jar" style="counter-reset: j 0"><li><div>Diffusion, score models and flow matching are one family: a time-dependent field that carries a simple distribution to the data distribution.</div></li><li><div>Flow-matching loss: regress v<sub>θ</sub>(x<sub>t</sub>, t) onto x₁ − x₀. Training needs no simulation and is about as simple as it gets.</div></li><li><div>Sampling is ODE solving. Fewer steps are faster but blurrier; reflow and distillation fix that.</div></li><li><div><b>Classifier-free guidance</b> trades diversity for fidelity: (1+w)·conditional − w·unconditional.</div></li></ol>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf35"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf35)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>36 / 38</span><span class="bar" style="--p:0.9474"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide recap">
+  <div class="kicker">Day 4 · the honey jar · 2/2</div>
+  <h2>🍯 What to <em>remember</em></h2>
+  <ol class="jar" style="counter-reset: j 4"><li><div>Latent diffusion + diffusion transformers (DiT) are the scalable recipe for images and video.</div></li><li><div>CLIP's contrastive loss builds a shared image–text space, which gives you zero-shot classification and retrieval.</div></li><li><div>Vision-language models feed vision-encoder tokens into an LLM through a small projector.</div></li></ol>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf36"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf36)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>37 / 38</span><span class="bar" style="--p:0.9737"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide cover nofoot">
+  <img class="bg" src="../assets/img/cover-day5.png" alt="">
+  <div class="badge"><div><small>NEXT</small>5</div></div>
+  <div class="kicker">Tomorrow · Day 5 · Friday</div>
+  <h1>Now make it <em>think.</em></h1>
+  <p class="lede">You can generate worlds. Tomorrow: fine-tune with LoRA, align with DPO, teach reasoning with GRPO, and wire up agents.</p>
+  <div class="chips"><span class="chip honey">🧠 reasoning</span><span class="chip">🎯 GRPO</span><span class="chip">🤖 agents &amp; MCP</span><span class="chip">🔬 SAEs</span><span class="chip">🏆 Demo Day</span></div>
+  <aside class="notes">Gallery walk now: pin your weirdest digit. Tomorrow ends with Hive Demo Day, so start thinking about which lab to extend. 🐝</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf37"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf37)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 4 · Generative</span><span>38 / 38</span><span class="bar" style="--p:1.0000"><i></i></span></footer></section></div>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script defer src="../assets/js/deck.js?v=1e9ee455"></script>
+</body>
+</html>

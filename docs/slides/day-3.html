@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 3 · Transformers &amp; Beyond · Slides · Gradient Hive</title>
+<meta name="description" content="Attention from first principles, the modern Llama-style block, then the engineering that makes it fast (KV cache, speculation, sampling) and the architectures challenging dense attention (MoE, Mamba).">
+<meta property="og:image" content="../assets/img/og-image.png">
+<meta name="theme-color" content="#16130E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2064%2064%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22bbi%22%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpolygon%20points%3D%2232%2C2%2058%2C17%2058%2C47%2032%2C62%206%2C47%206%2C17%22%20fill%3D%22%23F5B700%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%3Cellipse%20cx%3D%2228%22%20cy%3D%2222%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%28-20%2028%2022%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2239%22%20cy%3D%2221%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%2818%2039%2021%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22%23FFE680%22/%3E%3Cg%20clip-path%3D%22url%28%23bbi%29%22%20fill%3D%22%231F1B16%22%3E%3Crect%20x%3D%2229%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2224%22%20width%3D%226%22%20height%3D%2226%22/%3E%3C/g%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%231F1B16%22/%3E%3Ccircle%20cx%3D%2215.5%22%20cy%3D%2233%22%20r%3D%222.4%22%20fill%3D%22%23FFFDF4%22/%3E%3Cpath%20d%3D%22M14%2028%20Q10%2020%207%2021%20M20%2027%20Q20%2019%2016%2017%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M50%2037%20l6%200%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="../assets/css/deck.css?v=f748804a">
+</head>
+<body data-home="../slides.html">
+<div class="stage">
+<div class="frame"><section class="slide cover nofoot">
+  <img class="bg" src="../assets/img/cover-day3.png" alt="">
+  <div class="badge"><div><small>DAY</small>3</div></div>
+  <div class="kicker">Day 3 · Wednesday</div>
+  <h1>Transformers <em>&amp; beyond.</em></h1>
+  <p class="lede">Build the block behind nearly every frontier model, then make it fast, and meet the architectures trying to replace it.</p>
+  <div class="chips"><span class="chip honey">3 labs</span><span class="chip">🔦 attention</span><span class="chip">🌀 RoPE</span><span class="chip">⚡ KV cache</span><span class="chip">🧩 MoE</span><span class="chip">🐍 Mamba</span></div>
+  <aside class="notes">Good morning. Today is the day most people came for. While people settle: open Lab 3.1 in Colab and run the setup cell (it downloads Tiny Shakespeare). Warm-up: yesterday's optimizer quiz rematch, 5 minutes.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf0"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf0)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>1 / 38</span><span class="bar" style="--p:0.0263"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide statement night">
+  <div class="kicker">A puzzle to carry all day</div>
+  <p class="big md">Your GPU can do ~1,000 trillion FLOPs a second. Writing one token at a time, it uses <em>under 1%</em> of that.</p>
+  <p class="by">Why? By this afternoon you'll know, and you'll have built three of the tricks that win it back. 🐝</p>
+  <aside class="notes">Ask the room to guess why before moving on. Collect 2–3 answers (common: "the model is too small", "Python overhead"). The real answer is memory bandwidth; we prove it with the roofline in Part 3. The number: batch-1 decode on an H100-class GPU has ~1 FLOP per byte of weights read, so ~3.35 TFLOP/s out of ~989, about 0.3%.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf1"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf1)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>2 / 38</span><span class="bar" style="--p:0.0526"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Today's flight plan</div>
+  <h2>Write the block, then make it <em>fly</em></h2>
+  <div class="agenda">
+    <div class="slot"><span class="t">09:15</span><div><b>Attention &amp; the modern block</b><span class="d">QKV, masks, heads, RoPE, RMSNorm, SwiGLU, GQA</span></div><span class="chip">lecture</span></div>
+    <div class="slot lab"><span class="t">10:15</span><div><b>Lab 3.1 · A modern GPT from scratch</b><span class="d">A Llama-style model trained on Shakespeare</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">13:15</span><div><b>Inference engineering &amp; new architectures</b><span class="d">KV cache, speculation, sampling, MoE, SSMs</span></div><span class="chip">lecture</span></div>
+    <div class="slot lab"><span class="t">14:00</span><div><b>Lab 3.2 · Inference engineering</b><span class="d">Make generation fast and good</span></div><span class="chip teal">lab</span></div>
+    <div class="slot lab"><span class="t">15:30</span><div><b>Lab 3.3 · MoE &amp; SSMs</b><span class="d">Routing, load balancing, selective scans</span></div><span class="chip teal">lab</span></div>
+    <div class="slot fun"><span class="t">16:45</span><div><b>🎭 Shakespeare slam + capstone pitches</b><span class="d">Your model's best sonnet; form capstone teams</span></div><span class="chip plum">fun</span></div>
+  </div>
+  <aside class="notes">A modern LLM is surprisingly simple: embed tokens, N identical blocks, predict the next token. Nearly ten years of progress went into the details inside each block and the engineering around generation. Today they write all of it.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf2"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf2)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>3 / 38</span><span class="bar" style="--p:0.0789"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">01</div>
+    <h2>Attention from <em>first principles</em></h2>
+    <p>A soft, differentiable dictionary lookup.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d3-art-causal.png" alt="A causal attention matrix of three blended heads"></div>
+  <aside class="notes">The art: three real causal attention heads on a sequence with a repeated segment, blended. Honey = a RoPE local head (the bright diagonal), coral = an attention-sink head (first column), teal = induction-style stripes where the repeated segment matches. Everything above the diagonal is masked: no peeking at the future.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf3"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf3)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>4 / 38</span><span class="bar" style="--p:0.1053"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-wide">
+  <div class="text">
+    <div class="kicker">The intuition</div>
+    <h2>Every token <em>asks</em>; earlier tokens answer</h2>
+    <ul>
+      <li><b style="color:#E0523F">query</b>: what am I looking for?</li>
+      <li><b style="color:#3D4DB7">key</b>: what do I contain?</li>
+      <li><b style="color:#16867E">value</b>: what I hand over if chosen</li>
+    </ul>
+    <p class="small">The output is an average of values, weighted by how well the query matches each key.</p>
+  </div>
+  <div class="diagram">
+    <svg viewBox="0 0 820 780" width="820" role="img" aria-label="A query compared with four keys; weights mix four values" style="font-family:Inter,system-ui,sans-serif">
+      <defs><marker id="qa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#463E33"/></marker></defs>
+      <rect x="250" y="16" width="320" height="84" rx="20" fill="#FF6B5B"/>
+      <text x="410" y="70" text-anchor="middle" font-size="32" font-weight="800" fill="#FFFDF4">query · "it"</text>
+      <g stroke="#FF6B5B" stroke-linecap="round" fill="none" opacity=".85">
+        <path d="M410 100 C 380 130, 300 140, 262 172" stroke-width="3"/>
+        <path d="M410 100 C 380 170, 300 230, 262 272" stroke-width="12"/>
+        <path d="M410 100 C 390 210, 300 330, 262 372" stroke-width="3.5"/>
+        <path d="M410 100 C 400 250, 300 430, 262 472" stroke-width="6"/>
+      </g>
+      <g font-size="30" font-weight="700" fill="#1F1B16">
+        <text x="30" y="210">The</text><text x="30" y="310">bee</text><text x="30" y="410">found</text><text x="30" y="510">nectar</text>
+      </g>
+      <g fill="#3D4DB7"><rect x="170" y="172" width="92" height="56" rx="14"/><rect x="170" y="272" width="92" height="56" rx="14"/><rect x="170" y="372" width="92" height="56" rx="14"/><rect x="170" y="472" width="92" height="56" rx="14"/></g>
+      <g font-size="28" font-weight="800" fill="#FFFDF4" text-anchor="middle"><text x="216" y="210">k</text><text x="216" y="310">k</text><text x="216" y="410">k</text><text x="216" y="510">k</text></g>
+      <g fill="#F5B700" stroke="#1F1B16" stroke-width="2"><rect x="300" y="182" width="16" height="36" rx="6"/><rect x="300" y="282" width="248" height="36" rx="6"/><rect x="300" y="382" width="32" height="36" rx="6"/><rect x="300" y="482" width="100" height="36" rx="6"/></g>
+      <g font-size="26" font-weight="700" fill="#463E33"><text x="330" y="210">0.04</text><text x="562" y="310">0.62</text><text x="346" y="410">0.08</text><text x="414" y="510">0.25</text></g>
+      <g fill="#1FA39A"><rect x="660" y="172" width="92" height="56" rx="14"/><rect x="660" y="272" width="92" height="56" rx="14"/><rect x="660" y="372" width="92" height="56" rx="14"/><rect x="660" y="472" width="92" height="56" rx="14"/></g>
+      <g font-size="28" font-weight="800" fill="#FFFDF4" text-anchor="middle"><text x="706" y="210">v</text><text x="706" y="310">v</text><text x="706" y="410">v</text><text x="706" y="510">v</text></g>
+      <g stroke="#1FA39A" stroke-linecap="round" fill="none" opacity=".85">
+        <path d="M706 228 C 790 300, 760 560, 640 640" stroke-width="2.5"/>
+        <path d="M706 328 C 780 400, 760 580, 640 650" stroke-width="12"/>
+        <path d="M706 428 C 760 480, 740 600, 640 660" stroke-width="3"/>
+        <path d="M706 528 C 740 570, 720 640, 640 668" stroke-width="6"/>
+      </g>
+      <rect x="170" y="610" width="470" height="90" rx="20" fill="#FFFDF4" stroke="#1F1B16" stroke-width="3"/>
+      <text x="405" y="667" text-anchor="middle" font-size="32" font-weight="800" fill="#1F1B16">output = Σ wᵢ · vᵢ</text>
+      <text x="410" y="760" text-anchor="middle" font-size="24" fill="#7A6E5A">weights w = softmax(q·k / √d) · illustrative values</text>
+    </svg>
+  </div>
+  <aside class="notes">Walk the picture top to bottom. "it" emits a query. Each earlier token advertises a key. The dot products go through a softmax and become weights (here "bee" wins, 0.62). The output is the weighted mix of the values. Every step is differentiable, which is why it trains. Ask: what would a one-hot weight vector turn this into? (A hard dictionary lookup.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf4"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf4)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>5 / 38</span><span class="bar" style="--p:0.1316"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide eq">
+  <div class="kicker">Scaled dot-product attention · Vaswani et al. 2017</div>
+  <h2>The whole idea in <em>one line</em></h2>
+  <div class="equation">$$\mathrm{Attention}(Q,K,V) = \mathrm{softmax}\!\Big(\frac{QK^\top}{\sqrt{d_k}} + M\Big)\,V$$</div>
+  <div class="terms">
+    <div class="term coral"><b>QKᵀ</b>Every query against every key: a T×T score matrix.</div>
+    <div class="term honey"><b>√d<sub>k</sub></b>Keeps logits at unit variance so softmax still has gradients.</div>
+    <div class="term indigo"><b>M</b>Causal mask: 0 on the past, −∞ on the future.</div>
+    <div class="term teal"><b>V</b>The weights mix the values into the output.</div>
+  </div>
+  <aside class="notes">This line is the entire attention operation. Multi-head attention runs it H times on smaller projections and concatenates the results. The mask M is what makes a decoder a language model: token i can only read tokens 0..i, so one forward pass trains on every next-token prediction at once.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf5"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf5)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>6 / 38</span><span class="bar" style="--p:0.1579"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-left">
+  <figure class="media"><img src="../assets/img/slides/d3-sqrt-dk.png" alt="Max attention weight and softmax gradient size vs head dimension, with and without scaling"><figcaption><b>Computed:</b> one random query vs 64 random keys, 400 trials per d<sub>k</sub>.</figcaption></figure>
+  <div class="text">
+    <div class="kicker">Why divide by √d<sub>k</sub>?</div>
+    <h2>Big dot products <em>freeze</em> the softmax</h2>
+    <ul>
+      <li>Unit-variance q, k ⇒ Var(q·k) = d<sub>k</sub></li>
+      <li>Large logits ⇒ softmax goes one-hot</li>
+      <li>One-hot softmax ⇒ gradient ≈ 0</li>
+      <li>Divide by √d<sub>k</sub>: variance back to 1</li>
+    </ul>
+  </div>
+  <aside class="notes">Both curves are computed, not sketched. Unscaled, by d_k = 2048 the top key gets ~97% of the weight and the softmax Jacobian has nearly vanished, so nothing upstream learns. Scaled, both stay flat at every width. Lab 3.1, Part 2 reproduces the top panel. Ask: what happens if you divide by d_k instead of √d_k? (Logits shrink with width; attention becomes nearly uniform.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf6"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf6)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>7 / 38</span><span class="bar" style="--p:0.1842"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Causal self-attention · PyTorch</div>
+  <h2>Twelve lines you'll write <em>before lunch</em></h2>
+  <div class="codewin"><pre><code class="language-python">import math, torch
+
+def causal_self_attention(x, W_qkv, W_o, n_heads):
+    B, T, C = x.shape
+    q, k, v = (x @ W_qkv).split(C, dim=-1)               # three projections, one matmul
+    # (B, T, C) -> (B, heads, T, head_dim): heads become a batch dimension
+    q, k, v = [t.view(B, T, n_heads, C // n_heads).transpose(1, 2) for t in (q, k, v)]
+    att = (q @ k.transpose(-2, -1)) / math.sqrt(k.size(-1))  # (B, h, T, T) scores
+    future = torch.triu(torch.ones(T, T, dtype=torch.bool), diagonal=1)
+    att = att.masked_fill(future, float("-inf"))         # no peeking ahead
+    y = att.softmax(dim=-1) @ v                          # weighted sum of values
+    return y.transpose(1, 2).reshape(B, T, C) @ W_o      # concat heads, project</code></pre></div>
+  <p class="small mt">In production: <code>F.scaled_dot_product_attention(q, k, v, is_causal=True)</code> computes the same result with a FlashAttention kernel.</p>
+  <aside class="notes">Point out: multi-head is just a reshape. One big QKV matmul, heads become a batch dimension, then concatenate and project. In Lab 3.1 they check their version against F.scaled_dot_product_attention to 1e-6. FlashAttention gives the exact same output; it just never materializes the T×T matrix in GPU main memory.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf7"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf7)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>8 / 38</span><span class="bar" style="--p:0.2105"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Attention is a <b>soft dictionary lookup</b>: every token asks, every earlier token answers.</p>
+  <p class="sub">Queries ask, keys advertise, values deliver. Scale by √d<sub>k</sub> so it stays trainable; mask the future so training is honest.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf8"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf8)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>9 / 38</span><span class="bar" style="--p:0.2368"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">02</div>
+    <h2>The modern block, <em>2017 → 2026</em></h2>
+    <p>One block, stacked dozens of times. The progress is in the details.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d3-art-rope.png" alt="RoPE rotation angles for 32 frequency pairs over 400 positions"></div>
+  <aside class="notes">The art is RoPE: each ring is one of the 32 dimension pairs of a 64-dim head, and the dots are the rotation angle m·θᵢ for positions m = 0..399. Inner pairs spin fast and wrap around many times; outer pairs barely move. That's a bank of clocks running at different speeds.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf9"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf9)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>10 / 38</span><span class="bar" style="--p:0.2632"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">The Llama-style decoder block</div>
+  <h2>Pre-norm: read a <em>normalized copy</em>, add back</h2>
+  <div class="diagram" style="margin-top:-6px">
+    <svg viewBox="0 0 1640 560" width="1640" role="img" aria-label="Pre-norm transformer block: RMSNorm, attention, add; RMSNorm, SwiGLU MLP, add" style="font-family:Inter,system-ui,sans-serif">
+      <defs><marker id="ba" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#463E33"/></marker>
+        <marker id="bh" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#D9A000"/></marker></defs>
+      <line x1="40" y1="290" x2="1580" y2="290" stroke="#F5B700" stroke-width="22" stroke-linecap="round" marker-end="url(#bh)"/>
+      <text x="40" y="350" font-size="26" font-weight="700" fill="#7A6E5A">residual stream x</text>
+      <g fill="none" stroke="#463E33" stroke-width="4" marker-end="url(#ba)">
+        <path d="M150 278 L150 120 L196 120"/><path d="M400 120 L446 120"/><path d="M880 120 L930 120 L930 254"/>
+        <path d="M990 302 L990 460 L1026 460"/><path d="M1210 460 L1246 460"/><path d="M1430 460 L1500 460 L1500 326"/>
+      </g>
+      <rect x="200" y="78" width="200" height="84" rx="18" fill="#FFFDF4" stroke="#1F1B16" stroke-width="3"/>
+      <text x="300" y="131" text-anchor="middle" font-size="30" font-weight="800" fill="#1F1B16">RMSNorm</text>
+      <rect x="450" y="50" width="430" height="140" rx="22" fill="#3D4DB7"/>
+      <text x="665" y="108" text-anchor="middle" font-size="34" font-weight="800" fill="#FFFDF4">Causal self-attention</text>
+      <text x="665" y="152" text-anchor="middle" font-size="25" fill="#E3E6FA">RoPE on q, k · GQA · FlashAttention</text>
+      <circle cx="930" cy="290" r="36" fill="#1F1B16"/><text x="930" y="303" text-anchor="middle" font-size="40" font-weight="800" fill="#F5B700">+</text>
+      <rect x="1030" y="418" width="180" height="84" rx="18" fill="#FFFDF4" stroke="#1F1B16" stroke-width="3"/>
+      <text x="1120" y="471" text-anchor="middle" font-size="30" font-weight="800" fill="#1F1B16">RMSNorm</text>
+      <rect x="1250" y="390" width="180" height="140" rx="22" fill="#FF6B5B"/>
+      <text x="1340" y="450" text-anchor="middle" font-size="32" font-weight="800" fill="#FFFDF4">SwiGLU</text>
+      <text x="1340" y="490" text-anchor="middle" font-size="24" fill="#FFF0EC">MLP or MoE</text>
+      <circle cx="1500" cy="290" r="36" fill="#1F1B16"/><text x="1500" y="303" text-anchor="middle" font-size="40" font-weight="800" fill="#F5B700">+</text>
+      <text x="40" y="450" font-size="26" fill="#463E33"><tspan font-weight="800">RMSNorm</tspan>: x / rms(x) · g</text>
+      <text x="40" y="492" font-size="26" fill="#463E33">(no mean, no bias: cheaper)</text>
+      <text x="1640" y="40" font-size="26" fill="#463E33" text-anchor="end"><tspan font-weight="800">SwiGLU</tspan>: W₂(SiLU(W₁x) ⊙ W₃x)</text>
+      <rect x="560" y="420" width="300" height="66" rx="33" fill="#1F1B16"/>
+      <text x="710" y="464" text-anchor="middle" font-size="28" font-weight="800" fill="#F5B700">× N layers</text>
+    </svg>
+  </div>
+  <aside class="notes">Original 2017 / GPT-2 → 2024–26 open LLMs: learned/sinusoidal positions → RoPE; post-norm LayerNorm → pre-norm RMSNorm (cheaper, stable for deep stacks); GELU 4× MLP → SwiGLU at ≈8/3× width (gated units score better per FLOP); one KV head per query head → GQA or latent attention (MLA); naive attention → FlashAttention; dense FFN → often mixture-of-experts. Pre-norm means the residual stream is never normalized in place, so gradients have a clean identity path through all N layers. Ask: in SwiGLU, which branch is the gate?</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf10"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf10)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>11 / 38</span><span class="bar" style="--p:0.2895"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-left">
+  <figure class="media"><img src="../assets/img/slides/d3-rope-toeplitz.png" alt="Heat map of RoPE scores across query and key positions, constant along diagonals"><figcaption><b>Computed:</b> real RoPE on a 64-dim head. Bottom: score vs offset.</figcaption></figure>
+  <div class="text">
+    <div class="kicker">RoPE · Su et al. 2021</div>
+    <h2>Positions as <em>rotations</em></h2>
+    <p>Rotate each 2-D pair of q and k by angle m·θ<sub>i</sub>, with θ<sub>i</sub> = 10000<sup>−2i/d</sup>.</p>
+    <div class="equation sm" style="font-size:40px;padding:22px 30px;margin-bottom:30px">$$\langle R_m q,\ R_n k\rangle = \langle q,\ R_{n-m}\,k\rangle$$</div>
+    <ul class="tight">
+      <li>Scores depend only on the <b>offset</b></li>
+      <li>Fast pairs: local order. Slow pairs: long range</li>
+    </ul>
+  </div>
+  <aside class="notes">Rotations preserve length and compose, so the score is a function of n − m only: the heat map is constant along every diagonal. No parameters are added. Context-extension tricks (Position Interpolation, NTK-aware scaling, YaRN) all work by changing the θᵢ frequencies. Lab 3.1 visualizes this exactly.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf11"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf11)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>12 / 38</span><span class="bar" style="--p:0.3158"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide quiz">
+  <div class="kicker">Quick check · RoPE</div>
+  <h2>With RoPE, the score between positions m and n depends on…</h2>
+  <div class="opts">
+    <div class="opt" data-l="A">m only</div>
+    <div class="opt" data-l="B">m + n</div>
+    <div class="opt" data-l="C" data-correct>only the offset n − m (plus the content)</div>
+    <div class="opt" data-l="D">nothing: RoPE removes position information</div>
+  </div>
+  <p class="explain f" data-slide-class="answered"><b>C.</b> Rotations compose: (R<sub>m</sub>q)·(R<sub>n</sub>k) = q·(R<sub>n−m</sub>k). Relative position falls out for free.</p>
+  <aside class="notes">Show of hands, then reveal. Follow-up: so why does a model trained on 4k tokens still struggle at 32k? (It never saw the slow pairs rotate that far; the frequencies need rescaling.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf12"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf12)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>13 / 38</span><span class="bar" style="--p:0.3421"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split">
+  <div class="text">
+    <div class="kicker">Grouped-query attention</div>
+    <h2>Share K and V across <em>query heads</em></h2>
+    <ul>
+      <li>Every query head stays</li>
+      <li>Each K/V head serves a group</li>
+      <li>KV cache shrinks by H<sub>q</sub> / H<sub>kv</sub>, often 4–8×</li>
+      <li>Quality close to full multi-head</li>
+    </ul>
+  </div>
+  <div class="diagram">
+    <svg viewBox="0 0 800 760" width="800" role="img" aria-label="MHA, GQA and MQA: eight query heads sharing eight, two or one key-value heads" style="font-family:Inter,system-ui,sans-serif">
+      <g font-size="34" font-weight="800" fill="#1F1B16"><text x="10" y="132">MHA</text><text x="10" y="382">GQA</text><text x="10" y="632">MQA</text></g>
+      <g font-size="24" fill="#7A6E5A"><text x="10" y="168">8 KV · 1×</text><text x="10" y="418">2 KV · ¼</text><text x="10" y="668">1 KV · ⅛</text></g>
+      <!-- MHA -->
+      <g stroke="#463E33" stroke-width="3"><line x1="225" y1="62" x2="225" y2="150"/><line x1="295" y1="62" x2="295" y2="150"/><line x1="365" y1="62" x2="365" y2="150"/><line x1="435" y1="62" x2="435" y2="150"/><line x1="505" y1="62" x2="505" y2="150"/><line x1="575" y1="62" x2="575" y2="150"/><line x1="645" y1="62" x2="645" y2="150"/><line x1="715" y1="62" x2="715" y2="150"/></g>
+      <g fill="#FF6B5B"><circle cx="225" cy="50" r="24"/><circle cx="295" cy="50" r="24"/><circle cx="365" cy="50" r="24"/><circle cx="435" cy="50" r="24"/><circle cx="505" cy="50" r="24"/><circle cx="575" cy="50" r="24"/><circle cx="645" cy="50" r="24"/><circle cx="715" cy="50" r="24"/></g>
+      <g fill="#3D4DB7"><rect x="201" y="140" width="48" height="48" rx="10"/><rect x="271" y="140" width="48" height="48" rx="10"/><rect x="341" y="140" width="48" height="48" rx="10"/><rect x="411" y="140" width="48" height="48" rx="10"/><rect x="481" y="140" width="48" height="48" rx="10"/><rect x="551" y="140" width="48" height="48" rx="10"/><rect x="621" y="140" width="48" height="48" rx="10"/><rect x="691" y="140" width="48" height="48" rx="10"/></g>
+      <!-- GQA -->
+      <g stroke="#463E33" stroke-width="3"><line x1="225" y1="312" x2="330" y2="400"/><line x1="295" y1="312" x2="330" y2="400"/><line x1="365" y1="312" x2="330" y2="400"/><line x1="435" y1="312" x2="330" y2="400"/><line x1="505" y1="312" x2="610" y2="400"/><line x1="575" y1="312" x2="610" y2="400"/><line x1="645" y1="312" x2="610" y2="400"/><line x1="715" y1="312" x2="610" y2="400"/></g>
+      <g fill="#FF6B5B"><circle cx="225" cy="300" r="24"/><circle cx="295" cy="300" r="24"/><circle cx="365" cy="300" r="24"/><circle cx="435" cy="300" r="24"/><circle cx="505" cy="300" r="24"/><circle cx="575" cy="300" r="24"/><circle cx="645" cy="300" r="24"/><circle cx="715" cy="300" r="24"/></g>
+      <g fill="#3D4DB7"><rect x="296" y="390" width="68" height="56" rx="12"/><rect x="576" y="390" width="68" height="56" rx="12"/></g>
+      <!-- MQA -->
+      <g stroke="#463E33" stroke-width="3"><line x1="225" y1="562" x2="470" y2="650"/><line x1="295" y1="562" x2="470" y2="650"/><line x1="365" y1="562" x2="470" y2="650"/><line x1="435" y1="562" x2="470" y2="650"/><line x1="505" y1="562" x2="470" y2="650"/><line x1="575" y1="562" x2="470" y2="650"/><line x1="645" y1="562" x2="470" y2="650"/><line x1="715" y1="562" x2="470" y2="650"/></g>
+      <g fill="#FF6B5B"><circle cx="225" cy="550" r="24"/><circle cx="295" cy="550" r="24"/><circle cx="365" cy="550" r="24"/><circle cx="435" cy="550" r="24"/><circle cx="505" cy="550" r="24"/><circle cx="575" cy="550" r="24"/><circle cx="645" cy="550" r="24"/><circle cx="715" cy="550" r="24"/></g>
+      <rect x="426" y="640" width="88" height="60" rx="12" fill="#3D4DB7"/>
+      <g font-size="24" fill="#463E33"><circle cx="230" cy="742" r="14" fill="#FF6B5B"/><text x="254" y="750">query head</text><rect x="452" y="728" width="28" height="28" rx="6" fill="#3D4DB7"/><text x="494" y="750">K/V head (cached)</text></g>
+    </svg>
+  </div>
+  <aside class="notes">Queries are cheap: they are computed fresh for the current token. Keys and values are what you cache for every past token, so sharing them shrinks the cache directly. Llama-style 8B models use 32 query heads and 8 KV heads (4×). MQA (1 KV head) saves the most but loses some quality. DeepSeek's latent attention (MLA) instead compresses K and V into a small shared latent.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf13"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf13)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>14 / 38</span><span class="bar" style="--p:0.3684"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">A 2026 block is the 2017 block with <b>better defaults</b>, not a new idea.</p>
+  <p class="sub">Pre-norm RMSNorm for depth, RoPE for relative position, SwiGLU per FLOP, GQA for a smaller cache. Learn these five and you can read almost any open model's source.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf14"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf14)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>15 / 38</span><span class="bar" style="--p:0.3947"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide lab">
+  <div class="text">
+    <div class="labhead"><div class="hexnum"><div><small>LAB</small>3.1</div></div>
+      <div><div class="kicker">Hands-on · ⏱ 2.5 h</div><h2>A Modern GPT From Scratch</h2></div></div>
+    <p class="blurb">Build a Llama-style language model piece by piece (RoPE, RMSNorm, SwiGLU, pre-norm residuals, weight tying), train it on Shakespeare, and look inside its attention heads.</p>
+    <ul class="tight"><li>Implement causal multi-head attention and verify it against SDPA</li><li>Implement and visualize rotary position embeddings</li><li>Assemble RMSNorm + SwiGLU pre-norm blocks</li><li>Train with AdamW, warmup/cosine and clipping</li><li>Visualize attention and generate text</li></ul>
+    <div class="go"><a class="btnlike" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab07_gpt_from_scratch.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <div class="chips"><span class="chip">🐝🐝🐝 spicy</span><span class="chip teal">💻 runs on CPU</span></div></div>
+  </div>
+  <figure class="media"><img src="../assets/img/labs/lab07.png" alt="Trained attention heads: a previous-token head and a word-start head on Shakespeare."><figcaption><b>What you'll build:</b> Trained attention heads: a previous-token head and a word-start head on Shakespeare.</figcaption></figure>
+  <aside class="notes">Lab 3.1 (2.5 h). Have everyone open the notebook in Colab and run the setup cell while you introduce it. Objectives: Implement causal multi-head attention and verify it against SDPA; Implement and visualize rotary position embeddings; Assemble RMSNorm + SwiGLU pre-norm blocks; Train with AdamW, warmup/cosine and clipping; Visualize attention and generate text.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf15"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf15)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>16 / 38</span><span class="bar" style="--p:0.4211"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">03</div>
+    <h2>Inference: fast <em>and</em> good</h2>
+    <p>Prefill, decode, the KV cache, speculation and samplers.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d3-art-sampling.png" alt="One next-token distribution at sixteen temperatures, from peaked to flat"></div>
+  <aside class="notes">Welcome back. The art: a single Zipf-like next-token distribution at 16 temperatures. Cold (top, coral) is nearly one-hot; hot (bottom, plum) is almost flat. Same model, same logits, very different text. We get to samplers at the end of this part; first, speed.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf16"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf16)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>17 / 38</span><span class="bar" style="--p:0.4474"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-left">
+  <figure class="media"><img src="../assets/img/slides/d3-roofline.png" alt="Roofline plot: decode at batch 1 is deep in the memory-bound region"><figcaption><b>Idealized roofline.</b> A bf16 weight read once serves B tokens: ~1 FLOP per byte per token.</figcaption></figure>
+  <div class="text">
+    <div class="kicker">Prefill vs decode</div>
+    <h2>Decode is <em>memory-bound</em></h2>
+    <ul>
+      <li><b>Prefill</b>: the whole prompt at once, big matmuls, compute-bound</li>
+      <li><b>Decode</b>: one token per step; every weight is read from memory for ~2 FLOPs</li>
+      <li>Fix it by moving <b>fewer bytes</b> per token</li>
+    </ul>
+  </div>
+  <aside class="notes">This answers the morning puzzle. At batch 1, each weight (2 bytes in bf16) is loaded from HBM to do one multiply-add (2 FLOPs) for one token: arithmetic intensity ≈ 1, so you get 3.35 TB/s × 1 ≈ 3.35 TFLOP/s, about 0.3% of peak. Batching B requests shares each weight load across B tokens. The KV cache, quantization (int8/int4 weights halve or quarter the bytes) and speculative decoding are all attacks on the same wall. Real numbers are lower still: KV-cache reads add bytes too.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf17"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf17)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>18 / 38</span><span class="bar" style="--p:0.4737"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-left">
+  <figure class="media"><img src="../assets/img/slides/d3-kv-cache.png" alt="KV cache size versus context length for MHA, GQA and MQA"><figcaption><b>Computed</b> from the formula below, batch 1.</figcaption></figure>
+  <div class="text">
+    <div class="kicker">The KV cache</div>
+    <h2>Trade memory for <em>compute</em></h2>
+    <p>Past keys and values never change, so store them instead of recomputing.</p>
+    <div class="equation sm" style="font-size:38px;padding:20px 26px;margin-bottom:30px">$$\text{bytes/token} = 2\,L\,H_{kv}\,d_h\,b$$</div>
+    <ul class="tight">
+      <li>MHA at 128k context: <b>64 GiB</b> for one sequence</li>
+      <li>GQA-8 cuts it 4×</li>
+    </ul>
+  </div>
+  <aside class="notes">2 for K and V, L layers, H_kv KV heads, d_h head dim, b bytes per element. For a 32-layer, 32-head, 128-dim model in fp16: 2·32·32·128·2 = 512 KiB per token. At 128k tokens that's 64 GiB, nearly a whole 80 GB GPU for one user. PagedAttention (vLLM, 2023) stores the cache in fixed-size pages like OS virtual memory: no fragmentation, shared prefixes, much bigger batches. FlashAttention tiles Q, K, V through on-chip SRAM with an online softmax, so the T×T matrix never touches main memory.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf18"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf18)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>19 / 38</span><span class="bar" style="--p:0.5000"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Generation is <b>memory-bound</b>: count the bytes you move, not the FLOPs.</p>
+  <p class="sub">Batching, the KV cache, GQA, quantization, PagedAttention and FlashAttention are all ways of moving fewer bytes per useful token.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf19"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf19)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>20 / 38</span><span class="bar" style="--p:0.5263"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-wide">
+  <div class="text">
+    <div class="kicker">Speculative decoding</div>
+    <h2>Draft fast, <em>verify</em> in one pass</h2>
+    <ol class="tight">
+      <li>A small <b>draft</b> model proposes k tokens</li>
+      <li>The big <b>target</b> scores all k in one forward pass</li>
+      <li>Accept each with min(1, p/q); on a reject, resample from (p − q)<sub>+</sub></li>
+    </ol>
+    <p class="small">Top: 200,000 simulated steps. Bottom: expected tokens per target pass, (1 − α<sup>k+1</sup>) / (1 − α).</p>
+  </div>
+  <figure class="media"><img src="../assets/img/slides/d3-specdec.png" alt="Speculative decoding output matches the target distribution; tokens per pass vs acceptance rate"></figure>
+  <aside class="notes">Why this works: decode is memory-bound, so scoring k tokens in one pass costs about the same as scoring one. The accept/reject plus residual resampling is rejection sampling, and it recovers the target distribution exactly: the teal bars match the honey bars even though the draft (grey) is quite different. The draft only changes how many tokens you get per pass. The curve assumes each token is accepted independently with rate α. Lab 3.2 proves exactness empirically on a real model pair.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf20"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf20)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>21 / 38</span><span class="bar" style="--p:0.5526"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Decoding knobs</div>
+  <h2>Same logits, <em>different personalities</em></h2>
+  <figure class="media" style="padding:16px 22px"><img src="../assets/img/slides/d3-sampling.png" alt="Next-token distribution under temperature 0.5, 1.0, 1.5, top-p 0.9 and min-p 0.1" style="max-height:540px"></figure>
+  <p class="small" style="margin-top:44px">Dashed coral: renormalized after truncation. Min-p keeps p ≥ 0.1 × p<sub>max</sub>, so it tightens when the model is sure.</p>
+  <aside class="notes">Temperature divides the logits: below 1 sharpens, above 1 flattens. Top-k keeps a fixed number of tokens. Top-p keeps the smallest set whose total probability reaches p. Min-p drops anything under p × the top token's probability, so it adapts to confidence (Lab 3.2's figure shows this on real character distributions). Greedy decoding is not "most accurate": it loops and goes bland. Reasoning models are typically sampled at moderate temperature, which also makes majority voting possible (Day 5).</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf21"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf21)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>22 / 38</span><span class="bar" style="--p:0.5789"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Speculation changes <b>the speed, never the distribution</b>.</p>
+  <p class="sub">Accept with min(1, p/q), resample the residual, and you get exact samples from the big model. Samplers, by contrast, do change the output, often as much as fine-tuning does.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf22"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf22)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>23 / 38</span><span class="bar" style="--p:0.6053"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide lab">
+  <div class="text">
+    <div class="labhead"><div class="hexnum"><div><small>LAB</small>3.2</div></div>
+      <div><div class="kicker">Hands-on · ⏱ 2 h</div><h2>Inference Engineering: KV Cache, Sampling, Speculation &amp; Quantization</h2></div></div>
+    <p class="blurb">Make generation fast and good: build a KV cache and benchmark it, write every popular sampler, prove speculative decoding is exact, and quantize weights to int8 and int4.</p>
+    <ul class="tight"><li>Implement and benchmark a KV cache</li><li>Write greedy, temperature, top-k, top-p and min-p sampling</li><li>Show that speculative decoding preserves the target distribution</li><li>Apply absmax and group-wise int8/int4 quantization</li><li>Explain the ideas behind FlashAttention and PagedAttention</li></ul>
+    <div class="go"><a class="btnlike" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab08_inference_engineering.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <div class="chips"><span class="chip">🐝🐝🐝 spicy</span><span class="chip teal">💻 runs on CPU</span></div></div>
+  </div>
+  <figure class="media"><img src="../assets/img/labs/lab08.png" alt="How top-k, top-p and min-p truncate real next-character distributions."><figcaption><b>What you'll build:</b> How top-k, top-p and min-p truncate real next-character distributions.</figcaption></figure>
+  <aside class="notes">Lab 3.2 (2 h). Have everyone open the notebook in Colab and run the setup cell while you introduce it. Objectives: Implement and benchmark a KV cache; Write greedy, temperature, top-k, top-p and min-p sampling; Show that speculative decoding preserves the target distribution; Apply absmax and group-wise int8/int4 quantization; Explain the ideas behind FlashAttention and PagedAttention.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf23"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf23)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>24 / 38</span><span class="bar" style="--p:0.6316"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">04</div>
+    <h2>Beyond dense <em>attention</em></h2>
+    <p>Experts for capacity, state spaces for long context.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/slides/d3-art-ssm.png" alt="Sixteen decaying oscillating SSM kernel modes"></div>
+  <aside class="notes">The art: the 16 decaying modes of an S4D-Lin state-space kernel, Re exp((−½ + iπn)t). Each mode is a damped oscillator; an SSM's memory is a weighted mix of these. Fixed decay rates are exactly what Mamba makes input-dependent.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf24"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf24)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>25 / 38</span><span class="bar" style="--p:0.6579"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-wide">
+  <div class="text">
+    <div class="kicker">Mixture-of-Experts</div>
+    <h2>More parameters, <em>same FLOPs</em></h2>
+    <p>A router sends each token to its top-k of E expert MLPs.</p>
+    <ul class="tight">
+      <li><b>Mixtral 8×7B</b>: 2 of 8 experts</li>
+      <li><b>DeepSeek-V3</b>: 671B total, ~37B active</li>
+      <li>Routers collapse without <b>balancing</b></li>
+    </ul>
+  </div>
+  <figure class="media"><img src="../assets/img/slides/d3-moe-load.png" alt="Expert load over training steps without and with bias balancing"><figcaption><b>Simulated</b> top-2 routing over 8 experts with skewed scores. Right: DeepSeek-V3-style bias b<sub>e</sub> += γ·sign(mean − load<sub>e</sub>), used for selection only.</figcaption></figure>
+  <aside class="notes">Total parameters grow with E; compute per token grows only with k. Left alone, routers collapse: popular experts get more tokens, train faster and become more popular. Fixes: the Switch Transformer auxiliary load-balancing loss, or DeepSeek-V3's auxiliary-loss-free per-expert bias (shown here). DeepSeek-V3 also uses many fine-grained experts plus always-on shared experts and MLA for a small KV cache. Lab 3.3 shows actual collapse in training. Ask: does a 671B MoE fit in the memory of a 37B dense model? (No: every expert must be stored.)</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf25"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf25)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>26 / 38</span><span class="bar" style="--p:0.6842"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-wide">
+  <div class="text">
+    <div class="kicker">State-space models · Mamba</div>
+    <h2>A fixed-size memory that <em>chooses</em></h2>
+    <div class="equation sm" style="font-size:34px;padding:18px 22px;margin-bottom:28px">$$h_t = \bar A_t h_{t-1} + \bar B_t x_t,\quad y_t = C_t h_t$$</div>
+    <ul class="tight">
+      <li>O(T) compute, constant memory per token</li>
+      <li>Δ, B, C depend on the input</li>
+      <li>Linear in h ⇒ parallel scan</li>
+    </ul>
+  </div>
+  <figure class="media"><img src="../assets/img/slides/d3-ssm-kernel.png" alt="Effective mixing matrices of an LTI SSM and a selective SSM"><figcaption><b>Computed:</b> each SSM's effective "attention matrix", M[t, s] = C(Ā…Ā)B̄<sub>s</sub>. Right: four tokens choose a large Δ; others keep the state.</figcaption></figure>
+  <aside class="notes">An SSM compresses the past into a fixed-size state, so generation needs constant memory instead of a growing KV cache. Earlier SSMs (S4) had fixed A, B, C: a decaying, input-independent kernel (left). Mamba makes Δ, B, C functions of the input, so the model decides when to write, keep or reset (right). Because the recurrence is linear in h, training can use a parallel associative scan (Lab 3.3). Attention still wins at exact recall and copying; SSMs win at very long sequences and constant-memory generation. In practice: hybrids, e.g. AI21's Jamba (2024) mixes Mamba layers, a few attention layers and MoE.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf26"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf26)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>27 / 38</span><span class="bar" style="--p:0.7105"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big"><b>MoE</b> spends memory to save FLOPs. <b>SSMs</b> spend exact recall to save memory.</p>
+  <p class="sub">Neither is free, so frontier designs mix them: sparse experts for capacity, SSM layers for long context, a few full-attention layers for precise recall.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf27"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf27)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>28 / 38</span><span class="bar" style="--p:0.7368"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide lab">
+  <div class="text">
+    <div class="labhead"><div class="hexnum"><div><small>LAB</small>3.3</div></div>
+      <div><div class="kicker">Hands-on · ⏱ 2 h</div><h2>Beyond Dense Attention: Mixture-of-Experts &amp; State-Space Models</h2></div></div>
+    <p class="blurb">Route tokens to experts with a load-balancing loss, then build a Mamba-style selective SSM with sequential and parallel scans and test it against attention on long-range recall.</p>
+    <ul class="tight"><li>Implement top-k routing with capacity limits</li><li>Add a load-balancing auxiliary loss</li><li>Build a selective SSM recurrence</li><li>Implement a parallel associative scan and check it</li><li>Compare attention vs. SSM on accuracy and scaling</li></ul>
+    <div class="go"><a class="btnlike" href="https://colab.research.google.com/github/varoonsahgal/advancedml/blob/main/notebooks/lab09_moe_and_ssm.ipynb" target="_blank" rel="noopener">▶ Open in Colab</a>
+      <div class="chips"><span class="chip">🐝🐝🐝 spicy</span><span class="chip teal">💻 runs on CPU</span></div></div>
+  </div>
+  <figure class="media"><img src="../assets/img/labs/lab09.png" alt="Expert utilisation: routing collapse without balancing vs aux-loss and bias balancing."><figcaption><b>What you'll build:</b> Expert utilisation: routing collapse without balancing vs aux-loss and bias balancing.</figcaption></figure>
+  <aside class="notes">Lab 3.3 (2 h). Have everyone open the notebook in Colab and run the setup cell while you introduce it. Objectives: Implement top-k routing with capacity limits; Add a load-balancing auxiliary loss; Build a selective SSM recurrence; Implement a parallel associative scan and check it; Compare attention vs. SSM on accuracy and scaling.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf28"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf28)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>29 / 38</span><span class="bar" style="--p:0.7632"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide myth">
+  <div class="kicker">Myth buster · 1/3</div>
+  <div class="mvr"><div class="m"><span>✗ MYTH</span><p>Greedy decoding gives the best output.</p></div><div class="r"><span>✓ REALITY</span><p>Greedy decoding tends to loop and produce bland text. Moderate-temperature sampling is usually better, and enables voting.</p></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf29"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf29)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>30 / 38</span><span class="bar" style="--p:0.7895"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide myth">
+  <div class="kicker">Myth buster · 2/3</div>
+  <div class="mvr"><div class="m"><span>✗ MYTH</span><p>A 671B-parameter MoE only needs the memory of its 37B active parameters.</p></div><div class="r"><span>✓ REALITY</span><p>Every expert must be stored and served. MoE saves FLOPs per token, not memory.</p></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf30"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf30)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>31 / 38</span><span class="bar" style="--p:0.8158"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide myth">
+  <div class="kicker">Myth buster · 3/3</div>
+  <div class="mvr"><div class="m"><span>✗ MYTH</span><p>Quantization loses a little precision everywhere, evenly.</p></div><div class="r"><span>✓ REALITY</span><p>A few outlier weights can wreck a per-tensor scale. Group-wise scales and outlier-aware methods are essential.</p></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf31"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf31)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>32 / 38</span><span class="bar" style="--p:0.8421"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">💼 Interview corner · 1/2</div>
+  <h2>Could you answer these <em>out loud?</em></h2>
+  <div class="qa"><div class="q"><i>Q1</i><div><h3>Why divide attention logits by √d<sub>k</sub>?</h3><div class="a f">Dot products of d-dim unit-variance vectors have variance d. Scaling keeps the softmax out of its saturated, zero-gradient regime.</div></div></div><div class="q"><i>Q2</i><div><h3>KV-cache size per token?</h3><div class="a f">2 (K and V) × layers × KV heads × head dim × bytes per element.</div></div></div><div class="q"><i>Q3</i><div><h3>What does grouped-query attention share?</h3><div class="a f">Each K/V head is shared by a group of query heads, shrinking the KV cache by (query heads / KV heads).</div></div></div></div>
+  <aside class="notes">Cold-call or pair-share. Each click reveals the next answer.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf32"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf32)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>33 / 38</span><span class="bar" style="--p:0.8684"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">💼 Interview corner · 2/2</div>
+  <h2>Could you answer these <em>out loud?</em></h2>
+  <div class="qa"><div class="q"><i>Q4</i><div><h3>Speculative decoding acceptance rule?</h3><div class="a f">Accept the draft token with probability min(1, p(x)/q(x)); on rejection, resample from the normalized max(0, p − q).</div></div></div><div class="q"><i>Q5</i><div><h3>Why can Mamba train with a parallel scan?</h3><div class="a f">Its recurrence is linear in the hidden state, so steps compose associatively and can be combined in a tree.</div></div></div><div class="q"><i>Q6</i><div><h3>What is an induction head?</h3><div class="a f">A head that finds the earlier occurrence of the current token and copies what came next, a core in-context-learning circuit.</div></div></div></div>
+  <aside class="notes">Cold-call or pair-share. Each click reveals the next answer.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf33"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf33)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>34 / 38</span><span class="bar" style="--p:0.8947"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Day 3 · formula sheet</div>
+  <h2>Six equations worth <em>memorizing</em></h2>
+  <div class="cards eqcards"><div class="card"><h4>Attention</h4><div class="eqsm">$$\mathrm{softmax}(QK^\top/\sqrt{d_k} + M)\,V$$</div></div><div class="card"><h4>RoPE identity</h4><div class="eqsm">$$\langle R_m q, R_n k\rangle = \langle q, R_{n-m} k\rangle$$</div></div><div class="card"><h4>SwiGLU</h4><div class="eqsm">$$W_2(\mathrm{SiLU}(W_1x)\odot W_3x)$$</div></div><div class="card"><h4>KV cache</h4><div class="eqsm">$$\text{bytes} = 2\,L\,H_{kv}\,d_h\,b\cdot T$$</div></div><div class="card"><h4>Speculative accept</h4><div class="eqsm">$$\min\big(1,\ p(x)/q(x)\big)$$</div></div><div class="card"><h4>Selective SSM</h4><div class="eqsm">$$h_t = \bar A_t h_{t-1} + \bar B_t x_t,\ y_t = C_t h_t$$</div></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf34"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf34)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>35 / 38</span><span class="bar" style="--p:0.9211"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide recap">
+  <div class="kicker">Day 3 · the honey jar · 1/2</div>
+  <h2>🍯 What to <em>remember</em></h2>
+  <ol class="jar" style="counter-reset: j 0"><li><div>Attention lets every token read from every earlier token, weighted by query–key match. The causal mask stops it from reading the future.</div></li><li><div>Scale logits by 1/√d<sub>k</sub> so the softmax doesn't saturate and gradients keep flowing.</div></li><li><div><b>RoPE</b> rotates q and k by position, so scores depend only on relative offset.</div></li><li><div>The <b>KV cache</b> trades memory for compute. At long context it dominates serving cost, which is why GQA and latent attention exist.</div></li></ol>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf35"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf35)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>36 / 38</span><span class="bar" style="--p:0.9474"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide recap">
+  <div class="kicker">Day 3 · the honey jar · 2/2</div>
+  <h2>🍯 What to <em>remember</em></h2>
+  <ol class="jar" style="counter-reset: j 4"><li><div>Decoding settings (temperature, top-p, min-p) shape the output's character as much as fine-tuning does.</div></li><li><div><b>Speculative decoding is exact</b>: the target model's distribution is preserved; only the speed depends on the draft model.</div></li><li><div><b>MoE</b> separates parameters (memory) from FLOPs per token, and needs load balancing so experts don't collapse.</div></li><li><div><b>SSMs</b> give linear-time, constant-memory sequence modeling. Input-dependent selectivity is what makes them work, and hybrids with attention are common.</div></li></ol>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf36"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf36)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>37 / 38</span><span class="bar" style="--p:0.9737"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide full night cover-img nofoot">
+  <img class="bg" src="../assets/img/cover-day4.png" alt="">
+  <div class="overlay"><div class="kicker">Tomorrow · Day 4</div><h2>Generative worlds: noise → data</h2></div>
+  <div class="caption">VAEs, diffusion, flow matching and CLIP. But first: 🎭 the Shakespeare slam at 16:45. Bring your best sonnet.</div>
+  <aside class="notes">Tease: tomorrow the transformer from today becomes the backbone of a diffusion model (DiT), and the "loss" becomes regressing a velocity field. Tonight: think of capstone ideas; pitches are at the end of the slam.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf37"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf37)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Day 3 · Transformers</span><span>38 / 38</span><span class="bar" style="--p:1.0000"><i></i></span></footer></section></div>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script defer src="../assets/js/deck.js?v=1e9ee455"></script>
+</body>
+</html>

@@ -127,7 +127,8 @@ chips: ⏱ ~7 hours | ⛓️ autodiff | 🧱 init & norms | 🏎️ AdamW → Mu
   <p>Across many orders of magnitude, language-model loss falls as a <strong>smooth power law</strong> in parameters $N$, data $D$ and compute $C \approx 6ND$ (Kaplan et al., 2020). Hoffmann et al. (2022, "Chinchilla") fitted a parametric form and showed that earlier models were <em>under-trained</em>: for a fixed compute budget you should scale parameters and tokens <strong>together</strong>, roughly 20 tokens per parameter.</p>
   <div class="eq"><div class="label">Chinchilla parametric loss</div>
     $$L(N, D) = E + \frac{A}{N^{\alpha}} + \frac{B}{D^{\beta}}, \qquad E\!\approx\!1.69,\ A\!\approx\!406.4,\ B\!\approx\!410.7,\ \alpha\!\approx\!0.34,\ \beta\!\approx\!0.28$$
-    <p class="explain">Minimize $L$ subject to $6ND = C$ to get the compute-optimal $N^*(C)$ and $D^*(C)$. Both grow roughly as $\sqrt{C}$.</p></div>
+    <p class="explain">Minimize $L$ subject to $6ND = C$ to get the compute-optimal $N^*(C)$ and $D^*(C)$. Both grow roughly as $\sqrt{C}$.</p>
+    <p class="explain"><b>Fine print:</b> these are the paper's "Approach 3" constants. Minimized exactly, they suggest noticeably more than 20 tokens per parameter; the famous ~20 comes from the paper's other two approaches. A 2024 replication (Besiroglu et al.) refit Approach 3 and recovered ~20 tokens/param, which you'll explore in Lab 2.3.</p></div>
   <figure class="fig"><img src="{{root}}assets/img/d2-scaling.png" alt="Loss versus compute for model sizes from 30M to 300B parameters, with the compute-optimal frontier" loading="lazy"><figcaption>Each thin curve is one model size trained on more and more tokens. The black envelope is the best you can do at each compute budget.</figcaption></figure>
   <p>Plan your own training run. How big should the model be for your budget, and how long will it take?</p>
   <div data-widget="chinchilla"></div>

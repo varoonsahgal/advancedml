@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome to the Hive · Slides · Gradient Hive</title>
+<meta name="description" content="The first 30 minutes: what the week covers, how the labs work, the one idea behind everything, and how to get set up.">
+<meta property="og:image" content="../assets/img/og-image.png">
+<meta name="theme-color" content="#16130E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2064%2064%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22bbi%22%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpolygon%20points%3D%2232%2C2%2058%2C17%2058%2C47%2032%2C62%206%2C47%206%2C17%22%20fill%3D%22%23F5B700%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linejoin%3D%22round%22/%3E%3Cellipse%20cx%3D%2228%22%20cy%3D%2222%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%28-20%2028%2022%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2239%22%20cy%3D%2221%22%20rx%3D%227%22%20ry%3D%229.5%22%20fill%3D%22%23FFFDF4%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20transform%3D%22rotate%2818%2039%2021%29%22%20opacity%3D%22.95%22/%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22%23FFE680%22/%3E%3Cg%20clip-path%3D%22url%28%23bbi%29%22%20fill%3D%22%231F1B16%22%3E%3Crect%20x%3D%2229%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2224%22%20width%3D%224.5%22%20height%3D%2226%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2224%22%20width%3D%226%22%20height%3D%2226%22/%3E%3C/g%3E%3Cellipse%20cx%3D%2235%22%20cy%3D%2237%22%20rx%3D%2215%22%20ry%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2235%22%20r%3D%228%22%20fill%3D%22%231F1B16%22/%3E%3Ccircle%20cx%3D%2215.5%22%20cy%3D%2233%22%20r%3D%222.4%22%20fill%3D%22%23FFFDF4%22/%3E%3Cpath%20d%3D%22M14%2028%20Q10%2020%207%2021%20M20%2027%20Q20%2019%2016%2017%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M50%2037%20l6%200%22%20stroke%3D%22%231F1B16%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Inter:wght@400..800&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="../assets/css/deck.css?v=f748804a">
+</head>
+<body data-home="../slides.html">
+<div class="stage">
+<div class="frame"><section class="slide cover nofoot">
+  <img class="bg" src="../assets/img/og-image.png" alt="">
+  <div class="badge"><div><small>2026</small>ML</div></div>
+  <div class="kicker">Advanced ML Week · 2026 edition</div>
+  <h1>Welcome to the <em>Gradient Hive.</em></h1>
+  <p class="lede">Five days from gradient boosting to reasoning agents. You'll build all of it yourself, from scratch.</p>
+  <div class="chips"><span class="chip honey">5 days</span><span class="chip">16 labs</span><span class="chip">9 live demos</span><span class="chip">~70% hands-on</span></div>
+  <aside class="notes">Welcome everyone. While people settle in: open the course site and Lab 1.1 in Colab. Keys: → next, O overview, N notes, F fullscreen.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf0"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf0)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>1 / 16</span><span class="bar" style="--p:0.0625"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide statement">
+  <div class="kicker">The promise</div>
+  <p class="big">By Friday you will have <em>written</em> a GPT, a diffusion model, an autograd engine and a reasoning-RL loop.</p>
+  <p class="by">Not called an API. Written it, line by line, then compared it with the production library.</p>
+  <aside class="notes">Set expectations: this is a building week. Everything they use is opened up first.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf1"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf1)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>2 / 16</span><span class="bar" style="--p:0.1250"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">The week at a glance</div>
+  <h2>Five days, one <em>continuous story</em></h2>
+  <div class="cards c5">
+    <div class="card"><div class="ico">🌲</div><h3>Classical, sharpened</h3><p>Boosting, calibration, conformal prediction, SHAP, TabPFN.</p></div>
+    <div class="card teal"><div class="ico">⚙️</div><h3>The engine room</h3><p>Autograd, AdamW → Muon, schedules, grokking, scaling laws.</p></div>
+    <div class="card coral"><div class="ico">🔭</div><h3>Transformers &amp; beyond</h3><p>A modern GPT, KV cache, speculation, quantization, MoE, SSMs.</p></div>
+    <div class="card indigo"><div class="ico">🌊</div><h3>Generative worlds</h3><p>VAE → diffusion → flow matching, CFG, DiT, CLIP.</p></div>
+    <div class="card plum"><div class="ico">🤖</div><h3>Reasoning &amp; agents</h3><p>LoRA, DPO, GRPO, test-time compute, MCP, SAEs.</p></div>
+  </div>
+  <p class="small mt">Every day builds on the one before. Day 5's agents need Day 3's transformer, Day 2's optimizer, and Day 1's evaluation habits.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf2"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf2)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>3 / 16</span><span class="bar" style="--p:0.1875"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-wide">
+  <div class="text">
+    <div class="kicker">Each day's art</div>
+    <h2>Every day has its own <em>picture</em></h2>
+    <ul>
+      <li><b>Mon:</b> a decision surface, calibrated</li>
+      <li><b>Tue:</b> optimizers racing down a loss landscape</li>
+      <li><b>Wed:</b> attention patterns</li>
+      <li><b>Thu:</b> noise flowing into data</li>
+      <li><b>Fri:</b> a model thinking in steps</li>
+    </ul>
+    <p class="small">Every image this week is computed from real code, and the scripts are in the repo.</p>
+  </div>
+  <div class="imgrow" style="grid-auto-flow:row;grid-template-columns:1fr 1fr;height:820px">
+    <figure class="media dark" style="padding:10px"><img src="../assets/img/cover-day1.png" alt=""></figure>
+    <figure class="media dark" style="padding:10px"><img src="../assets/img/cover-day2.png" alt=""></figure>
+    <figure class="media dark" style="padding:10px"><img src="../assets/img/cover-day3.png" alt=""></figure>
+    <figure class="media dark" style="padding:10px"><img src="../assets/img/cover-day4.png" alt=""></figure>
+  </div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf3"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf3)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>4 / 16</span><span class="bar" style="--p:0.2500"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide section">
+  <div>
+    <div class="num">01</div>
+    <h2>The one idea behind <em>everything</em></h2>
+    <p>Define "good", measure its gradient, take a step. Repeat.</p>
+  </div>
+  <div class="hexart"><img src="../assets/img/cover-day2.png" alt=""></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf4"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf4)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>5 / 16</span><span class="bar" style="--p:0.3125"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide eq">
+  <div class="kicker">The through-line</div>
+  <h2>One update rule, <em>five disguises</em></h2>
+  <div class="equation">$$\theta \;\leftarrow\; \theta \;-\; \eta\,\nabla_\theta\, \mathcal{L}(\theta)$$</div>
+  <div class="terms">
+    <div class="term honey"><b>Mon</b>θ is a <i>function</i>: each boosting tree is one step.</div>
+    <div class="term teal"><b>Tue</b>θ is millions of weights; ∇ comes from autograd.</div>
+    <div class="term coral"><b>Wed</b>𝓛 is next-token cross-entropy.</div>
+    <div class="term indigo"><b>Thu</b>𝓛 regresses a velocity field.</div>
+    <div class="term plum"><b>Fri</b>𝓛 is a reward you can verify.</div>
+  </div>
+  <aside class="notes">Come back to this slide every morning. Ask: what are θ, 𝓛 and ∇ today?</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf5"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf5)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>6 / 16</span><span class="bar" style="--p:0.3750"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide takeaway">
+  <div class="label">🍯 Key takeaway</div>
+  <p class="big">Every model this week is <b>a loss, a gradient and a step</b>. Only the disguise changes.</p>
+  <p class="sub">When something new looks scary, ask: what is being optimized, what is the gradient of, and what does one step change?</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf6"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf6)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>7 / 16</span><span class="bar" style="--p:0.4375"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide timeline-slide">
+  <div class="kicker">How we got here</div>
+  <h2>Sixty years in <em>one line</em></h2>
+  <div class="timeline">
+    <div class="ev"><b>1958</b><span><strong>Perceptron</strong>One neuron, one update rule.</span></div>
+    <div class="ev"><b>1986</b><span><strong>Backprop</strong>Gradients through layers.</span></div>
+    <div class="ev"><b>2001</b><span><strong>GBDT</strong>Friedman's boosting still rules tables.</span></div>
+    <div class="ev"><b>2012</b><span><strong>AlexNet</strong>GPUs + data + depth.</span></div>
+    <div class="ev"><b>2017</b><span><strong>Transformer</strong>Attention is all you need.</span></div>
+    <div class="ev"><b>2020</b><span><strong>Scale</strong>GPT-3, DDPM diffusion.</span></div>
+    <div class="ev hi"><b>2025</b><span><strong>Reasoning</strong>RL with verifiable rewards, agents, MCP.</span></div>
+  </div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf7"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf7)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>8 / 16</span><span class="bar" style="--p:0.5000"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split">
+  <div class="text">
+    <div class="kicker">How the labs work</div>
+    <h2>From scratch, <em>then</em> production</h2>
+    <ol>
+      <li><b>Predict</b> before you run (🔮).</li>
+      <li><b>Build</b> it yourself in the 🧪 cells.</li>
+      <li><b>Verify</b> with ✔️ checkpoint asserts.</li>
+      <li><b>Compare</b> with the real library.</li>
+      <li><b>Consolidate</b>: 🍯 takeaways, 💼 interview questions, 🏆 boss level.</li>
+    </ol>
+  </div>
+  <figure class="media"><img src="../assets/img/labs/lab01.png" alt=""><figcaption><b>Lab 1.1:</b> your own boosting, one tree at a time, then racing LightGBM.</figcaption></figure>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf8"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf8)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>9 / 16</span><span class="bar" style="--p:0.5625"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">By the numbers</div>
+  <h2>What's in the <em>hive</em></h2>
+  <div class="stats">
+    <div class="stat hi"><b>16</b><span>notebook labs, each opening in Colab with one click</span></div>
+    <div class="stat"><b>9</b><span>live in-browser demos: no install</span></div>
+    <div class="stat"><b>~70<small>%</small></b><span>of the week is hands-on building</span></div>
+    <div class="stat"><b>0</b><span>GPUs required (a T4 just makes it faster)</span></div>
+  </div>
+  <div class="callout mt">Every lab runs on a free CPU runtime. Set <code>LAB_FAST=1</code> for a 2-minute smoke test of any notebook.</div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf9"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf9)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>10 / 16</span><span class="bar" style="--p:0.6250"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">The daily rhythm</div>
+  <h2>A day in the hive</h2>
+  <div class="agenda">
+    <div class="slot"><span class="t">09:00</span><div><b>Warm-up</b><span class="d">Quiz rematch, speed rounds, myth busting</span></div><span class="chip">warm-up</span></div>
+    <div class="slot"><span class="t">09:15</span><div><b>Lecture 1</b><span class="d">Short and visual: these slides</span></div><span class="chip">lecture</span></div>
+    <div class="slot lab"><span class="t">10:15</span><div><b>Lab · morning build</b><span class="d">The big from-scratch lab of the day</span></div><span class="chip teal">lab</span></div>
+    <div class="slot"><span class="t">13:15</span><div><b>Lecture 2</b><span class="d">The frontier of the day's topic</span></div><span class="chip">lecture</span></div>
+    <div class="slot lab"><span class="t">14:00</span><div><b>Labs · afternoon builds</b><span class="d">Two shorter labs</span></div><span class="chip teal">lab</span></div>
+    <div class="slot fun"><span class="t">16:45</span><div><b>Challenge</b><span class="d">Leaderboards, brackets, gallery walks</span></div><span class="chip plum">fun</span></div>
+  </div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf10"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf10)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>11 / 16</span><span class="bar" style="--p:0.6875"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide myth">
+  <div class="kicker">Myth buster · warm-up</div>
+  <div class="mvr"><div class="m"><span>✗ MYTH</span><p>Classical ML is obsolete. It's all LLMs now.</p></div><div class="r"><span>✓ REALITY</span><p>Most production ML still runs on tables, and gradient-boosted trees still often win there. You'll prove it on Monday.</p></div></div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf11"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf11)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>12 / 16</span><span class="bar" style="--p:0.7500"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide quiz">
+  <div class="kicker">Icebreaker quiz</div>
+  <h2>Which of these did <em>not</em> exist in 2022?</h2>
+  <div class="opts">
+    <div class="opt" data-l="A">Stable Diffusion</div>
+    <div class="opt" data-l="B">LoRA fine-tuning</div>
+    <div class="opt" data-l="C" data-correct>The Model Context Protocol (MCP)</div>
+    <div class="opt" data-l="D">ChatGPT</div>
+  </div>
+  <p class="explain f" data-slide-class="answered"><b>C.</b> Anthropic introduced MCP in late 2024. The others all date from 2021–2022. A lot of this week is less than two years old.</p>
+  <aside class="notes">Show of hands first, then press → to reveal the answer.</aside>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf12"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf12)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>13 / 16</span><span class="bar" style="--p:0.8125"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide split media-left">
+  <figure class="media"><img src="../assets/img/labs/lab10.png" alt=""><figcaption><b>Lab 4.1:</b> flow matching turns Gaussian noise into honeycomb art.</figcaption></figure>
+  <div class="text">
+    <div class="kicker">The finale</div>
+    <h2>Friday: <em>Hive Demo Day</em></h2>
+    <p>Teams of 2–3 build a capstone on top of any lab: a new dataset, a twist, a frontier idea.</p>
+    <ul class="tight">
+      <li>5-minute demo, 2 minutes of questions</li>
+      <li>Judged on insight, not polish</li>
+      <li>Weirdest result wins honey 🍯</li>
+    </ul>
+  </div>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf13"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf13)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>14 / 16</span><span class="bar" style="--p:0.8750"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide">
+  <div class="kicker">Setup check · do this now</div>
+  <h2>Three steps, <em>two minutes</em></h2>
+  <div class="cards">
+    <div class="card"><div class="ico">🌐</div><h3>1 · Open the site</h3><p><code>varoonsahgal.github.io/advancedml</code>. Bookmark it: everything lives there.</p></div>
+    <div class="card teal"><div class="ico">☁️</div><h3>2 · Open Lab 1.1</h3><p>Click <b>▶ Open in Colab</b>, then <b>File → Save a copy in Drive</b>.</p></div>
+    <div class="card coral"><div class="ico">▶️</div><h3>3 · Run the setup cell</h3><p>It installs anything missing. When you see ✅, you're ready.</p></div>
+  </div>
+  <p class="small mt">Running locally instead? <code>pip install -r requirements.txt</code>. On macOS, LightGBM also needs <code>brew install libomp</code>.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf14"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf14)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>15 / 16</span><span class="bar" style="--p:0.9375"><i></i></span></footer></section></div>
+<div class="frame"><section class="slide statement night nofoot">
+  <div class="quote-mark">“</div>
+  <p class="big md">What I cannot create, I do not understand.</p>
+  <p class="by">Richard Feynman, written on his blackboard. This week's motto. 🐝 Let's build.</p>
+<footer class="sf"><span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="bbf15"><ellipse cx="35" cy="37" rx="15" ry="11"/></clipPath></defs>
+<polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="#F5B700" stroke="#1F1B16" stroke-width="2.5" stroke-linejoin="round"/>
+<ellipse cx="28" cy="22" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(-20 28 22)" opacity=".95"/>
+<ellipse cx="39" cy="21" rx="7" ry="9.5" fill="#FFFDF4" stroke="#1F1B16" stroke-width="2" transform="rotate(18 39 21)" opacity=".95"/>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="#FFE680"/>
+<g clip-path="url(#bbf15)" fill="#1F1B16"><rect x="29" y="24" width="4.5" height="26"/><rect x="38" y="24" width="4.5" height="26"/><rect x="47" y="24" width="6" height="26"/></g>
+<ellipse cx="35" cy="37" rx="15" ry="11" fill="none" stroke="#1F1B16" stroke-width="2.5"/>
+<circle cx="18" cy="35" r="8" fill="#1F1B16"/><circle cx="15.5" cy="33" r="2.4" fill="#FFFDF4"/>
+<path d="M14 28 Q10 20 7 21 M20 27 Q20 19 16 17" stroke="#1F1B16" stroke-width="2" fill="none" stroke-linecap="round"/>
+<path d="M50 37 l6 0" stroke="#1F1B16" stroke-width="2.5" stroke-linecap="round"/></svg>Gradient Hive · Welcome</span><span>16 / 16</span><span class="bar" style="--p:1.0000"><i></i></span></footer></section></div>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script defer src="../assets/js/deck.js?v=1e9ee455"></script>
+</body>
+</html>
